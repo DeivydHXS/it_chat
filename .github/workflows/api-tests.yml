@@ -23,9 +23,13 @@ jobs:
         run: |
           npm install -g newman newman-reporter-htmlextra
 
-      - name: Run Newman tests
+      - name: Prepare reports folder
         run: |
           mkdir -p reports
+          echo "<html><body><h1>No report generated</h1></body></html>" > reports/report.html
+
+      - name: Run Newman tests
+        run: |
           newman run tests/postman/collection.json \
             -e tests/postman/environment.ci.template.json \
             --env-var "baseUrl=${{ secrets.BASE_URL }}" \
@@ -45,4 +49,8 @@ jobs:
       - name: Show test summary
         if: always()
         run: |
-          cat reports/report.json | jq '.run.stats'
+          if [ -f reports/report.json ]; then
+            cat reports/report.json | jq '.run.stats'
+          else
+            echo "No report.json generated."
+          fi
