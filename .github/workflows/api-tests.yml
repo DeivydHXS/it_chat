@@ -1,27 +1,14 @@
-name: API Tests
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-
 jobs:
   newman-tests:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Install dependencies
-        run: |
-          npm install -g newman newman-reporter-htmlextra
+        run: npm install -g newman newman-reporter-htmlextra
 
       - name: Prepare reports folder
         run: |
@@ -39,18 +26,9 @@ jobs:
             --timeout-request 5000 \
             --timeout 60000
 
-      - name: Upload HTML report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: newman-report
-          path: reports/report.html
-
-      - name: Show test summary
+      - name: Upload HTML report to Actions summary
         if: always()
         run: |
-          if [ -f reports/report.json ]; then
-            cat reports/report.json | jq '.run.stats'
-          else
-            echo "No report.json generated."
-          fi
+          echo "### API Tests Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "<iframe src='reports/report.html' width='100%' height='600px'></iframe>" >> $GITHUB_STEP_SUMMARY
