@@ -1,9 +1,21 @@
+name: API Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
 jobs:
   newman-tests:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
@@ -21,6 +33,9 @@ jobs:
             -e backend/tests/postman/environment.ci.template.json \
             --env-var "baseUrl=${{ secrets.BASE_URL }}" \
             -r cli,htmlextra \
+            --reporter-cli-no-summary=false \
+            --reporter-cli-no-assertions=false \
+            --disable-unicode \
             --reporter-htmlextra-export reports/report.html \
             --reporter-json-export reports/report.json \
             --timeout-request 5000 \
@@ -32,3 +47,12 @@ jobs:
           echo "### API Tests Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "<iframe src='reports/report.html' width='100%' height='600px'></iframe>" >> $GITHUB_STEP_SUMMARY
+
+      - name: Show test summary
+        if: always()
+        run: |
+          if [ -f reports/report.json ]; then
+            cat reports/report.json | jq '.run.stats'
+          else
+            echo "No report.json generated."
+          fi
