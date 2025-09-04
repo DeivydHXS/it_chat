@@ -1,0 +1,48 @@
+name: API Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  newman-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: |
+          npm install -g newman newman-reporter-htmlextra
+
+      - name: Run Newman tests
+        run: |
+          mkdir -p reports
+          newman run tests/postman/collection.json \
+            -e tests/postman/environment.ci.template.json \
+            --env-var "baseUrl=${{ secrets.BASE_URL }}" \
+            -r cli,htmlextra \
+            --reporter-htmlextra-export reports/report.html \
+            --reporter-json-export reports/report.json \
+            --timeout-request 5000 \
+            --timeout 60000
+
+      - name: Upload HTML report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: newman-report
+          path: reports/report.html
+
+      - name: Show test summary
+        if: always()
+        run: |
+          cat reports/report.json | jq '.run.stats'

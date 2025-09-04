@@ -1,0 +1,1290 @@
+{
+	"info": {
+		"_postman_id": "6faefa0b-d933-4464-8fdf-ac3285d32a61",
+		"name": "IT Chat API",
+		"description": "Documentação da API e testes automatizados para o IT Chat mobile, seguindo o modelo API First.\n\nInclui requests, responses esperados e scripts de teste.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48085492",
+		"_collection_link": "https://estag-it.postman.co/workspace/IT-Chat~817c8cb4-fbde-41a7-bae2-1f8171042648/collection/48085492-6faefa0b-d933-4464-8fdf-ac3285d32a61?action=share&source=collection_link&creator=48085492"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register User Success - 201 Created",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test('Status code should be 201 - Created', () => {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test('TC_001 - it should register a new user with valid data.', () => {\r",
+									"    pm.expect(jsonData.message).to.eql('Usuário criado com sucesso!');\r",
+									"    pm.expect(jsonData.user).to.have.property('id').and.to.not.be.null;\r",
+									"    pm.expect(jsonData.user).to.have.property('nickname');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const email = `user.${new Date().getTime()}@email.com`;\r",
+									"pm.environment.set('userEmail', email);\r",
+									"\r",
+									"const password = `G${new Date().getTime()}@`;\r",
+									"pm.environment.set('userPassword', password);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Test User\",\r\n  \"nickname\": \"SuperQA\",\r\n  \"email\": \"{{userEmail}}\",\r\n  \"bio\": \"Quality Analyst at It Universe\",\r\n  \"birthday\": \"2000/08/21\",\r\n  \"password\": \"{{userPassword}}\",\r\n  \"password_confirmation\": \"{{userPassword}}\",\r\n  \"profile_image\": \"https://url-da-imagem.com/avatar.png\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "# 📌 User Registration - IT Chat\n\n## 📝 Description\n\nEste endpoint permite que um novo usuário se registre no aplicativo **IT Chat**.  \nO processo de cadastro é o primeiro passo para o usuário ter acesso a todas as funcionalidades, como mensagens diretas, grupos e gestão de amigos.\n\nA requisição exige informações básicas do usuário, que são validadas no backend para garantir a segurança e a integridade dos dados, como a **idade mínima (12 anos)** e a **complexidade da senha**.\n\n---\n\n## 📥 Request\n\n**URL:** `/auth/register`  \n**Method:** `POST`  \n**Content-Type:** `application/json`\n\n### Request Body\n\nOs seguintes campos são esperados no corpo da requisição:\n\n| Campo | Tipo | Descrição | Obrigatório |\n| --- | --- | --- | --- |\n| name | string | Nome de apresentação do usuário. | ✅ Sim |\n| birthday | string | Data de nascimento no formato `YYYY-MM-DD`. | ✅ Sim |\n| nickname | string | Nome de usuário (apelido público). | ✅ Sim |\n| bio | string | Texto de apresentação do usuário. | ❌ Não |\n| email | string | Endereço de email, usado para login e recuperação de senha. | ✅ Sim |\n| password | string | Senha, que será armazenada de forma segura. | ✅ Sim |\n| profile_image | string | URL para a imagem de perfil (avatar). | ❌ Não |\n\n---\n\n### Example Request Body\n\n``` json\n{\n  \"name\": \"Test User\",\n  \"nickname\": \"SuperQA\",\n  \"email\": \"teste@email.com\",\n  \"bio\": \"Quality Analyst at It Universe\",\n  \"birthday\": \"2000/08/21\",\n  \"password\": \"G123456@\",\n  \"password_confirmation\": \"G123456@\",\n  \"profile_image\": \"https://url-da-imagem.com/avatar.png\"\n}\n\n ```"
+					},
+					"response": [
+						{
+							"name": "Success - 201 Created",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Test User\",\r\n  \"nickname\": \"SuperQA\",\r\n  \"email\": \"{{userEmail}}\",\r\n  \"bio\": \"Quality Analyst at It Universe\",\r\n  \"birthday\": \"2000/08/21\",\r\n  \"password\": \"{{userPassword}}\",\r\n  \"password_confirmation\": \"{{userPassword}}\",\r\n  \"profile_image\": \"https://url-image.com/avatar.png\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://api.itchat.com/auth/register",
+									"protocol": "https",
+									"host": [
+										"api",
+										"itchat",
+										"com"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"user\": {\n        \"id\": 1,\n        \"name\": \"Nome de Apresentação\",\n        \"nickname\": \"meu_apelido#AB34\",\n        \"email\": \"test@email.com\",\n        \"profile_image\": \"URL_IMAGE\"\n    },\n    \"message\": \"Usuário criado com sucesso!\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Register User Fail - Invalid Email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test('Status code should be 422 - Unprocessable Content', () => {\r",
+									"    pm.to.have.status(422);\r",
+									"});\r",
+									"\r",
+									"pm.test('TC_002 - it should not register a user with invalid email.', () => {\r",
+									"    pm.expect(jsonData.message).to.eql('Campos obrigatórios inválidos.');\r",
+									"    pm.expect(jsonData.errors.email).to.eql('Digite um email válido.');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Test User\",\r\n  \"nickname\": \"SuperQA\",\r\n  \"email\": \"invalid_email\",\r\n  \"bio\": \"Quality Analyst at It Universe\",\r\n  \"birthday\": \"2000/08/21\",\r\n  \"password\": \"{{userPassword}}\",\r\n  \"password_confirmation\": \"{{userPassword}}\",\r\n  \"profile_image\": \"https://url-image.com/avatar.png\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Invalid Email - 422 Unprocessable Content",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Test User\",\r\n  \"nickname\": \"SuperQA\",\r\n  \"email\": \"invalid_email\",\r\n  \"bio\": \"Quality Analyst at It Universe\",\r\n  \"birthday\": \"2000/08/21\",\r\n  \"password\": \"{{userPassword}}\",\r\n  \"password_confirmation\": \"{{userPassword}}\",\r\n  \"profile_image\": \"https://url-image.com/avatar.png\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://api.itchat.com/auth/register",
+									"protocol": "https",
+									"host": [
+										"api",
+										"itchat",
+										"com"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "Unprocessable Content",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Campos obrigatórios inválidos.\",\n    \"errors\": {\n        \"email\": \"Digite um email válido.\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Register User Fail - Weak Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test('Status code should be 422 - Unprocessable Content', () => {\r",
+									"    pm.to.have.status(422);\r",
+									"});\r",
+									"\r",
+									"pm.test('TC_003 - should not register a user with weak password.', () => {\r",
+									"    pm.expect(jsonData.message).to.eql('Campos obrigatórios inválidos.');\r",
+									"\r",
+									"    const expectedErrors = [\r",
+									"        \"O campo de senha deve ter pelo menos 8 caracteres.\",\r",
+									"        \"O campo de senha deve conter pelo menos uma letra maiúscula e uma minúscula.\",\r",
+									"        \"O campo de senha deve conter pelo menos uma letra.\",\r",
+									"        \"O campo de senha deve conter pelo menos um símbolo.\"\r",
+									"    ];\r",
+									"\r",
+									"    expectedErrors.forEach(msg => {\r",
+									"        pm.expect(jsonData.errors.password).to.include(msg);\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Test User\",\r\n  \"nickname\": \"SuperQA\",\r\n  \"email\": \"{{userEmail}}\",\r\n  \"bio\": \"Quality Analyst at It Universe\",\r\n  \"birthday\": \"2000/08/21\",\r\n  \"password\": \"123\",\r\n  \"password_confirmation\": \"123\",\r\n  \"profile_image\": \"https://url-image.com/avatar.png\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Weak Password - 422 Unprocessable Content",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Test User\",\r\n  \"nickname\": \"SuperQA\",\r\n  \"email\": \"{{userEmail}}\",\r\n  \"bio\": \"Quality Analyst at It Universe\",\r\n  \"birthday\": \"2000/08/21\",\r\n  \"password\": \"123\",\r\n  \"password_confirmation\": \"123\",\r\n  \"profile_image\": \"https://url-image.com/avatar.png\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://api.itchat.com/auth/register",
+									"protocol": "https",
+									"host": [
+										"api",
+										"itchat",
+										"com"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "Unprocessable Content",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Campos obrigatórios inválidos.\",\n    \"errors\": {\n        \"password\": [\n            \"O campo de senha deve ter pelo menos 8 caracteres.\",\n            \"O campo de senha deve conter pelo menos uma letra maiúscula e uma minúscula.\",\n            \"O campo de senha deve conter pelo menos uma letra.\",\n            \"O campo de senha deve conter pelo menos um símbolo.\"\n        ]\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Register User Fail - Required Fields Empty",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test('Status code should be 422 - Unprocessable Content', () => {\r",
+									"    pm.to.have.status(422);\r",
+									"});\r",
+									"\r",
+									"pm.test('TC_004 - it should not register a user with required fields empty.', () => {\r",
+									"    pm.expect(jsonData.message).to.eql('Campos obrigatórios inválidos.');\r",
+									"\r",
+									"    const expectedErrors = {\r",
+									"        name: \"O campo nome é obrigatório.\",\r",
+									"        nickname: \"O campo apelido é obrigatório.\",\r",
+									"        email: \"O campo email é obrigatório.\",\r",
+									"        birthday: \"O campo data de nascimento é obrigatório.\",\r",
+									"        password: \"O campo senha é obrigatório.\",\r",
+									"        password_confirmation: \"O campo confirmação de senha é obrigatório.\"\r",
+									"    }\r",
+									"\r",
+									"    Object.entries(expectedErrors).forEach(([field, message]) => {\r",
+									"        pm.expect(jsonData.errors[field]).to.eql(message)\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"\",\r\n  \"nickname\": \"\",\r\n  \"email\": \"\",\r\n  \"bio\": \"Quality Analyst at It Universe\",\r\n  \"birthday\": \"\",\r\n  \"password\": \"\",\r\n  \"password_confirmation\": \"\",\r\n  \"profile_image\": \"https://url-image.com/avatar.png\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Required Fields Empty - 422 Unprocessable Content",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"\",\r\n  \"nickname\": \"\",\r\n  \"email\": \"\",\r\n  \"bio\": \"Quality Analyst at It Universe\",\r\n  \"birthday\": \"\",\r\n  \"password\": \"\",\r\n  \"password_confirmation\": \"\",\r\n  \"profile_image\": \"https://url-image.com/avatar.png\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "Unprocessable Content",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Campos obrigatórios inválidos.\",\n    \"errors\": {\n        \"name\": [\n            \"O campo nome é obrigatório.\"\n        ],\n        \"nickname\": [\n            \"O campo apelido é obrigatório.\"\n        ],\n        \"email\": [\n            \"O campo email é obrigatório.\"\n        ],\n        \"birthday\": [\n            \"O campo data de nascimento é obrigatório.\"\n        ],\n        \"password\": [\n            \"O campo senha é obrigatório.\"\n        ]\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Register User Fail - Email Already Exists",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test('Status code should be 409 - Conflit', () => {\r",
+									"    pm.response.to.have.status(409);\r",
+									"});\r",
+									"\r",
+									"pm.test('TC_005 - it should not register a user with email already exists.', () => {\r",
+									"    pm.response(jsonData.message).to.eql('Campos obrigatórios inválidos.');\r",
+									"    pm.response(jsonData.errors.email).to.eql('Email já cadastrado no sistema.');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Test User\",\r\n  \"nickname\": \"SuperQA\",\r\n  \"email\": \"{{existingEmail}}\",\r\n  \"bio\": \"Quality Analyst at It Universe\",\r\n  \"birthday\": \"2000/08/21\",\r\n  \"password\": \"{{userPassword}}\",\r\n  \"password_confirmation\": \"{{userPassword}}\",\r\n  \"profile_image\": \"https://url-image.com/avatar.png\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Email Already Exists- 409 Conflict",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Test User\",\r\n  \"nickname\": \"SuperQA\",\r\n  \"email\": \"{{existingEmail}}\",\r\n  \"bio\": \"Quality Analyst at It Universe\",\r\n  \"birthday\": \"2000/08/21\",\r\n  \"password\": \"{{userPassword}}\",\r\n  \"password_confirmation\": \"{{userPassword}}\",\r\n  \"profile_image\": \"https://url-image.com/avatar.png\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Campos obrigatórios inválidos.\",\n    \"errors\": {\n        \"email\": \"Email já cadastrado no sistema.\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Register User Fail - Nickname Already Exists",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test('Status code should be 409 - Conflit', () => {\r",
+									"    pm.response.to.have.status(409);\r",
+									"});\r",
+									"\r",
+									"pm.test('TC_006 - it should not register a user with nickname already exists.', () => {\r",
+									"    pm.response(jsonData.message).to.eql('Campos obrigatórios inválidos.');\r",
+									"    pm.response(jsonData.errors.nickname).to.eql('Apelido já cadastrado no sistema.');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Test User\",\r\n  \"nickname\": \"SuperQA\",\r\n  \"email\": \"{{userEmail}}\",\r\n  \"bio\": \"Quality Analyst at It Universe\",\r\n  \"birthday\": \"2000/08/21\",\r\n  \"password\": \"{{userPassword}}\",\r\n  \"password_confirmation\": \"{{userPassword}}\",\r\n  \"profile_image\": \"https://url-image.com/avatar.png\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Nickname Already Exists- 409 Conflict",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Test User\",\r\n  \"nickname\": \"SuperQA\",\r\n  \"email\": \"{{userEmail}}\",\r\n  \"bio\": \"Quality Analyst at It Universe\",\r\n  \"birthday\": \"2000/08/21\",\r\n  \"password\": \"{{userPassword}}\",\r\n  \"password_confirmation\": \"{{userPassword}}\",\r\n  \"profile_image\": \"https://url-image.com/avatar.png\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Campos obrigatórios inválidos.\",\n    \"errors\": {\n        \"nickname\": \"Apelido já cadastrado no sistema.\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Register User Fail - Invalid Birthday",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test('Status code should be 409 - Conflit', () => {\r",
+									"    pm.response.to.have.status(409);\r",
+									"});\r",
+									"\r",
+									"pm.test('TC_011 - it should not register a user with invalid birthday', () => {\r",
+									"    pm.expect(jsonData.message).to.eql('Campos obrigatórios inválidos.');\r",
+									"    pm.expect(jsonData.errors.birthday).to.eql('Formato de data inválido.');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Test User\",\r\n  \"nickname\": \"SuperQA\",\r\n  \"email\": \"{{userEmail}}\",\r\n  \"bio\": \"Quality Analyst at It Universe\",\r\n  \"birthday\": \"22100/13/41\",\r\n  \"password\": \"{{userPassword}}\",\r\n  \"password_confirmation\": \"{{userPassword}}\",\r\n  \"profile_image\": \"https://url-image.com/avatar.png\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Invalid Birthday - 422 Unprocessable Content",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Test User\",\r\n  \"nickname\": \"SuperQA\",\r\n  \"email\": \"{{userEmail}}\",\r\n  \"bio\": \"Quality Analyst at It Universe\",\r\n  \"birthday\": \"22100/13/41\",\r\n  \"password\": \"{{userPassword}}\",\r\n  \"password_confirmation\": \"{{userPassword}}\",\r\n  \"profile_image\": \"https://url-image.com/avatar.png\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "Unprocessable Content",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Campos obrigatórios inválidos.\",\n    \"errors\": {\n        \"birthday\": \"Formato de data inválido.\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Register User Fail - Minimum Age",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test('Status code should be 422 - Unprocessable Content', () => {\r",
+									"    pm.response.to.have.status(422);\r",
+									"});\r",
+									"\r",
+									"pm.test('TC_011 - it should not register a user with invalid birthday', () => {\r",
+									"    pm.expect(jsonData.message).to.eql('Campos obrigatórios inválidos.');\r",
+									"    pm.expect(jsonData.errors.birthday).to.eql('Usuário deve ter no mínimo 12 anos.');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Test User\",\r\n  \"nickname\": \"SuperQA\",\r\n  \"email\": \"{{userEmail}}\",\r\n  \"bio\": \"Quality Analyst at It Universe\",\r\n  \"birthday\": \"2025/08/21\",\r\n  \"password\": \"{{userPassword}}\",\r\n  \"password_confirmation\": \"{{userPassword}}\",\r\n  \"profile_image\": \"https://url-image.com/avatar.png\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Minimum Age - 422 Unprocessable Content",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Test User\",\r\n  \"nickname\": \"SuperQA\",\r\n  \"email\": \"{{userEmail}}\",\r\n  \"bio\": \"Quality Analyst at It Universe\",\r\n  \"birthday\": \"2025/08/21\",\r\n  \"password\": \"{{userPassword}}\",\r\n  \"password_confirmation\": \"{{userPassword}}\",\r\n  \"profile_image\": \"https://url-image.com/avatar.png\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "Unprocessable Content",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Campos obrigatórios inválidos.\",\n    \"errors\": {\n        \"birthday\": \"Usuário deve ter no mínimo 12 anos.\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Register User Fail - Invalid Image Profile",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Test User\",\r\n  \"nickname\": \"SuperQA\",\r\n  \"email\": \"{{userEmail}}\",\r\n  \"bio\": \"Quality Analyst at It Universe\",\r\n  \"birthday\": \"2000/08/21\",\r\n  \"password\": \"{{userPassword}}\",\r\n  \"password_confirmation\": \"{{userPassword}}\",\r\n  \"profile_image\": \"https://url-image.com/avatar.png\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Register User Fail - Invalid Image Profile",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Test User\",\r\n  \"nickname\": \"SuperQA\",\r\n  \"email\": \"{{userEmail}}\",\r\n  \"bio\": \"Quality Analyst at It Universe\",\r\n  \"birthday\": \"2000/08/21\",\r\n  \"password\": \"{{userPassword}}\",\r\n  \"password_confirmation\": \"{{userPassword}}\",\r\n  \"profile_image\": \"https://url-image.com/avatar.png\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [
+								{
+									"expires": "Invalid Date",
+									"domain": "",
+									"path": ""
+								}
+							],
+							"body": "{\n    \"message\": \"Campos inválidos.\",\n    \"errors\": {\n        \"nickname\": \"Formato de imagem inválido.\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Email Confirmation Success - 200 OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status code should be 200 - OK\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"it should display a success message\", () => {\r",
+									"    pm.expect(jsonData.message).to.eql(\"Email verificado com sucesso.\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/verify-email?token={{authToken}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"verify-email"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "{{authToken}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Email Confirmation Success - 200 OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/verify-email?token={{emailVerificationToken}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"verify-email"
+									],
+									"query": [
+										{
+											"key": "token",
+											"value": "{{emailVerificationToken}}"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [
+								{
+									"expires": "Invalid Date",
+									"domain": "",
+									"path": ""
+								}
+							],
+							"body": "{\n    \"message\": \"Email verificado com sucesso.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Email Confirmation Fail - 422 Unprocessable Content",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status code should be 422 - Unprocessable Content\", () => {\r",
+									"    pm.response.to.have.status(422);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"it should display a error message\", () => {\r",
+									"    pm.expect(jsonData.message).to.eql(\"Token inválido ou expirado.\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/verify-email?token={{invalidToken}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"verify-email"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "{{invalidToken}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Email Confirmation Fail - 422 Unprocessable Content",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/verify-email?token={{invalidToken}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"verify-email"
+									],
+									"query": [
+										{
+											"key": "token",
+											"value": "{{invalidToken}}"
+										}
+									]
+								}
+							},
+							"status": "Unprocessable Content",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Token inválido ou expirado.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Password Recovery",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/recover",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"recover"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get User Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Friends",
+			"item": [
+				{
+					"name": "Send Friend Request",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/friends/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"friends",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Accept Request",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/friends/:id/accept",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"friends",
+								":id",
+								"accept"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Block User",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/friends/:id/block",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"friends",
+								":id",
+								"block"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Groups",
+			"item": [
+				{
+					"name": "Create Group",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Group Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/groups/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"groups",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Group Info",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/groups/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"groups",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Messages",
+			"item": [
+				{
+					"name": "Send Message",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/messages",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Messages in Chat",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/messages/:chatId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"messages",
+								":chatId"
+							],
+							"variable": [
+								{
+									"key": "chatId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

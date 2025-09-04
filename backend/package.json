@@ -11,7 +11,9 @@
     "test": "node ace test",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:api": "npx mkdirp reports && npx newman run tests/postman/collection.json -e tests/postman/environment.local.json -r cli,htmlextra --reporter-htmlextra-export reports/report.html --reporter-json-export reports/report.json --timeout-request 5000 --timeout 60000",
+    "test:api:bail": "mkdir -p reports && npx newman run tests/postman/collection.json -e tests/postman/environment.local.json -r cli,htmlextra --reporter-htmlextra-export reports/report.html --reporter-json-export reports/report.json --timeout-request 5000 --timeout 60000 --bail"
   },
   "imports": {
     "#controllers/*": "./app/controllers/*.js",
@@ -45,6 +47,7 @@
     "@types/node": "^22.15.18",
     "eslint": "^9.26.0",
     "hot-hook": "^0.4.0",
+    "mkdirp": "^3.0.1",
     "pino-pretty": "^13.0.0",
     "prettier": "^3.5.3",
     "ts-node-maintained": "^10.9.5",
