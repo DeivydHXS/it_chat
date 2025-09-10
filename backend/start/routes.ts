@@ -9,8 +9,14 @@
 
 import router from '@adonisjs/core/services/router'
 
-router.get('/', async () => {
-  return {
-    hello: 'world',
-  }
-})
+// const AuthController = () => import('#controllers/auth_controller')
+
+router.group(() => {
+  router.get('/', async () => {
+    return { message: 'Welcome to IT Chat API.' }
+  })
+
+  router.group(() => {
+    router.post('register', '#controllers/auth_controller.register')
+  }).prefix('auth')
+}).prefix('api')
