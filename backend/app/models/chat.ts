@@ -1,5 +1,7 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { BaseModel, column, manyToMany } from '@adonisjs/lucid/orm'
+import User from './user.js'
+import type { ManyToMany } from '@adonisjs/lucid/types/relations'
 
 export default class Chat extends BaseModel {
   @column({ isPrimary: true })
@@ -22,4 +24,7 @@ export default class Chat extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+
+  @manyToMany(() => User)
+  declare users: ManyToMany<typeof User>
 }
