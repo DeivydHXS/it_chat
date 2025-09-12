@@ -7,7 +7,7 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.uuid('id').primary()
       table.string('name', 254).notNullable()
-      table.string('nickname', 100).notNullable()
+      table.string('nickname', 100).notNullable() // TODO: arrumar nickname
       table.string('nickname_hash').notNullable().unique()
       table.string('email', 254).notNullable().unique()
       table.string('password').notNullable()

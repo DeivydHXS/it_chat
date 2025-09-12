@@ -1,11 +1,19 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, manyToMany } from '@adonisjs/lucid/orm'
+import { BaseModel, beforeCreate, column, manyToMany } from '@adonisjs/lucid/orm'
 import User from './user.js'
 import type { ManyToMany } from '@adonisjs/lucid/types/relations'
+import { type UUIDTypes, v4 } from 'uuid'
 
 export default class Chat extends BaseModel {
+  static selfAssignPrimaryKey = true
+
+  @beforeCreate()
+  public static addId(chat: Chat) {
+    chat.id = v4()
+  }
+
   @column({ isPrimary: true })
-  declare id: string
+  declare id: UUIDTypes
 
   @column()
   declare type: string
