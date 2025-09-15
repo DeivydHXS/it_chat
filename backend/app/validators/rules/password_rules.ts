@@ -37,24 +37,6 @@ async function passwordHasUpperAndLowercase(
     }
 }
 
-async function passwordHasAtLeastOneLetter(
-    value: unknown,
-    options: {},
-    field: FieldContext
-) {
-    if (typeof value !== 'string') {
-        return
-    }
-
-    if (!/[a-zA-Z]/.test(value)) {
-        field.report(
-            'O campo de senha deve conter pelo menos uma letra.',
-            'password_must_have_at_least_one_letter',
-            field,
-        )
-    }
-}
-
 async function passwordHasAtLeastOneNumber(
     value: unknown,
     options: {},
@@ -84,7 +66,7 @@ async function passwordHasAtLeastOneSymbol(
 
     if (!/[/(!)(\?)(#)(@)(\.)(%)(,)(\\)(\|)(;)(:)/g]/.test(value)) {
         field.report(
-            'O campo de senha deve conter pelo menos um símbolo.',
+            'O campo de senha deve conter pelo menos um caracter especial.',
             'password_must_have_at_least_one_symbol',
             field
         )
@@ -93,6 +75,5 @@ async function passwordHasAtLeastOneSymbol(
 
 export const passwordMinLengthRule = vine.createRule(passwordMinLength)
 export const passwordHasUpperAndLowercaseRule = vine.createRule(passwordHasUpperAndLowercase)
-export const passwordHasAtLeastOneLetterRule = vine.createRule(passwordHasAtLeastOneLetter)
 export const passwordHasAtLeastOneNumberRule = vine.createRule(passwordHasAtLeastOneNumber)
 export const passwordHasAtLeastOneSymbolRule = vine.createRule(passwordHasAtLeastOneSymbol)
