@@ -47,6 +47,15 @@ vine.messagesProvider = new SimpleMessagesProvider({
   "unique": "O campo {{field}} já foi usado por outra pessoa.",
   "url": "O campo {{field}} deve ser um URL válido.",
 
+
+  "birthday.date": "Formato de data inválido.",
+
+  "password.confirmed": "A confirmação de senha não confere.",
+
+  "birthday.date.beforeOrEqual": "Usuário deve ter no mínimo 12 anos.",
+
+  "email.database.unique": "Email já cadastrado no sistema.",
+
   "name.required": "O campo nome é obrigatório.",
   "nickname.required": "O campo apelido é obrigatório.",
   "email.required": "O campo email é obrigatório.",

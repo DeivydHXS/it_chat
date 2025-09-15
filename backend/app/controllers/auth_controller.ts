@@ -26,6 +26,7 @@ export default class AuthController {
                 }
             })
         } catch (error) {
+            console.log(error)
             ResponseService.send(response, 422, 'Campos obrigatórios inválidos.', error)
         }
     }
