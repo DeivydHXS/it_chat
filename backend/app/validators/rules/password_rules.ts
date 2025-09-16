@@ -28,7 +28,7 @@ async function passwordHasUpperAndLowercase(
         return
     }
 
-    if (!/[A-Z]/.test(value) || !/[a-z]/.test(value)) {
+    if (!/[A-Z]/.test(value) && !/[a-z]/.test(value)) {
         field.report(
             'O campo de senha deve conter pelo menos uma letra maiúscula e uma minúscula.',
             'password_must_have_at_least_one_upper_and_one_lowercase_letter',

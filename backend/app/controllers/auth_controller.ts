@@ -5,8 +5,6 @@ import { inject } from '@adonisjs/core'
 import User from '#models/user'
 import ResponseService from '#services/response_service'
 import SessionService from '#services/session_service'
-import { errors as adonisErrors } from '@adonisjs/auth'
-import { errors } from '@vinejs/vine'
 
 @inject()
 export default class AuthController {
@@ -30,8 +28,7 @@ export default class AuthController {
                 }
             })
         } catch (error) {
-            if (error instanceof errors.E_VALIDATION_ERROR)
-                ResponseService.send(response, 422, 'Campos obrigatórios inválidos.', error)
+            ResponseService.error(response, error)
         }
     }
 
@@ -49,11 +46,7 @@ export default class AuthController {
                 }
             })
         } catch (error) {
-            if (error instanceof errors.E_VALIDATION_ERROR)
-                ResponseService.send(response, 422, 'Campos obrigatórios inválidos.', error)
-            else if (error instanceof adonisErrors.E_INVALID_CREDENTIALS)
-                ResponseService.send(response, 401, 'Email e/ou senha inválido(s).', error)
-
+            ResponseService.error(response, error)
         }
     }
 }
