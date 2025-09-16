@@ -35,3 +35,17 @@ export const registerAuthValidator = vine.compile(
   })
 )
 
+/**
+ * Validates the auth's login action
+ */
+export const loginAuthValidation = vine.compile(
+  vine.object({
+    email: vine.string().email().trim(),
+    password: vine.string()
+                  .use(passwordMinLengthRule({}))
+                  .use(passwordHasUpperAndLowercaseRule({}))
+                  .use(passwordHasAtLeastOneNumberRule({}))
+                  .use(passwordHasAtLeastOneSymbolRule({}))
+  })
+)
+
