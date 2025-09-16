@@ -49,4 +49,20 @@ export default class AuthController {
             ResponseService.error(response, error)
         }
     }
+
+    public async me({ response, auth }: HttpContext) {
+        const user = await auth.authenticateUsing(['api'])
+
+        ResponseService.send(response, 200, 'Perfil de usuário.', {user})
+    }
+
+    public async logout({ response, auth }: HttpContext) {
+        console.log('aqui')
+        try {
+            await this.sessionService.destroy(auth)
+            ResponseService.send(response, 200, 'Logout realizado com sucesso.')
+        } catch (error) {
+            ResponseService.error(response, error)
+        }
+    }
 }

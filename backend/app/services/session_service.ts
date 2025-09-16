@@ -13,4 +13,8 @@ export default class SessionService {
         const token = await auth.use('api').createToken(user)
         return { user, token }
     }
+    async destroy(auth: any) {
+        await auth.use('api').invalidateToken()
+    }
+
 }

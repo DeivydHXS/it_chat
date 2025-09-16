@@ -2,7 +2,7 @@ import { errors as adonisErrors } from '@adonisjs/auth'
 import { errors } from '@vinejs/vine'
 
 export default class ResponseService {
-    public static async send(response: any, status: number, message: string, data: any) {
+    public static async send(response: any, status: number, message?: string, data?: any) {
         const isStatusValid = status >= 200 && status <= 300 ? true : false
 
         if (isStatusValid) {
@@ -39,6 +39,9 @@ export default class ResponseService {
                 break
             case adonisErrors.E_INVALID_CREDENTIALS:
                 ResponseService.send(response, 401, 'Não autorizado.', { error: 'Email e/ou senha inválido(s).' })
+                break
+            case adonisErrors.E_UNAUTHORIZED_ACCESS:
+                ResponseService.send(response, 401, '', { error: 'Credenciais inválidas.' })
                 break
             default:
                 ResponseService.send(response, 400, 'Erro desconhecido.', error)
