@@ -7,7 +7,6 @@ export default class UserService {
         const user = await User.create(payload, { client: trx })
 
         // Enviar email com código de validação de conta
-        // Comentado para não ficar enviando email durante os testes
         if (!trx) {
             await mail.send((message) => {
                 message
