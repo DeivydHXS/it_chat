@@ -39,7 +39,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare nickname: string
 
-  @column()
+  @column({ serializeAs: 'nickname_hash' })
   declare nickname_hash: string
 
   @column()
@@ -48,16 +48,22 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare bio: string | null
 
-  @column()
+  @column({ serializeAs: 'profile_image_url' })
   declare profile_image_url: string | null
 
   @column({ serializeAs: null })
   declare password: string
+  
+  @column({ serializeAs: null })
+  declare verification_code: number | null
+  
+  @column({ serializeAs: null })
+  declare status: string
 
-  @column.dateTime({ autoCreate: true })
+  @column.dateTime({ autoCreate: true, serializeAs: 'created_at' })
   declare createdAt: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @column.dateTime({ autoCreate: true, autoUpdate: true, serializeAs: 'updated_at' })
   declare updatedAt: DateTime | null
 
   static accessTokens = DbAccessTokensProvider.forModel(User, {

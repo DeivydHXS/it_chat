@@ -8,8 +8,8 @@ interface storeInteface {
 }
 
 export default class SessionService {
-    public async store(data: storeInteface, auth: Authenticator<Authenticators>) {
-        const user = await User.verifyCredentials(data.email, data.password)
+    public async store({ email, password }: storeInteface, auth: Authenticator<Authenticators>) {
+        const user = await User.verifyCredentials(email, password)
         const token = await auth.use('api').createToken(user)
         return { user, token }
     }

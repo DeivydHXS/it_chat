@@ -2,7 +2,6 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { registerAuthValidator, loginAuthValidation } from '#validators/auth_validator'
 import UserService from '#services/user_service'
 import { inject } from '@adonisjs/core'
-import User from '#models/user'
 import ResponseService from '#services/response_service'
 import SessionService from '#services/session_service'
 
@@ -17,15 +16,9 @@ export default class AuthController {
         try {
             const { password_confirmation, ...payload } = await request.validateUsing(registerAuthValidator)
             const user = await this.userService.store({ ...payload, birthday: payload.birthday.toISOString() })
-            const token = await User.accessTokens.create(user)
 
             ResponseService.send(response, 201, 'Usuário criado com sucesso!', {
-                user,
-                token: {
-                    access_token: token.value!.release(),
-                    expires_at: token.expiresAt,
-                    created_at: token.createdAt
-                }
+                user
             })
         } catch (error) {
             ResponseService.error(response, error)
@@ -50,14 +43,7 @@ export default class AuthController {
         }
     }
 
-    public async me({ response, auth }: HttpContext) {
-        const user = await auth.authenticateUsing(['api'])
-
-        ResponseService.send(response, 200, 'Perfil de usuário.', {user})
-    }
-
     public async logout({ response, auth }: HttpContext) {
-        console.log('aqui')
         try {
             await this.sessionService.destroy(auth)
             ResponseService.send(response, 200, 'Logout realizado com sucesso.')
