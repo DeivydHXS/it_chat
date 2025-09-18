@@ -1,23 +1,16 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Link } from 'expo-router';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 
-export default function InfoScreen() {
+export default function LoginScreen() {
   return (
     <View style={styles.titleContainer}>
       <View style={styles.stepContainer}>
-
-        <View>
-          <IconSymbol color='#D51917' name='arrow.right'></IconSymbol>
-          <IconSymbol color='#D51917' name='arrow.left'></IconSymbol>
-        </View>
-        <Link href="/login">
+        <Link href="/(tabs)">
           <Link.Trigger>
-            <Text>Finalizar</Text>
+            <Text>Lofin</Text>
           </Link.Trigger>
         </Link>
-
       </View>
     </View>
   );
