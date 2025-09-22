@@ -26,6 +26,10 @@ export default class User extends compose(BaseModel, AuthFinder) {
   public static addNicknameHash(user: User) {
     user.nickname_hash = randomBytes(2).toString('hex');
   }
+  @beforeCreate()
+  public static setStatusPending(user: User) {
+    user.status = 'p';
+  }
 
   @column({ isPrimary: true })
   declare id: UUIDTypes
@@ -45,7 +49,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare birthday: string
 
-  @column()
+  @column({ serializeAs: 'bio' })
   declare bio: string | null
 
   @column({ serializeAs: 'profile_image_url' })
@@ -53,10 +57,10 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @column({ serializeAs: null })
   declare password: string
-  
+
   @column({ serializeAs: null })
   declare verification_code: number | null
-  
+
   @column({ serializeAs: null })
   declare status: string
 
@@ -67,7 +71,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare updatedAt: DateTime | null
 
   static accessTokens = DbAccessTokensProvider.forModel(User, {
-    expiresIn: '2 min',
+    expiresIn: '1 hour',
     prefix: 'oat_',
     table: 'auth_access_tokens',
     type: 'auth_token',

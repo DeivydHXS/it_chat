@@ -15,22 +15,16 @@ export const registerAuthValidator = vine.compile(
   vine.object({
     name: vine.string().trim().minLength(1).maxLength(255),
     nickname: vine.string().trim().minLength(1).maxLength(50),
-    birthday: vine.date().beforeOrEqual((field) => {
+    birthday: vine.date().beforeOrEqual(() => {
       return dayjs().subtract(12, 'year').format('YYYY-MM-DD')
     }),
-    email: vine.string().email().trim().unique(async (db, value, field) => {
-      const user = await db
-        .from('users')
-        .where('email', value)
-        .first()
-      return !user
-    }),
+    email: vine.string().email().trim().unique({ table: 'users', column: 'email' }),
     password: vine.string()
-                  .use(passwordMinLengthRule({}))
-                  .use(passwordHasUpperAndLowercaseRule({}))
-                  .use(passwordHasAtLeastOneNumberRule({}))
-                  .use(passwordHasAtLeastOneSymbolRule({}))
-                  .confirmed(),
+      .use(passwordMinLengthRule({}))
+      .use(passwordHasUpperAndLowercaseRule({}))
+      .use(passwordHasAtLeastOneNumberRule({}))
+      .use(passwordHasAtLeastOneSymbolRule({}))
+      .confirmed(),
     password_confirmation: vine.string()
   })
 )
@@ -40,12 +34,45 @@ export const registerAuthValidator = vine.compile(
  */
 export const loginAuthValidation = vine.compile(
   vine.object({
-    email: vine.string().email().trim(),
+    email: vine.string().email().trim().exists({ table: 'users', column: 'email' }),
     password: vine.string()
-                  .use(passwordMinLengthRule({}))
-                  .use(passwordHasUpperAndLowercaseRule({}))
-                  .use(passwordHasAtLeastOneNumberRule({}))
-                  .use(passwordHasAtLeastOneSymbolRule({}))
+      .use(passwordMinLengthRule({}))
+      .use(passwordHasUpperAndLowercaseRule({}))
+      .use(passwordHasAtLeastOneNumberRule({}))
+      .use(passwordHasAtLeastOneSymbolRule({}))
   })
 )
 
+/**
+ * Validates the auth's code verification action
+ */
+export const codeVerificationValidator = vine.compile(
+  vine.object({
+    email: vine.string().email().trim().exists({ table: 'users', column: 'email' }),
+    code: vine.number()
+  })
+)
+
+/**
+ * Validates the auth's forgot password action
+ */
+export const forgotPasswordValidator = vine.compile(
+  vine.object({
+    email: vine.string().email().exists({ table: 'users', column: 'email' }),
+  })
+)
+
+/**
+ * Validates the auth's change password action
+ */
+export const changePasswordValidator = vine.compile(
+  vine.object({
+    email: vine.string().email().exists({ table: 'users', column: 'email' }),
+    code: vine.number(),
+    password: vine.string()
+      .use(passwordMinLengthRule({}))
+      .use(passwordHasUpperAndLowercaseRule({}))
+      .use(passwordHasAtLeastOneNumberRule({}))
+      .use(passwordHasAtLeastOneSymbolRule({}))
+  })
+)

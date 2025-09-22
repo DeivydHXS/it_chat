@@ -1,28 +1,105 @@
 import User from "#models/user";
+import hash from "@adonisjs/core/services/hash";
 import { TransactionClientContract } from "@adonisjs/lucid/types/database";
 import mail from '@adonisjs/mail/services/main'
+import { messages } from "@vinejs/vine/defaults";
+import { randomInt, UUID } from "crypto";
+import { UUIDTypes } from "uuid";
 
 export default class UserService {
+    public static formatUserResponse(user: User) {
+        return {
+            ...user.serialize(),
+            bio: user.bio ?? null,
+            profile_image_url: user.profile_image_url ?? null,
+        }
+    }
+
     public async store(payload: Partial<User>, trx?: TransactionClientContract) {
         const user = await User.create(payload, { client: trx })
 
-        // Enviar email com código de validação de conta
         if (!trx) {
-            await mail.send((message) => {
-                message
-                    .to(user.email)
-                    .subject('Código de verificação')
-                    .text('Aqui vai aparecer o código de verificação do usuário que ele vai copiar e colar no app para validar sua conta.')
-            })
+            const verification_code = randomInt(100000, 999999)
+            user.verification_code = verification_code
+            user.save()
+            // await mail.send((message) => {
+            //     message
+            //         .to(user.email)
+            //         .subject('Código de verificação')
+            //         .text(`${verification_code}`)
+            // })
+            console.log(verification_code)
         }
 
-        return user
+        return UserService.formatUserResponse(user)
     }
 
-    public async update(user_id: string, payload: Partial<User>, trx?: TransactionClientContract) {
-        const user = await User.findOrFail(user_id, { client: trx })
-        user.merge(payload)
+    public async update(user: User, payload: Partial<User>, trx?: TransactionClientContract) {
+        user.merge({
+            name: payload.name,
+            nickname: payload.nickname,
+            bio: payload.bio,
+            profile_image_url: payload.profile_image_url,
+        })
         await user.save()
-        return user
+        return UserService.formatUserResponse(user)
+    }
+
+    public async verifyAccount(email: string, code: number) {
+        const user = await User.findBy('email', email)
+
+        if (user?.verification_code !== code) {
+            throw { error: 'Erro ao verificar e-mail, tente novamente mais tarde.' }
+        }
+
+        user.status = 'a'
+        user.verification_code = null
+        user.save()
+
+        return true
+    }
+
+    public async sendPasswordRecoverCode(email: string) {
+        const user = await User.findBy('email', email)
+        console.log(email)
+        if (user) {
+            const verification_code = randomInt(100000, 999999)
+            user.verification_code = verification_code
+            user.save()
+
+            // await mail.send((message) => {
+            //     message
+            //         .to(user.email)
+            //         .subject('Código de verificação')
+            //         .text(`${verification_code}`)
+            // })
+            console.log(verification_code)
+
+            return
+        }
+
+        throw { error: 'Erro inesperado.' }
+    }
+
+    public async verifyCode(email: string, code: number) {
+        const user = await User.findBy('email', email)
+
+        if (user?.verification_code !== code) {
+            throw { message: 'Campos obrigatórios inválidos.', error: 'Código inválido.' }
+        }
+    }
+
+    public async changePassword(email: string, code: number, password: string) {
+        const user = await User.findBy('email', email)
+
+        if (user?.verification_code !== code) {
+            throw { error: 'Erro ao validar código.' }
+        }
+
+        user.merge({
+            password,
+            verification_code: null
+        })
+        await user.save()
     }
 }

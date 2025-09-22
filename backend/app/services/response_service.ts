@@ -44,7 +44,7 @@ export default class ResponseService {
                 ResponseService.send(response, 401, '', { error: 'Credenciais inválidas.' })
                 break
             default:
-                ResponseService.send(response, 400, 'Erro desconhecido.', error)
+                ResponseService.send(response, 400, undefined, error)
                 break
         }
     }

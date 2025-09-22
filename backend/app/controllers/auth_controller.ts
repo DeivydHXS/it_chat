@@ -1,9 +1,10 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import { registerAuthValidator, loginAuthValidation } from '#validators/auth_validator'
+import { registerAuthValidator, loginAuthValidation, codeVerificationValidator, forgotPasswordValidator, changePasswordValidator } from '#validators/auth_validator'
 import UserService from '#services/user_service'
 import { inject } from '@adonisjs/core'
 import ResponseService from '#services/response_service'
 import SessionService from '#services/session_service'
+import User from '#models/user'
 
 @inject()
 export default class AuthController {
@@ -32,11 +33,7 @@ export default class AuthController {
 
             ResponseService.send(response, 200, 'Login realizado com sucesso!', {
                 user,
-                token: {
-                    access_token: token.value!.release(),
-                    expires_at: token.expiresAt,
-                    created_at: token.createdAt
-                }
+                token
             })
         } catch (error) {
             ResponseService.error(response, error)
@@ -47,6 +44,46 @@ export default class AuthController {
         try {
             await this.sessionService.destroy(auth)
             ResponseService.send(response, 200, 'Logout realizado com sucesso.')
+        } catch (error) {
+            ResponseService.error(response, error)
+        }
+    }
+
+    public async verifyEmail({ request, response }: HttpContext) {
+        try {
+            const { email, code } = await request.validateUsing(codeVerificationValidator)
+            await this.userService.verifyAccount(email, code)
+            ResponseService.send(response, 200, 'Sucesso ao verificar conta.')
+        } catch (error) {
+            ResponseService.error(response, error)
+        }
+    }
+
+    public async forgotPassword({ request, response }: HttpContext) {
+        try {
+            const { email } = await request.validateUsing(forgotPasswordValidator)
+            await this.userService.sendPasswordRecoverCode(email)
+            ResponseService.send(response, 200, 'E-mail de recuperação enviado com sucesso!', { email })
+        } catch (error) {
+            ResponseService.error(response, error)
+        }
+    }
+
+    public async codeVerification({ request, response }: HttpContext) {
+        try {
+            const { email, code } = await request.validateUsing(codeVerificationValidator)
+            await this.userService.verifyCode(email, code)
+            ResponseService.send(response, 200, 'Código válidado com sucesso.')
+        } catch (error) {
+            ResponseService.error(response, error)
+        }
+    }
+
+    public async changePassword({ request, response }: HttpContext) {
+        try {
+            const { email, code, password } = await request.validateUsing(changePasswordValidator)
+            await this.userService.changePassword(email, code, password)
+            ResponseService.send(response, 200, 'Senha alterada com sucesso.')
         } catch (error) {
             ResponseService.error(response, error)
         }
