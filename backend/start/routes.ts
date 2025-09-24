@@ -23,7 +23,7 @@ router
         router
           .post('login', '#controllers/auth_controller.login')
         router
-          .post('verify_email', '#controllers/auth_controller.verifEmail')
+          .post('verify_email', '#controllers/auth_controller.verifyEmail')
         router
           .get('get_verification_code', '#controllers/auth_controller.getVerificationCode')
         router

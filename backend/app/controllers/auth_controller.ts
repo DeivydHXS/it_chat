@@ -17,7 +17,7 @@ export default class AuthController {
         try {
             const { password_confirmation, ...payload } = await request.validateUsing(registerAuthValidator)
             const user = await this.userService.store({ ...payload, birthday: payload.birthday.toISOString() })
-
+            
             ResponseService.send(response, 201, 'Usuário criado com sucesso!', {
                 user
             })
