@@ -1,21 +1,26 @@
-import { CustomInputText, styles } from "@/components/custom-input-text";
+import { CustomPressable } from "@/components/custom-pressable";
+import { BirthdaySection } from "@/components/register-form/birthday-section";
+import { ConfirmationSection } from "@/components/register-form/confimation-section";
+import { EmailSection } from "@/components/register-form/email-section";
+import { NameSection } from "@/components/register-form/name-section";
+import { NicknameSection } from "@/components/register-form/nickname-section";
+import { PasswordSection } from "@/components/register-form/password-section";
 import { mainStyles } from "@/constants/theme";
 import { useCallback, useState } from "react";
-import { Alert, Pressable, Text, TextInput, View } from "react-native";
+import { Alert, View } from "react-native";
 
 interface FormRegister {
-    email?:string,
-    password?:string,
-    comfirm_password?:string
-    name?:string,
-    nickname?:string
-    birthday?:string
+    email?: string,
+    password?: string,
+    password_confirmation?: string
+    name?: string,
+    nickname?: string
+    birthday?: string
 }
 
 export default function RegisterScreen() {
-    
-    const [form,setForm] = useState<FormRegister>({})
-    const [step, setStep] = useState<'email' | 'password' | 'name'>('email')
+    const [form, setForm] = useState<FormRegister>({})
+    const [step, setStep] = useState<'email' | 'password' | 'name' | 'nickname' | 'birthday' | 'confirmation'>('email')
 
     const submitStep = useCallback(() => {
         switch (step) {
@@ -24,50 +29,80 @@ export default function RegisterScreen() {
                 return
             }
             case 'password': {
+                setStep('birthday');
+                return
+            }
+            case 'birthday': {
                 setStep('name');
                 return
             }
             case 'name': {
-                Alert.alert(`Form`,`${form.email}  / ${form.password}`)
+                setStep('nickname');
+                return
+            }
+            case 'nickname': {
+                setStep('confirmation');
+                return
+            }
+            case 'confirmation': {
+                Alert.alert('Formulario', JSON.stringify(form))
                 return
             }
         }
     }, [step])
 
-    const handleForm = useCallback((newValue:string,field:keyof FormRegister) => {
-            setForm(prev => {
-                return {
-                    ...prev,
-                    [field]:newValue
-                }
-            })
-    },[])
+    const handleForm = useCallback((newValue: string, field: string) => {
+        setForm(prev => {
+            return {
+                ...prev,
+                [field]: newValue
+            }
+        })
+    }, [])
 
     return (
-        <View style={mainStyles.container}>
+        <View style={mainStyles.container_alt}>
             {step === 'email' &&
-                <View>
-                    <TextInput style={styles.input} value={form.email} onChangeText={(text:string) => handleForm(text,'email')} />
-                </View>
+                <EmailSection
+                    value={form.email}
+                    handle={(text, field) => handleForm(text, field)}
+                />
             }
             {step === 'password' &&
-                <View>
-                    <TextInput style={styles.input} value={form.password} onChangeText={(text:string) => handleForm(text,'password')} />
-                </View>
+                <PasswordSection
+                    password_value={form.password}
+                    confirmation_value={form.password_confirmation}
+                    handle_password={(text) => handleForm(text, 'password')}
+                    handle_confirmation={(text) => handleForm(text, 'password_confirmation')}
+                />
+            }
+            {step === 'birthday' &&
+                <BirthdaySection
+                    value={form.birthday}
+                    handle={(text) => handleForm(text, 'birthday')}
+                />
             }
             {step === 'name' &&
-                <View>
-                    <Text style={{
-                        color: 'red'
-                    }}>
-                        Name
-                    </Text>
-                </View>
+                <NameSection
+                    value={form.name}
+                    handle={(text, field) => handleForm(text, field)}
+                />
             }
-            <Pressable onPress={submitStep}>
-                <Text>Continuar</Text>
-            </Pressable>
+            {step === 'nickname' &&
+                <NicknameSection
+                    value={form.nickname}
+                    handle={(text, field) => handleForm(text, field)}
+                />
+            }
+            {step === 'confirmation' &&
+                <ConfirmationSection
+                    value={form.nickname}
+                    handle={(text, field) => handleForm(text, field)}
+                />
+            }
 
+
+            <CustomPressable text={step === 'confirmation' ? 'Confirmar' : 'Avançar'} onPress={submitStep} />
         </View>
     )
 }

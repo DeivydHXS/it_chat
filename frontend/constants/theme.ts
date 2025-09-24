@@ -13,6 +13,7 @@ export const Colors = {
   gray1: '#4F4F4F',
   gray2: '#828282',
   gray3: '#BDBDBD',
+  check: '#27AE60',
 };
 
 export const Fonts = Platform.select({
@@ -46,7 +47,15 @@ export const mainStyles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: 16,
+    paddingVertical: 24,
+    gap: 16,
+  },
+  container_alt: {
+    backgroundColor: '#F8F9FE',
+    height: '100%',
+    paddingHorizontal: 16,
+    paddingVertical: 24,
     gap: 16,
   },
 });

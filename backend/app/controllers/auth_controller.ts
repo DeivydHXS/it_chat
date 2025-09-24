@@ -53,7 +53,7 @@ export default class AuthController {
         try {
             const { email, code } = await request.validateUsing(codeVerificationValidator)
             await this.userService.verifyAccount(email, code)
-            ResponseService.send(response, 200, 'Sucesso ao verificar conta.')
+            ResponseService.send(response, 200, 'E-mail confirmado com sucesso!')
         } catch (error) {
             ResponseService.error(response, error)
         }

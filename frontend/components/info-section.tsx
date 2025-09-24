@@ -19,6 +19,7 @@ export function InfoSection(props: InfoSectionProps) {
 const styles = StyleSheet.create({
     container: {
         width: '100%',
+        gap: 8
     },
     head: {
         fontSize: 22,
