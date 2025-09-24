@@ -2,10 +2,15 @@ import React, { useRef, useEffect } from 'react';
 import { Animated, StyleSheet, View, Button, Pressable, Text } from 'react-native';
 import WellcomeCarousel from './wellcome-carousel';
 
-const SlideUpCarousel = () => {
-  const translateY = useRef(new Animated.Value(500)).current;
+interface SlideProps {
+  handleAtive: () => void
+}
+
+const SlideUpCarousel = (props: SlideProps) => {
+  const translateY = useRef(new Animated.Value(550)).current;
 
   const slideUp = () => {
+    props.handleAtive()
     Animated.timing(translateY, {
       toValue: 0,
       duration: 500,
@@ -37,7 +42,7 @@ const styles = StyleSheet.create({
   },
   box: {
     width: '100%',
-    height: 490,
+    height: 550,
     backgroundColor: '#F8F9FE',
     position: 'absolute',
     bottom: 0,

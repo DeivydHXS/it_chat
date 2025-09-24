@@ -17,6 +17,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Conversas',
+          headerTitleAlign: 'center',
           tabBarIcon: () => <Ionicons name="chatbubble" size={24} color={'#687076'} />,
         }}
       />
@@ -24,6 +25,7 @@ export default function TabLayout() {
         name="groups"
         options={{
           title: 'Grupos',
+          headerTitleAlign: 'center',
           tabBarIcon: () => <Ionicons name="chatbubbles" size={24} color={'#687076'} />,
         }}
       />
@@ -31,6 +33,7 @@ export default function TabLayout() {
         name="friends"
         options={{
           title: 'Amigos',
+          headerTitleAlign: 'center',
           tabBarIcon: () => <MaterialIcons name="groups" size={24} color={'#687076'} />,
         }}
       />
@@ -38,6 +41,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Perfil',
+          headerTitleAlign: 'center',
           tabBarIcon: () => <MaterialIcons name="person" size={24} color={'#687076'} />,
         }}
       />

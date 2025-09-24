@@ -3,28 +3,16 @@
  * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
  */
 
-import { Platform } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
-const tintColorLight = '#D51917';
-const tintColorDark = '#D51917';
 
 export const Colors = {
-  light: {
-    text: '#11181C',
-    background: '#F8F9FE',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
-  },
-  dark: {
-    text: '#F8F9FE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
-  },
+  dark: '#1F2024',
+  light: '#F8F9FE',
+  red: '#cb3f42ff',
+  gray1: '#4F4F4F',
+  gray2: '#828282',
+  gray3: '#BDBDBD',
 };
 
 export const Fonts = Platform.select({
@@ -49,5 +37,16 @@ export const Fonts = Platform.select({
     serif: "Georgia, 'Times New Roman', serif",
     rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+  },
+});
+
+export const mainStyles = StyleSheet.create({
+  container: {
+    backgroundColor: '#F8F9FE',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+    gap: 16,
   },
 });

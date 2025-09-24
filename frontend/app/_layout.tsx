@@ -4,17 +4,17 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 export const unstable_settings = {
-  anchor: '(tabs)',
+  anchor: '(wellcome)',
 };
 
 export default function RootLayout() {
   return (
     <ThemeProvider value={DefaultTheme}>
-      <Stack>
-        <Stack.Screen name='(wellcome)' options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack>
-      <StatusBar style="auto" />
+        <Stack initialRouteName='(wellcome)'>
+          <Stack.Screen name='(wellcome)' options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        </Stack>
+        <StatusBar style="auto" />
     </ThemeProvider>
   );
 }

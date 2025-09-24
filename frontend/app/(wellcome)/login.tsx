@@ -1,15 +1,65 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { Link } from 'expo-router';
+import { Link, LinkTrigger } from 'expo-router';
+import icon_img from '../../assets/images/logo-it.png';
+import { useState } from 'react';
+import { CustomInputText } from '@/components/custom-input-text';
+import { CustomLink } from '@/components/custom-link';
+import { InfoSection } from '@/components/info-section';
+import { mainStyles } from '@/constants/theme';
 
 export default function LoginScreen() {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+
   return (
-    <View style={styles.titleContainer}>
-      <View style={styles.stepContainer}>
-        <Link href="/(tabs)">
-          <Link.Trigger>
-            <Text>Lofin</Text>
-          </Link.Trigger>
+    <View style={mainStyles.container}>
+      <Image source={icon_img} style={styles.image_container} />
+
+      <InfoSection
+        head='Faça login'
+        body='Informe seu e-mail e senha para realizar o login.'
+      />
+
+      <CustomInputText
+        placeholder='Digite seu email'
+        value={email}
+        onChangeText={setEmail}
+      />
+
+      <CustomInputText
+        placeholder='Digite sua senha'
+        value={password}
+        onChangeText={setPassword}
+      />
+
+      <CustomLink
+        to='/(tabs)'
+        text='Login'
+        isAlt={false}
+      />
+
+      <CustomLink
+        to='/register'
+        text='Registre-se'
+        isAlt={true}
+      />
+
+      <View style={{
+        flexDirection: 'row',
+        gap: 4,
+        marginTop: 32
+      }}>
+        <Text>
+          Esqueceu sua senha?
+        </Text>
+
+        <Link href='/'>
+          <LinkTrigger>
+            <Text style={{
+              fontWeight: 'bold'
+            }}>Clique aqui.</Text>
+          </LinkTrigger>
         </Link>
       </View>
     </View>
@@ -17,30 +67,9 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    gap: 8,
-    height: '100%',
-    backgroundColor: '#D51917',
-  },
-  stepContainer: {
-    gap: 8,
-    height: '75%',
-    backgroundColor: '#F8F9FE',
-    width: '100%',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+  image_container: {
+    width: 200,
+    height: 200,
+    marginBottom: 16
+  }
 });

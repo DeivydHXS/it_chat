@@ -1,11 +1,23 @@
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { Link } from 'expo-router';
 import icon_img from '../../assets/images/logo-it.png';
+import { useRef, useState } from 'react';
 import SlideUpCarousel from '@/components/slide-up-carousel';
 
 export default function WellcomeScreen() {
+  const [ative, setAtive] = useState<boolean>(false)
+  const translateY = useRef(new Animated.Value(0)).current;
+
+  const active = () => {
+    setAtive(true)
+    Animated.timing(translateY, {
+      toValue: -100,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  };
+
   return (
     <View>
       <LinearGradient
@@ -14,7 +26,12 @@ export default function WellcomeScreen() {
       />
       <View style={styles.container}>
         <View style={styles.content}>
-          <Image source={icon_img} style={styles.image} />
+          <Animated.View
+            style={[
+              { transform: [{ translateY }] },
+            ]}>
+            <Image source={icon_img} style={styles.image} />
+          </Animated.View>
           <Text style={styles.title}>
             IT Chat
           </Text>
@@ -29,7 +46,7 @@ export default function WellcomeScreen() {
           </View>
         </View>
 
-        <SlideUpCarousel />
+        <SlideUpCarousel handleAtive={active} />
       </View>
     </View>
   );
@@ -67,7 +84,7 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   image: {
-    width: 150,
-    height: 150
+    width: 200,
+    height: 200
   }
 });

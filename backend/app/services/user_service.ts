@@ -1,10 +1,7 @@
 import User from "#models/user";
-import hash from "@adonisjs/core/services/hash";
 import { TransactionClientContract } from "@adonisjs/lucid/types/database";
 import mail from '@adonisjs/mail/services/main'
-import { messages } from "@vinejs/vine/defaults";
 import { randomInt, UUID } from "crypto";
-import { UUIDTypes } from "uuid";
 
 export default class UserService {
     public static formatUserResponse(user: User) {
