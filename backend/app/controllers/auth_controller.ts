@@ -58,6 +58,16 @@ export default class AuthController {
             ResponseService.error(response, error)
         }
     }
+    
+    public async getVerificationCode({ request, response }: HttpContext) {
+        try {
+            const { email } = await request.validateUsing(forgotPasswordValidator)
+            const user = await User.findBy('email', email)
+            ResponseService.send(response, 200, 'Sucesso ao verificar conta.', { code: user?.verification_code })
+        } catch (error) {
+            ResponseService.error(response, error)
+        }
+    }
 
     public async forgotPassword({ request, response }: HttpContext) {
         try {

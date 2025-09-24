@@ -25,10 +25,12 @@ router
         router
           .post('verify_email', '#controllers/auth_controller.verifEmail')
         router
+          .post('get_verification_code', '#controllers/auth_controller.getVerificationCode')
+        router
           .post('forgot_password', '#controllers/auth_controller.forgotPassword')
         router
           .post('code_verification', '#controllers/auth_controller.codeVerification')
-        router
+         router
           .post('change_password', '#controllers/auth_controller.changePassword')
         router
           .post('logout', '#controllers/auth_controller.logout')
