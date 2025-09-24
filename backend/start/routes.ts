@@ -25,7 +25,7 @@ router
         router
           .post('verify_email', '#controllers/auth_controller.verifEmail')
         router
-          .post('get_verification_code', '#controllers/auth_controller.getVerificationCode')
+          .get('get_verification_code', '#controllers/auth_controller.getVerificationCode')
         router
           .post('forgot_password', '#controllers/auth_controller.forgotPassword')
         router
