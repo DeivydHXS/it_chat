@@ -50,7 +50,7 @@ vine.messagesProvider = new SimpleMessagesProvider({
 
   "birthday.date": "Formato de data inválido.",
 
-  "password.confirmed": "A confirmação de senha não confere.",
+  "password_confirmation.sameAs": "A confirmação de senha não confere.",
 
   "birthday.date.beforeOrEqual": "Usuário deve ter no mínimo 12 anos.",
 

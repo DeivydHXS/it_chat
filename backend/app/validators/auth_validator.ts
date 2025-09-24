@@ -23,9 +23,8 @@ export const registerAuthValidator = vine.compile(
       .use(passwordMinLengthRule({}))
       .use(passwordHasUpperAndLowercaseRule({}))
       .use(passwordHasAtLeastOneNumberRule({}))
-      .use(passwordHasAtLeastOneSymbolRule({}))
-      .confirmed(),
-    password_confirmation: vine.string()
+      .use(passwordHasAtLeastOneSymbolRule({})),
+    password_confirmation: vine.string().sameAs('password'),
   })
 )
 
