@@ -1,17 +1,30 @@
-import { Image, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { Link, LinkTrigger } from 'expo-router';
+import { Link, LinkTrigger, router } from 'expo-router';
 import icon_img from '../../assets/images/logo-it.png';
 import { useState } from 'react';
 import { CustomInputText } from '@/components/custom-input-text';
 import { CustomLink } from '@/components/custom-link';
 import { InfoSection } from '@/components/info-section';
 import { mainStyles } from '@/constants/theme';
+import api from '@/services/api';
+import { AuthStorageService } from '@/services/authStorageService';
+import { CustomPressable } from '@/components/custom-pressable';
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
+  async function handleLogin() {
+    try {
+      const response = await api.post('/auth/login', { email, password });
+      await AuthStorageService.saveToken(response.data);
+      router.replace('/(tabs)');
+    } catch (err) {
+      Alert.alert('Erro', 'Email ou senha incorretos.');
+    }
+  }
+  
   return (
     <View style={mainStyles.container}>
       <Image source={icon_img} style={styles.image_container} />
@@ -33,10 +46,9 @@ export default function LoginScreen() {
         onChangeText={setPassword}
       />
 
-      <CustomLink
-        to='/(tabs)'
+      <CustomPressable
         text='Login'
-        isAlt={false}
+        onPress={handleLogin}
       />
 
       <CustomLink

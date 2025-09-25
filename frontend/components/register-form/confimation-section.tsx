@@ -1,11 +1,11 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View, Alert } from "react-native";
 import { InfoSection } from "../info-section";
 import { CustomInputText } from "../custom-input-text";
 
 
 interface ConfirmationSectionProps {
-    value: string | undefined
-    handle: (newValue: string, field: string) => void
+    value?: string
+    handle: (newValue: string) => void
 }
 
 export function ConfirmationSection(props: ConfirmationSectionProps) {
@@ -13,20 +13,21 @@ export function ConfirmationSection(props: ConfirmationSectionProps) {
         <View style={styles.container}>
             <InfoSection
                 head="Insira o código"
-                body="Insira o código de validaçao que foi enviado em
-seu endereço de e-mail, para alterar sua senha."
+                body="Insira o código de validação que foi enviado em seu e-mail."
             />
 
-            <CustomInputText placeholder="Digite seu código" value={props.value || ''} onChangeText={(text) => {
-                props.handle(text, 'email')
-            }} />
+            <CustomInputText
+                placeholder="Digite seu código"
+                value={props.value}
+                onChangeText={text => props.handle(text)}
+            />
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
     container: {
-        width: '100%',
-        gap: 16
-    }
-})
+        width: "100%",
+        gap: 16,
+    },
+});
