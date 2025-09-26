@@ -1,18 +1,20 @@
 import { CustomPressable } from '@/components/custom-pressable';
+import { BaseSection } from '@/components/register-form/base-section';
 import { BirthdaySection } from '@/components/register-form/birthday-section';
-import { ConfirmationSection } from '@/components/register-form/confimation-section';
-import { EmailSection } from '@/components/register-form/email-section';
-import { NameSection } from '@/components/register-form/name-section';
-import { NicknameSection } from '@/components/register-form/nickname-section';
 import { PasswordSection } from '@/components/register-form/password-section';
 import { mainStyles } from '@/constants/theme';
-import { UserRegister } from '@/interfaces/UserInterface';
+import { useApi } from '@/hooks/use-api';
+import { messageOrError } from '@/interfaces/common-interfaces';
+import { UserInfo, UserRegister } from '@/interfaces/user-interfaces';
 import api from '@/services/api';
 import { router } from 'expo-router';
 import { useState, useCallback, useMemo } from 'react';
 import { Alert, View } from 'react-native';
 
 export default function RegisterScreen() {
+    const { post } = useApi();
+    const [emailError, setEmailError] = useState<string>('')
+
     const steps = [
         'email',
         'password',
@@ -23,12 +25,12 @@ export default function RegisterScreen() {
     ];
 
     const [form, setForm] = useState<UserRegister>({
-        email: 'test@email.com',
+        email: 'teste@email.com',
         password: 'Senha123@',
         password_confirmation: 'Senha123@',
-        name: 'User Test',
-        nickname: 'user_test',
-        birthday: '2000-01-01',
+        name: '',
+        nickname: '',
+        birthday: '',
         code: '',
     });
 
@@ -51,28 +53,36 @@ export default function RegisterScreen() {
 
     const handleRegister = useCallback(async () => {
         try {
-            const response = await api.post('/auth/register', form);
+            const response = await post<messageOrError>('/auth/register', form);
             submitStep();
             Alert.alert(
                 'Código enviado',
-                response.data.message
+                response?.data?.message
             );
         } catch (err: any) {
             Alert.alert('Erro', err.response?.data?.message || JSON.stringify(err));
         }
     }, [form]);
 
+    const handleIsEmailValid = useCallback(async () => {
+        const response = await post<messageOrError>('/auth/is_email_not_used', { email: form.email });
+        if (response.status >= 300) {
+            setEmailError(response.data.error || '')
+            return
+        }
+        submitStep()
+    }, [form]);
+
     const handleVerifyCode = useCallback(async () => {
         try {
-            console.log('form', form)
-            const response = await api.post('/auth/verify_email', {
+            const response = await post<messageOrError>('/auth/verify_email', {
                 email: form.email,
                 code: form.code
             });
-            Alert.alert('Sucesso', response.data.message);
+            Alert.alert('Sucesso', response?.data?.message);
             router.back();
         } catch (err: any) {
-            Alert.alert('Erro', err.response?.data?.message || JSON.stringify(err));
+            Alert.alert('Erro', err.response?.data?.error || JSON.stringify(err));
         }
     }, [form])
 
@@ -82,6 +92,10 @@ export default function RegisterScreen() {
             case 'nickname': return {
                 text: 'Finalizar',
                 action: handleRegister
+            };
+            case 'email': return {
+                text: 'Avançar',
+                action: handleIsEmailValid
             };
             case 'code': return {
                 text: 'Confirmar',
@@ -97,7 +111,8 @@ export default function RegisterScreen() {
     return (
         <View style={mainStyles.container_alt}>
             {step === 'email' && (
-                <EmailSection value={form.email} handle={(text) => handleForm(text, 'email')} />
+                <BaseSection step='email' error={emailError}
+                    value={form.email} handle={(text) => handleForm(text, 'email')} />
             )}
 
             {step === 'password' && (
@@ -114,15 +129,15 @@ export default function RegisterScreen() {
             )}
 
             {step === 'name' && (
-                <NameSection value={form.name} handle={(text) => handleForm(text, 'name')} />
+                <BaseSection step='name' value={form.name} handle={(text) => handleForm(text, 'name')} />
             )}
 
             {step === 'nickname' && (
-                <NicknameSection value={form.nickname} handle={(text) => handleForm(text, 'nickname')} />
+                <BaseSection step='nickname' value={form.nickname} handle={(text) => handleForm(text, 'nickname')} />
             )}
 
             {step === 'code' && (
-                <ConfirmationSection
+                <BaseSection step='code'
                     value={form.code}
                     handle={(text) => handleForm(text, 'code')}
                 />

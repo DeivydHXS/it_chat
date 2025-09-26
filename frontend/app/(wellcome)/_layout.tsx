@@ -5,7 +5,7 @@ import { goBack, navigate } from 'expo-router/build/global-state/routing';
 
 export default function WellcomeLayout() {
   return (
-    <Stack initialRouteName='first'>  
+    <Stack initialRouteName='login'>  
       <Stack.Screen name='first' options={{ headerShown: false }} />
       <Stack.Screen name='login' options={{ headerShown: false }} />
       <Stack.Screen name='register' options={{

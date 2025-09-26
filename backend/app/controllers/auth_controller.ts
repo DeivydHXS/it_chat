@@ -1,5 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import { registerAuthValidator, loginAuthValidation, codeVerificationValidator, forgotPasswordValidator, changePasswordValidator } from '#validators/auth_validator'
+import { registerAuthValidator, loginAuthValidation, codeVerificationValidator, forgotPasswordValidator, changePasswordValidator, isEmailNotUsedValidator } from '#validators/auth_validator'
 import UserService from '#services/user_service'
 import { inject } from '@adonisjs/core'
 import ResponseService from '#services/response_service'
@@ -17,10 +17,25 @@ export default class AuthController {
         try {
             const { password_confirmation, ...payload } = await request.validateUsing(registerAuthValidator)
             const user = await this.userService.store({ ...payload, birthday: payload.birthday.toISOString() })
-            
+
             ResponseService.send(response, 201, 'Usuário criado com sucesso!', {
                 user
             })
+        } catch (error) {
+            ResponseService.error(response, error)
+        }
+    }
+
+    public async isEmailNotUsed({ request, response }: HttpContext) {
+        try {
+            const { email } = await request.validateUsing(isEmailNotUsedValidator)
+            const user = await User.findBy('email', email)
+            if (user) {
+                ResponseService.send(response, 409, '', { error: 'Email já registrado no sistema.' })
+                return
+            }
+
+            ResponseService.send(response, 200, 'Email não registrado.')
         } catch (error) {
             ResponseService.error(response, error)
         }
@@ -58,7 +73,7 @@ export default class AuthController {
             ResponseService.error(response, error)
         }
     }
-    
+
     public async getVerificationCode({ request, response }: HttpContext) {
         try {
             const { email } = await request.validateUsing(forgotPasswordValidator)

@@ -62,6 +62,15 @@ export const forgotPasswordValidator = vine.compile(
 )
 
 /**
+ * Validates the auth's is email not used action
+ */
+export const isEmailNotUsedValidator = vine.compile(
+  vine.object({
+    email: vine.string().email(),
+  })
+)
+
+/**
  * Validates the auth's change password action
  */
 export const changePasswordValidator = vine.compile(

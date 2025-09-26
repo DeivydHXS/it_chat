@@ -12,7 +12,7 @@ export interface UserInfo {
   nickname: string
   birthday: string
 }
-export interface User extends UserInfo {
+export interface UserInterface extends UserInfo {
   id:string,
 }
 

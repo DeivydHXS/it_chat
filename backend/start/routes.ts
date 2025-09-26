@@ -21,6 +21,8 @@ router
         router
           .post('register', '#controllers/auth_controller.register')
         router
+          .post('is_email_not_used', '#controllers/auth_controller.isEmailNotUsed')
+        router
           .post('login', '#controllers/auth_controller.login')
         router
           .post('verify_email', '#controllers/auth_controller.verifyEmail')
@@ -30,7 +32,7 @@ router
           .post('forgot_password', '#controllers/auth_controller.forgotPassword')
         router
           .post('code_verification', '#controllers/auth_controller.codeVerification')
-         router
+        router
           .post('change_password', '#controllers/auth_controller.changePassword')
         router
           .post('logout', '#controllers/auth_controller.logout')

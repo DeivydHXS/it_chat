@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { StyleSheet, View } from 'react-native'
-import { Picker } from '@react-native-picker/picker'
+import { StyleSheet, View, Text } from 'react-native'
 import { InfoSection } from '../info-section'
 import { Colors } from '@/constants/theme'
+import { Dropdown } from 'react-native-element-dropdown'
 
 interface BirthdaySectionProps {
   value: string | undefined
@@ -13,6 +13,7 @@ export function BirthdaySection(props: BirthdaySectionProps) {
   const [day, setDay] = useState('')
   const [month, setMonth] = useState('')
   const [year, setYear] = useState('')
+  const [error, setError] = useState('') // 🔴 mensagem de erro
 
   useEffect(() => {
     if (props.value) {
@@ -25,51 +26,110 @@ export function BirthdaySection(props: BirthdaySectionProps) {
 
   useEffect(() => {
     if (year && month && day) {
-      const formatted = `${year.padStart(4, '0')}-${month.padStart(2,'0')}-${day.padStart(2, '0')}`
+      const formatted = `${year.padStart(4, '0')}-${month.padStart(
+        2,
+        '0'
+      )}-${day.padStart(2, '0')}`
+
+      // 🔎 Verificação de idade
+      const birthDate = new Date(Number(year), Number(month) - 1, Number(day))
+      const today = new Date()
+
+      let age = today.getFullYear() - birthDate.getFullYear()
+      const monthDiff = today.getMonth() - birthDate.getMonth()
+      const dayDiff = today.getDate() - birthDate.getDate()
+
+      if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+        age--
+      }
+
+      if (age < 12) {
+        setError('Você deve ter pelo menos 12 anos para se inscrever.')
+        return
+      }
+
+      setError('') // limpa erro se idade for válida
       props.handle(formatted)
     }
   }, [year, month, day])
 
-  const days = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0'))
-  const months = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'))
-  const years = Array.from({ length: 120 }, (_, i) => String(new Date().getFullYear() - i))
+  const days = Array.from({ length: 31 }, (_, i) => ({
+    label: String(i + 1).padStart(2, '0'),
+    value: String(i + 1).padStart(2, '0'),
+  }))
+  const months = Array.from({ length: 12 }, (_, i) => ({
+    label: String(i + 1).padStart(2, '0'),
+    value: String(i + 1).padStart(2, '0'),
+  }))
+  const years = Array.from({ length: 120 }, (_, i) => {
+    const val = String(new Date().getFullYear() - i)
+    return { label: val, value: val }
+  })
 
   return (
     <View style={styles.container}>
       <InfoSection
-        head='Qual é a sua data de nascimento?'
-        body='Insira sua data de aniversário.
-Você deve ter mais de 12 anos para se inscrever.'
+        head="Qual é a sua data de nascimento?"
+        body={`Insira sua data de aniversário.\nVocê deve ter mais de 12 anos para se inscrever.`}
       />
 
-      <View style={styles.pickerContainer}>
-        <View style={styles.pickerItem}>
-          <Picker selectedValue={day} onValueChange={(value) => setDay(value)}>
-            <Picker.Item label='Dia' value='' />
-            {days.map((d) => (
-              <Picker.Item key={d} label={d} value={d} />
-            ))}
-          </Picker>
-        </View>
+      <View style={styles.dropdownContainer}>
+        <Dropdown
+          style={[
+            styles.dropdown,
+            error ? styles.dropdownError : null, // borda vermelha se erro
+          ]}
+          containerStyle={styles.dropdownContainerStyle}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={styles.selectedTextStyle}
+          itemTextStyle={styles.itemTextStyle}
+          activeColor={Colors.gray3}
+          data={days}
+          labelField="label"
+          valueField="value"
+          placeholder="Dia"
+          value={day}
+          onChange={(item) => setDay(item.value)}
+        />
 
-        <View style={styles.pickerItem}>
-          <Picker selectedValue={month} onValueChange={(value) => setMonth(value)}>
-            <Picker.Item label='Mês' value='' />
-            {months.map((m) => (
-              <Picker.Item key={m} label={m} value={m} />
-            ))}
-          </Picker>
-        </View>
+        <Dropdown
+          style={[
+            styles.dropdown,
+            error ? styles.dropdownError : null,
+          ]}
+          containerStyle={styles.dropdownContainerStyle}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={styles.selectedTextStyle}
+          itemTextStyle={styles.itemTextStyle}
+          activeColor={Colors.gray3}
+          data={months}
+          labelField="label"
+          valueField="value"
+          placeholder="Mês"
+          value={month}
+          onChange={(item) => setMonth(item.value)}
+        />
 
-        <View style={styles.pickerItem}>
-          <Picker selectedValue={year} onValueChange={(value) => setYear(value)}>
-            <Picker.Item label='Ano' value='' />
-            {years.map((y) => (
-              <Picker.Item key={y} label={y} value={y} />
-            ))}
-          </Picker>
-        </View>
+        <Dropdown
+          style={[
+            styles.dropdown,
+            error ? styles.dropdownError : null,
+          ]}
+          containerStyle={styles.dropdownContainerStyle}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={styles.selectedTextStyle}
+          itemTextStyle={styles.itemTextStyle}
+          activeColor={Colors.gray3}
+          data={years}
+          labelField="label"
+          valueField="value"
+          placeholder="Ano"
+          value={year}
+          onChange={(item) => setYear(item.value)}
+        />
       </View>
+
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
   )
 }
@@ -79,16 +139,47 @@ const styles = StyleSheet.create({
     width: '100%',
     gap: 16,
   },
-  pickerContainer: {
+  dropdownContainer: {
     flexDirection: 'row',
     gap: 16,
     justifyContent: 'center',
   },
-  pickerItem: {
+  dropdown: {
     flex: 1,
     borderWidth: 1,
     borderColor: Colors.gray2,
     borderRadius: 8,
-    overflow: 'hidden',
+    paddingHorizontal: 8,
+    backgroundColor: Colors.light,
+    justifyContent: 'center',
+    height: 50,
+  },
+  dropdownError: {
+    borderColor: 'red', // borda vermelha no erro
+  },
+  dropdownContainerStyle: {
+    backgroundColor: Colors.light,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.gray2,
+  },
+  placeholderStyle: {
+    color: Colors.gray2,
+    fontSize: 14,
+  },
+  selectedTextStyle: {
+    color: Colors.dark,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  itemTextStyle: {
+    color: Colors.dark,
+    fontSize: 14,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 13,
+    marginTop: 4,
+    marginLeft: 4,
   },
 })

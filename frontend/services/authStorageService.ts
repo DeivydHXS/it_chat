@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LOCAL_STORAGE_KEYS } from '../constants/localstorage';
-import type { TokenInterface } from '../interfaces/UserInterface';
+import type { TokenInterface } from '../interfaces/user-interfaces';
 
 export const AuthStorageService = {
     async saveToken(token: TokenInterface) {
