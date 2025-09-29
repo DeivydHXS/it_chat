@@ -54,6 +54,8 @@ export default class MeController {
     public async delete({ response, auth }: HttpContext) {
         const user = await auth.authenticateUsing(['api'])
 
+        await this.userService.delete(user)
+
         ResponseService.send(response, 200, 'Conta de usuário deletada.', { user })
     }
 }

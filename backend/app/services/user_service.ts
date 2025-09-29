@@ -2,6 +2,9 @@ import User from "#models/user";
 import { TransactionClientContract } from "@adonisjs/lucid/types/database";
 import mail from '@adonisjs/mail/services/main'
 import { randomInt, UUID } from "crypto";
+import path from 'path'
+import fs from 'fs'
+import app from "@adonisjs/core/services/app";
 
 export default class UserService {
     public static formatUserResponse(user: User) {
@@ -37,6 +40,17 @@ export default class UserService {
             await user.save()
         }
         return UserService.formatUserResponse(user)
+    }
+
+    public async delete(user: User) {
+        if (user.profile_image_url) {
+            const oldPath = path.join(app.makePath('storage/uploads'), path.basename(user.profile_image_url))
+            if (fs.existsSync(oldPath)) {
+                fs.unlinkSync(oldPath)
+            }
+        }
+
+        user.delete()
     }
 
     public async verifyAccount(email: string, code: number) {
