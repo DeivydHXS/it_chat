@@ -31,14 +31,11 @@ export default class UserService {
         return UserService.formatUserResponse(user)
     }
 
-    public async update(user: User, payload: Partial<User>, trx?: TransactionClientContract) {
-        user.merge({
-            name: payload.name,
-            nickname: payload.nickname,
-            bio: payload.bio,
-            profile_image_url: payload.profile_image_url,
-        })
-        await user.save()
+    public async update(user: User, { profile_image, ...payload }: { name?: string, nickname?: string, bio?: string, profile_image_url?: string, profile_image?: any, }, trx?: TransactionClientContract) {
+        if (payload) {
+            user.merge(payload)
+            await user.save()
+        }
         return UserService.formatUserResponse(user)
     }
 
