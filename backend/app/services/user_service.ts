@@ -46,7 +46,7 @@ export default class UserService {
         const user = await User.findBy('email', email)
 
         if (user?.verification_code !== code) {
-            throw { error: 'Erro ao verificar e-mail, tente novamente mais tarde.' }
+            throw { errors: { error: 'Erro ao verificar e-mail, tente novamente mais tarde.' } }
         }
 
         user.status = 'a'
@@ -75,14 +75,14 @@ export default class UserService {
             return
         }
 
-        throw { error: 'Erro inesperado.' }
+        throw { errors: 'Erro inesperado.' }
     }
 
     public async verifyCode(email: string, code: number) {
         const user = await User.findBy('email', email)
 
         if (user?.verification_code !== code) {
-            throw { message: 'Campos obrigatórios inválidos.', error: 'Código inválido.' }
+            throw { message: 'Campos obrigatórios inválidos.', errors: { code: 'Código inválido.' } }
         }
     }
 
@@ -90,7 +90,7 @@ export default class UserService {
         const user = await User.findBy('email', email)
 
         if (user?.verification_code !== code) {
-            throw { error: 'Erro ao validar código.' }
+            throw { message: 'Não autorizado.', errors: { code: 'Erro ao validar código.' } }
         }
 
         user.merge({

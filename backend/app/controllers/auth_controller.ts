@@ -108,7 +108,7 @@ export default class AuthController {
         try {
             const { email, code, password } = await request.validateUsing(changePasswordValidator)
             await this.userService.changePassword(email, code, password)
-            ResponseService.send(response, 200, 'Senha alterada com sucesso.')
+            ResponseService.send(response, 200, 'Senha redefinida com sucesso!')
         } catch (error) {
             ResponseService.error(response, error)
         }

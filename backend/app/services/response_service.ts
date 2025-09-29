@@ -23,7 +23,7 @@ export default class ResponseService {
 
         response.status(status).json({
             message,
-            errors: data
+            errors: { ...data }
         })
     }
 
@@ -38,13 +38,18 @@ export default class ResponseService {
                 ResponseService.send(response, 422, 'Campos obrigatórios inválidos.', errorMessages)
                 break
             case adonisErrors.E_INVALID_CREDENTIALS:
-                ResponseService.send(response, 401, 'Não autorizado.', { error: 'Email e/ou senha inválido(s).' })
+                ResponseService.send(response, 401, 'Campos obrigatórios inválidos.', {
+                    email: 'Email e/ou senha inválido(s).',
+                    password: 'Email e/ou senha inválido(s).'
+                })
                 break
             case adonisErrors.E_UNAUTHORIZED_ACCESS:
-                ResponseService.send(response, 401, '', { error: 'Credenciais inválidas.' })
+                ResponseService.send(response, 401, 'Não autorizado.', {
+                    auth: 'Credenciais inválidas.'
+                })
                 break
             default:
-                ResponseService.send(response, 400, undefined, error)
+                ResponseService.send(response, 400, error.message, error.errors)
                 break
         }
     }

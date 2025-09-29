@@ -4,9 +4,8 @@ import { BirthdaySection } from '@/components/register-form/birthday-section';
 import { PasswordSection } from '@/components/register-form/password-section';
 import { mainStyles } from '@/constants/theme';
 import { useApi } from '@/hooks/use-api';
-import { messageOrError } from '@/interfaces/common-interfaces';
-import { UserInfo, UserRegister } from '@/interfaces/user-interfaces';
-import api from '@/services/api';
+import { ResponseInterface } from '@/interfaces/common-interfaces';
+import { UserRegister } from '@/interfaces/user-interfaces';
 import { router } from 'expo-router';
 import { useState, useCallback, useMemo } from 'react';
 import { Alert, View } from 'react-native';
@@ -53,7 +52,7 @@ export default function RegisterScreen() {
 
     const handleRegister = useCallback(async () => {
         try {
-            const response = await post<messageOrError>('/auth/register', form);
+            const response = await post<ResponseInterface>('/auth/register', form);
             submitStep();
             Alert.alert(
                 'Código enviado',
@@ -65,9 +64,10 @@ export default function RegisterScreen() {
     }, [form]);
 
     const handleIsEmailValid = useCallback(async () => {
-        const response = await post<messageOrError>('/auth/is_email_not_used', { email: form.email });
+        const response = await post<ResponseInterface>('/auth/is_email_not_used', { email: form.email });
+        console.log(response.data)
         if (response.status >= 300) {
-            setEmailError(response.data.error || '')
+            setEmailError(response.data.errors?.email || '')
             return
         }
         submitStep()
@@ -75,7 +75,7 @@ export default function RegisterScreen() {
 
     const handleVerifyCode = useCallback(async () => {
         try {
-            const response = await post<messageOrError>('/auth/verify_email', {
+            const response = await post<ResponseInterface>('/auth/verify_email', {
                 email: form.email,
                 code: form.code
             });

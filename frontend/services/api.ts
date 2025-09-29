@@ -3,7 +3,7 @@ import { AuthStorageService } from './authStorageService';
 import { router } from 'expo-router';
 
 const api = axios.create({
-  baseURL: process.env.API_URL || 'http://192.168.18.9:3333/api',
+  baseURL: process.env.API_URL || 'http://192.168.1.6:3333/api',
 });
 
 api.interceptors.request.use(async (config) => {

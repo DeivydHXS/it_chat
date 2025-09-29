@@ -59,10 +59,11 @@ vine.messagesProvider = new SimpleMessagesProvider({
   "name.required": "O campo nome é obrigatório.",
   "nickname.required": "O campo apelido é obrigatório.",
   "email.required": "O campo email é obrigatório.",
-  "email.database.exists": "O campo email é obrigatório.",
+  "email.database.exists": "Digite um email válido.",
   "birthday.required": "O campo data de nascimento é obrigatório.",
   "password.required": "O campo senha é obrigatório.",
   "password_confirmation.required": "O campo confirmação de senha é obrigatório.",
   "code.required": "O código de verificação é obrigatório.",
   "code.number": "Código inválido.",
+  "code.database.exists": "Código inválido.",
 })

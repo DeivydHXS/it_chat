@@ -48,7 +48,7 @@ export const loginAuthValidation = vine.compile(
 export const codeVerificationValidator = vine.compile(
   vine.object({
     email: vine.string().email().trim().exists({ table: 'users', column: 'email' }),
-    code: vine.number()
+    code: vine.number().exists({ table: 'users', column: 'verification_code' })
   })
 )
 
@@ -81,6 +81,7 @@ export const changePasswordValidator = vine.compile(
       .use(passwordMinLengthRule({}))
       .use(passwordHasUpperAndLowercaseRule({}))
       .use(passwordHasAtLeastOneNumberRule({}))
-      .use(passwordHasAtLeastOneSymbolRule({}))
+      .use(passwordHasAtLeastOneSymbolRule({})),
+      password_confirmation: vine.string().sameAs('password')
   })
 )
