@@ -10,9 +10,10 @@ export const Colors = {
   dark: '#1F2024',
   light: '#F8F9FE',
   red: '#cb3f42ff',
-  gray1: '#4F4F4F',
-  gray2: '#828282',
-  gray3: '#BDBDBD',
+  gray1: '#333333',
+  gray2: '#4F4F4F',
+  gray3: '#828282',
+  gray4: '#BDBDBD',
   check: '#27AE60',
 };
 

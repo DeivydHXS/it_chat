@@ -1,6 +1,5 @@
 import { Tabs } from 'expo-router';
 
-import { HapticTab } from '@/components/haptic-tab';
 import { Colors } from '@/constants/theme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,16 +8,25 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#D51917',
+        tabBarActiveTintColor: Colors.red,
+        tabBarInactiveTintColor: Colors.gray2,
+        tabBarStyle: {
+          backgroundColor: Colors.light
+        },
         headerShown: true,
-        tabBarButton: HapticTab,
+        headerTintColor: Colors.light,
+        headerStyle: {
+          backgroundColor: Colors.red,
+        }
       }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'Conversas',
           headerTitleAlign: 'center',
-          tabBarIcon: () => <Ionicons name="chatbubble" size={24} color={'#687076'} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name="chatbubble" size={24} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -26,7 +34,9 @@ export default function TabLayout() {
         options={{
           title: 'Grupos',
           headerTitleAlign: 'center',
-          tabBarIcon: () => <Ionicons name="chatbubbles" size={24} color={'#687076'} />,
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="chatbubbles" size={24} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -34,7 +44,9 @@ export default function TabLayout() {
         options={{
           title: 'Amigos',
           headerTitleAlign: 'center',
-          tabBarIcon: () => <MaterialIcons name="groups" size={24} color={'#687076'} />,
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="groups" size={24} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -42,7 +54,9 @@ export default function TabLayout() {
         options={{
           title: 'Perfil',
           headerTitleAlign: 'center',
-          tabBarIcon: () => <MaterialIcons name="person" size={24} color={'#687076'} />,
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="person" size={24} color={color} />
+          ),
         }}
       />
     </Tabs>

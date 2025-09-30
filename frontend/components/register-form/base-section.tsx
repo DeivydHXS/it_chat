@@ -27,7 +27,7 @@ export function BaseSection(props: BaseSectionProps) {
         'nickname': {
             head: "Escolha um nome de usuário",
             body: "Escolha um apelido único para sua conta.",
-            button_text: 'Digite seu email'
+            button_text: 'Digite seu apelido'
         },
         'code': {
             head: "Insira o código",

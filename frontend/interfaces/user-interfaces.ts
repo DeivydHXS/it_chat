@@ -1,7 +1,7 @@
 export type TokenInterface = {
-    access_token: string
-    created_at: string
-    expires_at: string
+  access_token: string
+  created_at: string
+  expires_at: string
 }
 
 export interface UserInfo {
@@ -10,10 +10,13 @@ export interface UserInfo {
   password_confirmation: string
   name: string
   nickname: string
+  nickname_hash: string
   birthday: string
 }
 export interface UserInterface extends UserInfo {
-  id:string,
+  id: string,
+  bio: string | null,
+  profile_image_url: string | null
 }
 
 export interface UserRegister extends UserInfo {

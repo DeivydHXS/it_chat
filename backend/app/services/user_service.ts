@@ -69,7 +69,6 @@ export default class UserService {
 
     public async sendPasswordRecoverCode(email: string) {
         const user = await User.findBy('email', email)
-        console.log(email)
         if (user) {
             const verification_code = randomInt(100000, 999999)
             user.verification_code = verification_code

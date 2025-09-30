@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Dispatch, SetStateAction } from 'react'
 import { StyleSheet, View, Text } from 'react-native'
 import { InfoSection } from '../info-section'
 import { Colors } from '@/constants/theme'
@@ -7,13 +7,14 @@ import { Dropdown } from 'react-native-element-dropdown'
 interface BirthdaySectionProps {
   value: string | undefined
   handle: (newValue: string) => void
+  canProceed: Dispatch<SetStateAction<boolean>>
 }
 
 export function BirthdaySection(props: BirthdaySectionProps) {
   const [day, setDay] = useState('')
   const [month, setMonth] = useState('')
   const [year, setYear] = useState('')
-  const [error, setError] = useState('') // 🔴 mensagem de erro
+  const [error, setError] = useState('')
 
   useEffect(() => {
     if (props.value) {
@@ -25,13 +26,13 @@ export function BirthdaySection(props: BirthdaySectionProps) {
   }, [props.value])
 
   useEffect(() => {
+    props.canProceed(false)
     if (year && month && day) {
       const formatted = `${year.padStart(4, '0')}-${month.padStart(
         2,
         '0'
       )}-${day.padStart(2, '0')}`
 
-      // 🔎 Verificação de idade
       const birthDate = new Date(Number(year), Number(month) - 1, Number(day))
       const today = new Date()
 
@@ -48,8 +49,9 @@ export function BirthdaySection(props: BirthdaySectionProps) {
         return
       }
 
-      setError('') // limpa erro se idade for válida
+      setError('')
       props.handle(formatted)
+      props.canProceed(true)
     }
   }, [year, month, day])
 
@@ -77,7 +79,7 @@ export function BirthdaySection(props: BirthdaySectionProps) {
         <Dropdown
           style={[
             styles.dropdown,
-            error ? styles.dropdownError : null, // borda vermelha se erro
+            error ? styles.dropdownError : null,
           ]}
           containerStyle={styles.dropdownContainerStyle}
           placeholderStyle={styles.placeholderStyle}
@@ -155,7 +157,7 @@ const styles = StyleSheet.create({
     height: 50,
   },
   dropdownError: {
-    borderColor: 'red', // borda vermelha no erro
+    borderColor: 'red',
   },
   dropdownContainerStyle: {
     backgroundColor: Colors.light,

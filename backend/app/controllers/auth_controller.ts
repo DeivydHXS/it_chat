@@ -31,7 +31,7 @@ export default class AuthController {
             const { email } = await request.validateUsing(isEmailNotUsedValidator)
             const user = await User.findBy('email', email)
             if (user) {
-                ResponseService.send(response, 409, '', { error: 'Email já registrado no sistema.' })
+                ResponseService.send(response, 409, 'Campos obrigatórios inválidos.', { email: 'Email já registrado no sistema.' })
                 return
             }
 

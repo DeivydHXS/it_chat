@@ -8,6 +8,7 @@ interface AuthContextData {
   setUser: React.Dispatch<React.SetStateAction<UserInterface | undefined>>;
   logout: () => Promise<void>;
   doLogin: (userData: UserInterface, token: TokenInterface) => Promise<void>;
+  getUser: () => Promise<UserInterface | undefined>;
 }
 
 export const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -16,23 +17,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<UserInterface | undefined>(undefined);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const storagedUser = await AsyncStorage.getItem(LOCAL_STORAGE_KEYS.USER);
-        const storagedToken = await AsyncStorage.getItem(LOCAL_STORAGE_KEYS.TOKEN);
-        if (storagedToken && storagedUser) {
-          setUser(JSON.parse(storagedUser));
-        }
-      } catch (err) {
-        console.error('Erro ao carregar dados do AsyncStorage', err);
-      }
-    })();
+    getUser();
   }, []);
 
   async function doLogin(userData: UserInterface, token: TokenInterface) {
     try {
-      await AsyncStorage.setItem(LOCAL_STORAGE_KEYS.USER, JSON.stringify(userData));
-      await AsyncStorage.setItem(LOCAL_STORAGE_KEYS.TOKEN, JSON.stringify(token));
+      await AsyncStorage.setItem(LOCAL_STORAGE_KEYS.USER, JSON.stringify(userData) || '');
+      await AsyncStorage.setItem(LOCAL_STORAGE_KEYS.TOKEN, JSON.stringify(token) || '');
       setUser(userData);
     } catch (err) {
       console.error('Erro ao salvar dados no AsyncStorage', err);
@@ -49,9 +40,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }
 
+  async function getUser(): Promise<UserInterface | undefined> {
+    try {
+      const storagedUser = await AsyncStorage.getItem(LOCAL_STORAGE_KEYS.USER);
+      if (storagedUser) {
+        const parsedUser: UserInterface = JSON.parse(storagedUser);
+        setUser(parsedUser);
+        return parsedUser;
+      }
+    } catch (err) {
+      console.error('Erro ao carregar usuário do AsyncStorage', err);
+    }
+    return undefined;
+  }
+
   return (
-    <AuthContext.Provider value={{ setUser, user, logout, doLogin }}>
+    <AuthContext.Provider value={{ setUser, user, logout, doLogin, getUser }}>
       {children}
     </AuthContext.Provider>
   );
+
 };

@@ -24,8 +24,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @beforeCreate()
   public static addNicknameHash(user: User) {
-    user.nickname_hash = randomBytes(2).toString('hex');
+    user.nickname_hash = randomBytes(2).toString('hex').toUpperCase();
   }
+  
   @beforeCreate()
   public static setStatusPending(user: User) {
     user.status = 'p';

@@ -1,16 +1,16 @@
 import { Colors } from "@/constants/theme";
 import { Link, RelativePathString } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, PressableProps, StyleSheet, Text, View } from "react-native";
 
 
-interface CustomPressableProps {
+interface CustomPressableProps extends PressableProps {
     text: string
     onPress: () => void
 }
 
 export function CustomPressable(props: CustomPressableProps) {
     return (
-        <Pressable onPress={props.onPress} style={styles.button_container}>
+        <Pressable disabled={props.disabled} onPress={props.onPress} style={props.disabled ? styles.button_container_disabled : styles.button_container}>
             <View style={styles.inside_button_container}>
                 <Text style={styles.button_text}>{props.text}</Text>
             </View>
@@ -23,6 +23,12 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 50,
         backgroundColor: Colors.dark,
+        borderRadius: 30,
+    },
+    button_container_disabled: {
+        width: '100%',
+        height: 50,
+        backgroundColor: Colors.gray3,
         borderRadius: 30,
     },
     button_container_alt: {
