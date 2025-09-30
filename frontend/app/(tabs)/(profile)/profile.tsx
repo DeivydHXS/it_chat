@@ -1,7 +1,9 @@
 
+import { MenuCustomPressable } from '@/components/menu-custom-pressable';
 import { Colors } from '@/constants/theme';
 import { AuthContext } from '@/context/auth-context';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { navigate, push } from 'expo-router/build/global-state/routing';
 import { useContext, useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
@@ -35,30 +37,9 @@ export default function TabFourScreen() {
       </View>
 
       <View style={styles.options}>
-        <View style={styles.option_item}>
-          <Text>Editar perfil</Text>
-          <Ionicons
-            name="chevron-forward"
-            size={18}
-            color={Colors.red}
-          />
-        </View>
-        <View style={styles.option_item}>
-          <Text>Alterar senha</Text>
-          <Ionicons
-            name="chevron-forward"
-            size={18}
-            color={Colors.red}
-          />
-        </View>
-        <View style={styles.option_item}>
-          <Text>Excluir conta</Text>
-          <Ionicons
-            name="chevron-forward"
-            size={18}
-            color={Colors.red}
-          />
-        </View>
+       <MenuCustomPressable onPress={() => navigate('/(tabs)/(profile)/edit')} text='Editar perfil' />
+       <MenuCustomPressable onPress={() => navigate('/(tabs)/(profile)/edit')} text='Alterar senha' />
+       <MenuCustomPressable onPress={() => navigate('/(tabs)/(profile)/edit')} text='Excluir conta' />
       </View>
     </View>
   );

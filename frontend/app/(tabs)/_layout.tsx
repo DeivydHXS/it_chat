@@ -17,13 +17,14 @@ export default function TabLayout() {
         headerTintColor: Colors.light,
         headerStyle: {
           backgroundColor: Colors.red,
-        }
+          height: 90
+        },
+        headerTitleAlign: 'center'
       }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'Conversas',
-          headerTitleAlign: 'center',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name="chatbubble" size={24} color={color} />
           ),
@@ -33,7 +34,6 @@ export default function TabLayout() {
         name="groups"
         options={{
           title: 'Grupos',
-          headerTitleAlign: 'center',
           tabBarIcon: ({ color }) => (
             <Ionicons name="chatbubbles" size={24} color={color} />
           ),
@@ -43,17 +43,16 @@ export default function TabLayout() {
         name="friends"
         options={{
           title: 'Amigos',
-          headerTitleAlign: 'center',
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="groups" size={24} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="(profile)"
         options={{
           title: 'Perfil',
-          headerTitleAlign: 'center',
+          headerShown: false,
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="person" size={24} color={color} />
           ),

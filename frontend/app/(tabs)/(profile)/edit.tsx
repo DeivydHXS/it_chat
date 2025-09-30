@@ -1,10 +1,11 @@
+
 import { Colors } from '@/constants/theme';
 import { StyleSheet, Text, View } from 'react-native';
 
-export default function TabThreeScreen() {
+export default function TabFourScreen() {
   return (
     <View style={styles.container}>
-      <Text>Amigos</Text>
+        <Text>Edit</Text>
     </View>
   );
 }

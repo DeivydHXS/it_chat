@@ -18,7 +18,7 @@ export default function WellcomeLayout() {
         headerLeft: (props:any ) => (
           <Ionicons
             name="chevron-back"
-            size={32}
+            size={24}
             color={ Colors.light }
             onPress={() => goBack()}
           />

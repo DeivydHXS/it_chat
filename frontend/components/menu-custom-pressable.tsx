@@ -11,7 +11,7 @@ interface MenuCustomPressableProps extends PressableProps {
 
 export function MenuCustomPressable(props: MenuCustomPressableProps) {
     return (
-        <Pressable style={styles.container}>
+        <Pressable style={styles.container} onPress={props.onPress}>
             <Text>{props.text}</Text>
             <Ionicons
                 name="chevron-forward"
