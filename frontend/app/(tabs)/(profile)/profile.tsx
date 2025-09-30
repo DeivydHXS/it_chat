@@ -21,25 +21,29 @@ export default function TabFourScreen() {
         {user?.profile_image_url ?
           <Image
             source={{ uri: baseURL + user?.profile_image_url }}
-            style={{ width: 100, height: 100, borderRadius: 50 }}
+            style={{ width: 100, height: 100 }}
           /> :
-          <MaterialIcons name="person" size={100} color={'#B4DBFF'} />
+          <MaterialIcons name="person" size={120} color={'#B4DBFF'} style={{
+            right: 9
+          }} />
         }
       </View>
 
       <View style={styles.name_container}>
         <Text style={styles.name}>{user?.name}</Text>
-        <Text>{user?.nickname}#{user?.nickname_hash}</Text>
+        <Text style={styles.nickname}>{user?.nickname}#{user?.nickname_hash}</Text>
       </View>
 
       <View style={styles.bio}>
-        <Text>{user?.bio}</Text>
+        <Text style={{
+              color: Colors.gray3
+        }}>{user?.bio}</Text>
       </View>
 
       <View style={styles.options}>
-       <MenuCustomPressable onPress={() => navigate('/(tabs)/(profile)/edit')} text='Editar perfil' />
-       <MenuCustomPressable onPress={() => navigate('/(tabs)/(profile)/edit')} text='Alterar senha' />
-       <MenuCustomPressable onPress={() => navigate('/(tabs)/(profile)/edit')} text='Excluir conta' />
+        <MenuCustomPressable onPress={() => navigate('/(tabs)/(profile)/edit')} text='Editar perfil' />
+        <MenuCustomPressable onPress={() => {}} text='Alterar senha' />
+        <MenuCustomPressable onPress={() => {}} text='Excluir conta' />
       </View>
     </View>
   );
@@ -63,6 +67,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#EAF2FF',
     borderRadius: 50,
+    overflow: 'hidden'
   },
   name_container: {
     alignItems: 'center',
@@ -74,25 +79,19 @@ const styles = StyleSheet.create({
     fontSize: 22
   },
   nickname: {
-    color: Colors.gray4,
-    fontSize: 18
+    color: Colors.gray3,
+    fontSize: 16
   },
   bio: {
     width: '100%',
     height: 200,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: Colors.gray3,
+    borderColor: Colors.gray4,
     padding: 16
   },
   options: {
     width: '100%',
     gap: 2
-  },
-  option_item: {
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between'
   }
 })

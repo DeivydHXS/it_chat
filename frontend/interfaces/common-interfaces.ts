@@ -1,9 +1,26 @@
-import { TokenInterface, UserInfo, UserInterface } from "./user-interfaces"
+import { TokenInterface, UserInfo, UserInterface, UserUpdateErrors } from "./user-interfaces"
 
 export interface ResponseInterface {
     message: string
-    data?: string
-    errors?: UserInfo
+    data?: {
+        user: UserInterface
+    }
+    errors?: UserInfo | UserUpdateErrors
+}
+
+export interface UserUpdateResponse {
+    message: string
+    data?: {
+        user: UserInterface
+    }
+    errors?: UserUpdateErrors
+}
+
+export interface IsEmailValidResponse {
+    message: string
+    errors?: {
+        email: string
+    }
 }
 
 export interface LoginInterface {

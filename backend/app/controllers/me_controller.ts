@@ -42,9 +42,9 @@ export default class MeController {
                 })
             }
 
-            const res = await this.userService.update(user, { ...payload, profile_image_url: `/uploads/profile_images/${payload.profile_image?.fileName}` })
+            const res = await this.userService.update(user, { ...payload, profile_image_url: payload.profile_image ? `/uploads/profile_images/${payload.profile_image?.fileName}` : undefined })
 
-            ResponseService.send(response, 200, 'Usuário atualizado com sucesso.', { res })
+            ResponseService.send(response, 200, 'Usuário atualizado com sucesso.', { user: {...res} })
         } catch (error) {
             console.log(error)
             ResponseService.error(response, error)

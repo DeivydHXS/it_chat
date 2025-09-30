@@ -1,12 +1,12 @@
-import { Colors } from "@/constants/theme";
-import { useCallback, useEffect, useState } from "react";
-import { StyleSheet, Text, TextInput, TextInputProps, View } from "react-native";
+import { Colors } from '@/constants/theme';
+import { useCallback, useEffect, useState } from 'react';
+import { StyleSheet, Text, TextInput, TextInputProps, View } from 'react-native';
 
-interface CustomInputTextProps extends TextInputProps {
+interface CustomInputLargeTextProps extends TextInputProps {
   error?: string
 }
 
-export function CustomInputText(props: CustomInputTextProps) {
+export function CustomInputLargeText(props: CustomInputLargeTextProps) {
   const [error, setError] = useState<string | undefined>(undefined)
 
   useEffect(() => {
@@ -21,6 +21,7 @@ export function CustomInputText(props: CustomInputTextProps) {
   return (
     <View style={styles.container}>
       <TextInput
+        multiline
         style={error ? styles.input_error : styles.input}
         placeholder={props.placeholder}
         value={props.value}
@@ -29,38 +30,41 @@ export function CustomInputText(props: CustomInputTextProps) {
         secureTextEntry={props.secureTextEntry}
         maxLength={props.maxLength}
       />
-      { error && <Text style={styles.error}>{error}</Text>}
+      {error && <Text style={styles.error}>{error}</Text>}
     </View>
   );
 }
 
 export const styles = StyleSheet.create({
   container: {
-    width: "100%",
+    width: '100%',
   },
   input: {
-    width: "100%",
-    height: 50,
+    width: '100%',
+    height: 180,
     paddingHorizontal: 10,
     borderColor: Colors.gray3,
     borderWidth: 1,
     borderRadius: 10,
     color: Colors.gray3,
     fontSize: 16,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlignVertical: 'top'
   },
   input_error: {
-    width: "100%",
-    height: 50,
+    width: '100%',
+    height: 180,
     paddingHorizontal: 10,
     borderColor: Colors.red,
     borderWidth: 1,
     borderRadius: 10,
     color: Colors.red,
     fontSize: 16,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlignVertical: 'top',
+
   },
   error: {
     color: 'red',

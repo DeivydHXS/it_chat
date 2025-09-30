@@ -13,6 +13,7 @@ export interface UserInfo {
   nickname_hash: string
   birthday: string
 }
+
 export interface UserInterface extends UserInfo {
   id: string,
   bio: string | null,
@@ -21,4 +22,16 @@ export interface UserInterface extends UserInfo {
 
 export interface UserRegister extends UserInfo {
   code: string
+}
+
+export interface UserUpdateForm {
+  name: string
+  nickname: string
+  bio: string
+}
+
+export interface UserUpdateErrors {
+  name?: string
+  nickname?: string
+  bio?: string
 }

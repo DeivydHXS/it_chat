@@ -4,7 +4,7 @@ import { BirthdaySection } from '@/components/register-form/birthday-section'
 import { PasswordSection } from '@/components/register-form/password-section'
 import { mainStyles } from '@/constants/theme'
 import { useApi } from '@/hooks/use-api'
-import { ResponseInterface } from '@/interfaces/common-interfaces'
+import { IsEmailValidResponse, ResponseInterface } from '@/interfaces/common-interfaces'
 import { UserRegister } from '@/interfaces/user-interfaces'
 import { router } from 'expo-router'
 import { useState, useCallback, useMemo } from 'react'
@@ -73,7 +73,7 @@ export default function RegisterScreen() {
     }, [form])
 
     const handleIsEmailValid = useCallback(async () => {
-        const response = await post<ResponseInterface>('/auth/is_email_not_used', { email: form.email })
+        const response = await post<IsEmailValidResponse>('/auth/is_email_not_used', { email: form.email })
         if (response.status >= 300) {
             setEmailError(response.data.errors?.email || '')
             return
