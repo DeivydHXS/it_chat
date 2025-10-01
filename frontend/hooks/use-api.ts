@@ -21,7 +21,17 @@ export const useApi = () => {
         return result;
     };
 
-    const post = async <T>(url: string, data?: any): Promise<ApiResponse<T>> => {
+    const post = async <T>(url: string, data?: any, isMultipartForm?: boolean): Promise<ApiResponse<T>> => {
+        if (isMultipartForm) {
+            return await apiRequest.post(url, data, {
+                headers: { "Content-Type": "multipart/form-data" }
+            })
+                .then((res) => { return res })
+                .catch((err) => {
+                    return transformError(err)
+                }) as ApiResponse<T>;
+        }
+
         return await apiRequest.post(url, data)
             .then((res) => { return res })
             .catch((err) => {

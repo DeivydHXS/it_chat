@@ -7,7 +7,7 @@ interface AuthContextData {
   user: UserInterface | undefined;
   setUser: React.Dispatch<React.SetStateAction<UserInterface | undefined>>;
   logout: () => Promise<void>;
-  doLogin: (userData: UserInterface, token: TokenInterface) => Promise<void>;
+  login: (userData: UserInterface, token: TokenInterface) => Promise<void>;
   getUser: () => Promise<UserInterface | undefined>;
 }
 
@@ -20,10 +20,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     getUser();
   }, []);
 
-  async function doLogin(userData: UserInterface, token: TokenInterface) {
+  async function login(userData: UserInterface, token: TokenInterface) {
     try {
       await AsyncStorage.setItem(LOCAL_STORAGE_KEYS.USER, JSON.stringify(userData) || '');
       await AsyncStorage.setItem(LOCAL_STORAGE_KEYS.TOKEN, JSON.stringify(token) || '');
+      await AsyncStorage.setItem(LOCAL_STORAGE_KEYS.FIRST, 'true');
       setUser(userData);
     } catch (err) {
       console.error('Erro ao salvar dados no AsyncStorage', err);
@@ -55,7 +56,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }
 
   return (
-    <AuthContext.Provider value={{ setUser, user, logout, doLogin, getUser }}>
+    <AuthContext.Provider value={{ setUser, user, logout, login, getUser }}>
       {children}
     </AuthContext.Provider>
   );

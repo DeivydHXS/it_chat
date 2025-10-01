@@ -17,7 +17,7 @@ export default function LoginScreen() {
   const { post } = useApi()
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { doLogin } = useContext(AuthContext)
+  const { login } = useContext(AuthContext)
   const [errors, setErrors] = useState<{ email: string, password: string }>()
 
   async function handleLogin() {
@@ -30,7 +30,7 @@ export default function LoginScreen() {
       }
 
       // @ts-ignore
-      await doLogin(response.data.data?.user, response.data.data?.token);
+      await login(response.data.data?.user, response.data.data?.token);
       router.replace('/(tabs)')
     } catch (err) {
       Alert.alert('Erro', JSON.stringify(err));

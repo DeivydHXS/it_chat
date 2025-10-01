@@ -2,18 +2,23 @@
 import { MenuCustomPressable } from '@/components/menu-custom-pressable';
 import { Colors } from '@/constants/theme';
 import { AuthContext } from '@/context/auth-context';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { navigate, push } from 'expo-router/build/global-state/routing';
-import { useContext, useEffect, useState } from 'react';
+import { MaterialIcons } from '@expo/vector-icons';
+import { navigate, replace } from 'expo-router/build/global-state/routing';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 export default function TabFourScreen() {
-  const baseURL = process.env.EXPO_PUBLIC_API_URL
-  const { user, getUser } = useContext(AuthContext);
+  const baseURL = process.env.EXPO_PUBLIC_BASE_API_URL
+  const { user, getUser, logout } = useContext(AuthContext);
 
   useEffect(() => {
     getUser();
   }, []);
+
+  const logoutUser = useCallback(async () => {
+    await logout()
+    replace('/(wellcome)/login')
+  }, [])
 
   return (
     <View style={styles.container}>
@@ -44,6 +49,7 @@ export default function TabFourScreen() {
         <MenuCustomPressable onPress={() => navigate('/(tabs)/(profile)/edit')} text='Editar perfil' />
         <MenuCustomPressable onPress={() => {}} text='Alterar senha' />
         <MenuCustomPressable onPress={() => {}} text='Excluir conta' />
+        <MenuCustomPressable onPress={() => logoutUser()} text='Sair' />
       </View>
     </View>
   );

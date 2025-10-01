@@ -27,7 +27,7 @@ export interface UserRegister extends UserInfo {
 export interface UserUpdateForm {
   name: string
   nickname: string
-  bio: string
+  bio?: string
 }
 
 export interface UserUpdateErrors {
