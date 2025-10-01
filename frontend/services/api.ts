@@ -3,7 +3,7 @@ import { AuthStorageService } from './authStorageService';
 import { router } from 'expo-router';
 
 const api = axios.create({
-  baseURL: process.env.API_URL || 'http://192.168.1.6:3333/api',
+  baseURL: process.env.EXPO_PUBLIC_API_URL
 });
 
 api.interceptors.request.use(async (config) => {
@@ -12,13 +12,18 @@ api.interceptors.request.use(async (config) => {
   if (userToken?.access_token) {
     config.headers?.set('Authorization', `Bearer ${userToken.access_token}`);
   }
-
+  console.log('request')
   return config;
 });
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+  console.log('response')
+    
+    return response},
   async (error) => {
+  console.log('error')
+
       if (error.response?.status === 401) {
       await AuthStorageService.removeToken();
 

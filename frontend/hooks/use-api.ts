@@ -22,6 +22,8 @@ export const useApi = () => {
     };
 
     const post = async <T>(url: string, data?: any): Promise<ApiResponse<T>> => {
+        console.log('url')
+        console.log(url)
         return await apiRequest.post(url, data)
             .then((res) => { return res })
             .catch((err) => {
