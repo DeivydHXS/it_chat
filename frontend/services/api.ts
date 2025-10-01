@@ -12,19 +12,14 @@ api.interceptors.request.use(async (config) => {
   if (userToken?.access_token) {
     config.headers?.set('Authorization', `Bearer ${userToken.access_token}`);
   }
-  console.log('request')
+
   return config;
 });
 
 api.interceptors.response.use(
-  (response) => {
-  console.log('response')
-    
-    return response},
+  (response) => response,
   async (error) => {
-  console.log('error')
-
-      if (error.response?.status === 401) {
+    if (error.response?.status === 401) {
       await AuthStorageService.removeToken();
 
       router.replace('/(wellcome)/login');

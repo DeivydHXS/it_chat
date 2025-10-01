@@ -8,28 +8,35 @@ import { CustomLink } from '@/components/custom-link';
 import { InfoSection } from '@/components/info-section';
 import { mainStyles } from '@/constants/theme';
 import api from '@/services/api';
-import { AuthStorageService } from '@/services/authStorageService';
 import { CustomPressable } from '@/components/custom-pressable';
-import { TokenInterface, UserInterface } from '@/interfaces/user-interfaces';
 import { AuthContext } from '@/context/auth-context';
 import { LoginInterface, ResponseInterface } from '@/interfaces/common-interfaces';
+import { useApi } from '@/hooks/use-api';
 
 export default function LoginScreen() {
+  const { post } = useApi()
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { doLogin } = useContext(AuthContext)
+  const [errors, setErrors] = useState<{ email: string, password: string }>()
 
   async function handleLogin() {
     try {
-      const response = await api.post<LoginInterface>('/auth/login', { email, password });
-      console.log(response)
+      const response = await post<LoginInterface>('/auth/login', { email, password });
+
+      if (response.status > 299) {
+        setErrors(response.data.errors)
+        return
+      }
+
+      // @ts-ignore
       await doLogin(response.data.data?.user, response.data.data?.token);
-      router.replace('/(tabs)');
+      router.replace('/(tabs)')
     } catch (err) {
-      Alert.alert('Erro', 'Email ou senha incorretos.');
+      Alert.alert('Erro', JSON.stringify(err));
     }
   }
-  
+
   return (
     <View style={mainStyles.container}>
       <Image source={icon_img} style={styles.image_container} />
@@ -43,12 +50,15 @@ export default function LoginScreen() {
         placeholder='Digite seu email'
         value={email}
         onChangeText={setEmail}
+        error={errors?.email}
       />
 
       <CustomInputText
         placeholder='Digite sua senha'
         value={password}
+        secureTextEntry
         onChangeText={setPassword}
+        error={errors?.password}
       />
 
       <CustomPressable
@@ -71,7 +81,7 @@ export default function LoginScreen() {
           Esqueceu sua senha?
         </Text>
 
-        <Link href='/'>
+        <Link href='/forgot-password'>
           <LinkTrigger>
             <Text style={{
               fontWeight: 'bold'

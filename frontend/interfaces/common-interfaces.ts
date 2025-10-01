@@ -25,8 +25,19 @@ export interface IsEmailValidResponse {
 
 export interface LoginInterface {
     message: string
-    data: {
+    data?: {
         user: UserInterface
         token: TokenInterface
+    }
+    errors?: {
+        email: string
+        password: string
+    }
+}
+
+export interface ForgotPasswordResponseInterface {
+    message: string
+    errors?: {
+        code: string
     }
 }
