@@ -24,7 +24,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       await AsyncStorage.setItem(LOCAL_STORAGE_KEYS.USER, JSON.stringify(userData) || '');
       await AsyncStorage.setItem(LOCAL_STORAGE_KEYS.TOKEN, JSON.stringify(token) || '');
-      await AsyncStorage.setItem(LOCAL_STORAGE_KEYS.FIRST, 'true');
       setUser(userData);
     } catch (err) {
       console.error('Erro ao salvar dados no AsyncStorage', err);
