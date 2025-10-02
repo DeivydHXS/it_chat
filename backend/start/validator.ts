@@ -66,4 +66,5 @@ vine.messagesProvider = new SimpleMessagesProvider({
   "code.required": "O código de verificação é obrigatório.",
   "code.number": "Código inválido.",
   "code.database.exists": "Código inválido.",
+  "profile_image.file.size": "O arquivo deve ter menos de 2MB."
 })

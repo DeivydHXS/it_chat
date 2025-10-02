@@ -34,4 +34,5 @@ export interface UserUpdateErrors {
   name?: string
   nickname?: string
   bio?: string
+  profile_image?: string
 }

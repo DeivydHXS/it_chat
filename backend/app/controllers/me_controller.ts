@@ -46,7 +46,6 @@ export default class MeController {
 
             ResponseService.send(response, 200, 'Usuário atualizado com sucesso.', { user: {...res} })
         } catch (error) {
-            console.log(error)
             ResponseService.error(response, error)
         }
     }

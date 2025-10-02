@@ -3,6 +3,8 @@ import { errors } from '@vinejs/vine'
 
 export default class ResponseService {
     public static async send(response: any, status: number, message?: string, data?: any) {
+        // console.log('mensagem:', message)
+        // console.log('data:', data)
         const isStatusValid = status >= 200 && status <= 300 ? true : false
 
         if (isStatusValid) {

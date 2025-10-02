@@ -15,9 +15,9 @@ import { useApi } from '@/hooks/use-api';
 
 export default function LoginScreen() {
   const { post } = useApi()
+  const { login } = useContext(AuthContext)
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login } = useContext(AuthContext)
   const [errors, setErrors] = useState<{ email: string, password: string }>()
 
   async function handleLogin() {

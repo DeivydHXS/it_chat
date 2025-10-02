@@ -9,6 +9,10 @@ export const useApi = () => {
     const apiRequest: AxiosInstance = api;
 
     const transformError = (err: AxiosError) => {
+        // console.log('----------------ERRO--------------')
+        // console.log(err)
+        // console.log(err.response)
+        // console.log('----------------------------------')
         return err.response
     }
 
