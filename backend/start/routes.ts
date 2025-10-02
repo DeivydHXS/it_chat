@@ -63,7 +63,7 @@ router
 
     router
       .group(() => {
-        router.get('', '#controllers/users_controller.all')
+        router.get('', '#controllers/users_controller.search')
         router.get(':id', '#controllers/users_controller.get')
       })
       .prefix('users')
