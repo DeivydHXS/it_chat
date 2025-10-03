@@ -1,5 +1,4 @@
 import { Colors } from "@/constants/theme";
-import { Link, RelativePathString } from "expo-router";
 import { Pressable, PressableProps, StyleSheet, Text, View } from "react-native";
 
 

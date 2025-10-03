@@ -23,6 +23,13 @@ export interface IsEmailValidResponse {
     }
 }
 
+export interface IsBirthdayValidResponse {
+    message: string
+    errors?: {
+        birthday: string
+    }
+}
+
 export interface LoginInterface {
     message: string
     data?: {

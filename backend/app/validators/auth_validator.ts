@@ -71,6 +71,17 @@ export const isEmailNotUsedValidator = vine.compile(
 )
 
 /**
+ * Validates the auth's is birthday valid action
+ */
+export const birthdayValidator = vine.compile(
+  vine.object({
+    birthday: vine.date().beforeOrEqual(() => {
+      return dayjs().subtract(12, 'year').format('YYYY-MM-DD')
+    }),
+  })
+)
+
+/**
  * Validates the auth's change password action
  */
 export const changePasswordValidator = vine.compile(

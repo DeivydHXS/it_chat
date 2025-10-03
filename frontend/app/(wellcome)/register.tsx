@@ -4,7 +4,7 @@ import { BirthdaySection } from '@/components/register-form/birthday-section'
 import { PasswordSection } from '@/components/register-form/password-section'
 import { mainStyles } from '@/constants/theme'
 import { useApi } from '@/hooks/use-api'
-import { IsEmailValidResponse, ResponseInterface } from '@/interfaces/common-interfaces'
+import { IsBirthdayValidResponse, IsEmailValidResponse, ResponseInterface } from '@/interfaces/common-interfaces'
 import { UserRegister } from '@/interfaces/user-interfaces'
 import { router } from 'expo-router'
 import { useState, useCallback, useMemo } from 'react'
@@ -13,6 +13,7 @@ import { Alert, View } from 'react-native'
 export default function RegisterScreen() {
     const { post } = useApi()
     const [emailError, setEmailError] = useState<string>('')
+    const [birthdayError, setBirthdayError] = useState<string>('')
     const [canProceed, setCanProceed] = useState<boolean>(false)
 
     const steps = [
@@ -76,6 +77,16 @@ export default function RegisterScreen() {
         const response = await post<IsEmailValidResponse>('/auth/is_email_not_used', { email: form.email })
         if (response.status >= 300) {
             setEmailError(response.data.errors?.email || '')
+            setCanProceed(false)
+            return
+        }
+        submitStep()
+    }, [form, setEmailError])
+
+    const handleIsBirthdayValid = useCallback(async () => {
+        const response = await post<IsBirthdayValidResponse>('/auth/is_birthday_valid', { birthday: form.birthday })
+        if (response.status >= 300) {
+            setBirthdayError(response.data.errors?.birthday || '')
             return
         }
         submitStep()
@@ -104,6 +115,10 @@ export default function RegisterScreen() {
                 text: 'Avançar',
                 action: handleIsEmailValid
             }
+            case 'birthday': return {
+                text: 'Avançar',
+                action: handleIsBirthdayValid
+            }
             case 'code': return {
                 text: 'Confirmar',
                 action: handleVerifyCode
@@ -118,8 +133,14 @@ export default function RegisterScreen() {
     return (
         <View style={mainStyles.container_alt}>
             {step === 'email' && (
-                <BaseSection step='email' error={emailError}
-                    value={form.email} handle={(text) => handleForm(text, 'email')} />
+                <BaseSection
+                    step='email'
+                    error={emailError}
+                    value={form.email}
+                    handle={(text) => {
+                        setEmailError('')
+                        handleForm(text, 'email')
+                    }} />
             )}
 
             {step === 'password' && (
@@ -134,6 +155,7 @@ export default function RegisterScreen() {
 
             {step === 'birthday' && (
                 <BirthdaySection
+                    error={birthdayError}
                     value={form.birthday}
                     handle={(text) => handleForm(text, 'birthday')}
                     canProceed={setCanProceed}

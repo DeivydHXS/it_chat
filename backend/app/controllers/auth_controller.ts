@@ -1,5 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import { registerAuthValidator, loginAuthValidation, codeVerificationValidator, forgotPasswordValidator, changePasswordValidator, isEmailNotUsedValidator } from '#validators/auth_validator'
+import { registerAuthValidator, loginAuthValidation, codeVerificationValidator, forgotPasswordValidator, changePasswordValidator, isEmailNotUsedValidator, birthdayValidator } from '#validators/auth_validator'
 import UserService from '#services/user_service'
 import { inject } from '@adonisjs/core'
 import ResponseService from '#services/response_service'
@@ -36,6 +36,20 @@ export default class AuthController {
             }
 
             ResponseService.send(response, 200, 'Email não registrado.')
+        } catch (error) {
+            ResponseService.error(response, error)
+        }
+    }
+
+    public async isBirthdayValid({ request, response }: HttpContext) {
+        try {
+            const { birthday } = await request.validateUsing(birthdayValidator)
+            if (!birthday) {
+                ResponseService.send(response, 409, 'Campos obrigatórios inválidos.', { birthday: 'O campo data de nascimento é obrigatório.' })
+                return
+            }
+
+            ResponseService.send(response, 200, 'Data de nascimento válida.')
         } catch (error) {
             ResponseService.error(response, error)
         }

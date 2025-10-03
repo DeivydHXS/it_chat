@@ -7,29 +7,18 @@ interface CustomInputTextProps extends TextInputProps {
 }
 
 export function CustomInputText(props: CustomInputTextProps) {
-  const [error, setError] = useState<string | undefined>(undefined)
-
-  useEffect(() => {
-    setError(props.error)
-  }, [props.error])
-
-  const clearError = useCallback((text: string) => {
-    setError(undefined)
-    if (props.onChangeText) props.onChangeText(text)
-  }, [])
-
   return (
     <View style={styles.container}>
       <TextInput
-        style={error ? styles.input_error : styles.input}
+        style={props.error ? styles.input_error : styles.input}
         placeholder={props.placeholder}
         value={props.value}
-        onChangeText={error ? (text) => clearError(text) : props.onChangeText}
+        onChangeText={props.onChangeText}
         keyboardType={props.keyboardType}
         secureTextEntry={props.secureTextEntry}
         maxLength={props.maxLength}
       />
-      { error && <Text style={styles.error}>{error}</Text>}
+      {props.error && <Text style={styles.error}>{props.error}</Text>}
     </View>
   );
 }

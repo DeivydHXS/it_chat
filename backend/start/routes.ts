@@ -24,6 +24,8 @@ router
         router
           .post('is_email_not_used', '#controllers/auth_controller.isEmailNotUsed')
         router
+          .post('is_birthday_valid', '#controllers/auth_controller.isBirthdayValid')
+        router
           .post('login', '#controllers/auth_controller.login')
         router
           .post('verify_email', '#controllers/auth_controller.verifyEmail')
@@ -76,7 +78,7 @@ router
     router
       .group(() => {
         router
-          .get('', '#controllers/friends_controller.all')
+          .get('', '#controllers/friends_controller.search')
         router
           .group(() => {
             router
@@ -91,9 +93,8 @@ router
               .post('unblock', '#controllers/friends_controller.unblock')
             router
               .delete('unfriend', '#controllers/friends_controller.unfriend')
-          })
-      }).prefix(':user_id')
-      .prefix('friends')
+          }).prefix(':friendship_id')
+      }).prefix('friends')
       .use(
         middleware.auth({
           guards: ['api'],

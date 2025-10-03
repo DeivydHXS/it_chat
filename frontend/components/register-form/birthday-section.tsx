@@ -1,4 +1,4 @@
-import { useState, useEffect, Dispatch, SetStateAction } from 'react'
+import { useState, useEffect, Dispatch, SetStateAction, useMemo, useRef } from 'react'
 import { StyleSheet, View, Text } from 'react-native'
 import { InfoSection } from '../info-section'
 import { Colors } from '@/constants/theme'
@@ -8,14 +8,19 @@ interface BirthdaySectionProps {
   value: string | undefined
   handle: (newValue: string) => void
   canProceed: Dispatch<SetStateAction<boolean>>
+  error?: string
 }
 
 export function BirthdaySection(props: BirthdaySectionProps) {
-  const [day, setDay] = useState('')
-  const [month, setMonth] = useState('')
-  const [year, setYear] = useState('')
-  const [error, setError] = useState('')
+  const [day, setDay] = useState<string>('')
+  const [month, setMonth] = useState<string>('')
+  const [year, setYear] = useState<string>('')
+  const [error, setError] = useState<string | undefined>(undefined)
 
+  // evita chamadas repetidas para props.canProceed
+  const isProceedRef = useRef<boolean>(false)
+
+  // Preenche os valores iniciais se props.value já existir
   useEffect(() => {
     if (props.value) {
       const [y, m, d] = props.value.split('-')
@@ -25,48 +30,79 @@ export function BirthdaySection(props: BirthdaySectionProps) {
     }
   }, [props.value])
 
+  // Propagação de erro externo (ex: validação do servidor)
   useEffect(() => {
-    props.canProceed(false)
-    if (year && month && day) {
-      const formatted = `${year.padStart(4, '0')}-${month.padStart(
-        2,
-        '0'
-      )}-${day.padStart(2, '0')}`
+    setError(props.error)
+  }, [props.error])
 
-      const birthDate = new Date(Number(year), Number(month) - 1, Number(day))
-      const today = new Date()
-
-      let age = today.getFullYear() - birthDate.getFullYear()
-      const monthDiff = today.getMonth() - birthDate.getMonth()
-      const dayDiff = today.getDate() - birthDate.getDate()
-
-      if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
-        age--
+  // Validação e formatação — chama props.handle(formatted) e props.canProceed apenas quando necessário
+  useEffect(() => {
+    // se algum campo não preenchido, desabilita avanço (somente se estava habilitado antes)
+    if (!year || !month || !day) {
+      if (isProceedRef.current) {
+        isProceedRef.current = false
+        props.canProceed(false)
       }
+      return
+    }
 
-      if (age < 12) {
-        setError('Você deve ter pelo menos 12 anos para se inscrever.')
-        return
+    const birthDate = new Date(Number(year), Number(month) - 1, Number(day))
+    const today = new Date()
+
+    let age = today.getFullYear() - birthDate.getFullYear()
+    const monthDiff = today.getMonth() - birthDate.getMonth()
+    const dayDiff = today.getDate() - birthDate.getDate()
+
+    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+      age--
+    }
+
+    if (age < 12) {
+      setError('Você deve ter pelo menos 12 anos para se inscrever.')
+      if (isProceedRef.current) {
+        isProceedRef.current = false
+        props.canProceed(false)
       }
+      return
+    }
 
-      setError('')
-      props.handle(formatted)
+    // data válida
+    setError('')
+    const formatted = `${year.padStart(4, '0')}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+    props.handle(formatted)
+
+    if (!isProceedRef.current) {
+      isProceedRef.current = true
       props.canProceed(true)
     }
   }, [year, month, day])
 
-  const days = Array.from({ length: 31 }, (_, i) => ({
-    label: String(i + 1).padStart(2, '0'),
-    value: String(i + 1).padStart(2, '0'),
-  }))
-  const months = Array.from({ length: 12 }, (_, i) => ({
-    label: String(i + 1).padStart(2, '0'),
-    value: String(i + 1).padStart(2, '0'),
-  }))
-  const years = Array.from({ length: 120 }, (_, i) => {
-    const val = String(new Date().getFullYear() - i)
-    return { label: val, value: val }
-  })
+  // Memorizar arrays para evitar recriação em cada render
+  const days = useMemo(
+    () =>
+      Array.from({ length: 31 }, (_, i) => ({
+        label: String(i + 1).padStart(2, '0'),
+        value: String(i + 1).padStart(2, '0'),
+      })),
+    []
+  )
+
+  const months = useMemo(
+    () =>
+      Array.from({ length: 12 }, (_, i) => ({
+        label: String(i + 1).padStart(2, '0'),
+        value: String(i + 1).padStart(2, '0'),
+      })),
+    []
+  )
+
+  const years = useMemo(() => {
+    const currentYear = new Date().getFullYear()
+    return Array.from({ length: 120 }, (_, i) => {
+      const val = String(currentYear - i)
+      return { label: val, value: val }
+    })
+  }, [])
 
   return (
     <View style={styles.container}>
@@ -77,10 +113,7 @@ export function BirthdaySection(props: BirthdaySectionProps) {
 
       <View style={styles.dropdownContainer}>
         <Dropdown
-          style={[
-            styles.dropdown,
-            error ? styles.dropdownError : null,
-          ]}
+          style={[styles.dropdown, error ? styles.dropdownError : null]}
           containerStyle={styles.dropdownContainerStyle}
           placeholderStyle={styles.placeholderStyle}
           selectedTextStyle={styles.selectedTextStyle}
@@ -90,15 +123,17 @@ export function BirthdaySection(props: BirthdaySectionProps) {
           labelField="label"
           valueField="value"
           placeholder="Dia"
-          value={day}
+          value={day || null}
           onChange={(item) => setDay(item.value)}
+          autoScroll={false} // <--- desativa auto-scroll para evitar "snap"
+          flatListProps={{
+            initialNumToRender: 20,
+            keyExtractor: (item) => item.value,
+          }}
         />
 
         <Dropdown
-          style={[
-            styles.dropdown,
-            error ? styles.dropdownError : null,
-          ]}
+          style={[styles.dropdown, error ? styles.dropdownError : null]}
           containerStyle={styles.dropdownContainerStyle}
           placeholderStyle={styles.placeholderStyle}
           selectedTextStyle={styles.selectedTextStyle}
@@ -108,15 +143,17 @@ export function BirthdaySection(props: BirthdaySectionProps) {
           labelField="label"
           valueField="value"
           placeholder="Mês"
-          value={month}
+          value={month || null}
           onChange={(item) => setMonth(item.value)}
+          autoScroll={false}
+          flatListProps={{
+            initialNumToRender: 12,
+            keyExtractor: (item) => item.value,
+          }}
         />
 
         <Dropdown
-          style={[
-            styles.dropdown,
-            error ? styles.dropdownError : null,
-          ]}
+          style={[styles.dropdown, error ? styles.dropdownError : null]}
           containerStyle={styles.dropdownContainerStyle}
           placeholderStyle={styles.placeholderStyle}
           selectedTextStyle={styles.selectedTextStyle}
@@ -126,8 +163,13 @@ export function BirthdaySection(props: BirthdaySectionProps) {
           labelField="label"
           valueField="value"
           placeholder="Ano"
-          value={year}
+          value={year || null}
           onChange={(item) => setYear(item.value)}
+          autoScroll={false}
+          flatListProps={{
+            initialNumToRender: 30,
+            keyExtractor: (item) => item.value,
+          }}
         />
       </View>
 

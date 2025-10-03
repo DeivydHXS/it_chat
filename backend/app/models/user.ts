@@ -26,7 +26,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
   public static addNicknameHash(user: User) {
     user.nickname_hash = randomBytes(2).toString('hex').toUpperCase();
   }
-  
+
   @beforeCreate()
   public static setStatusPending(user: User) {
     user.status = 'p';
@@ -81,6 +81,10 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @manyToMany(() => User, {
     pivotTable: 'friendships',
+    localKey: 'id',
+    pivotForeignKey: 'send_by',
+    relatedKey: 'id',
+    pivotRelatedForeignKey: 'send_to',
   })
   declare friendships: ManyToMany<typeof User>
 
