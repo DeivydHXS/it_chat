@@ -71,6 +71,7 @@ export default function EditScreen() {
       }
 
       if (file) {
+        console.log('arquivo valido')
         data.append("profile_image", {
           uri: file.uri,
           name: file.name || "profile.jpg",
@@ -80,6 +81,11 @@ export default function EditScreen() {
       
       const response = await post<UserUpdateResponse>('/me', data);
 
+      if (!response) {
+        Alert.alert("Erro", "Erro inesperado");
+        return
+      }
+
       if (response.status > 299) {
         setErrors(response.data.errors);
         return;
@@ -88,7 +94,6 @@ export default function EditScreen() {
       setUser(response.data.data?.user);
       goBack();
     } catch (err: any) {
-      console.error("Erro no update:", err);
       Alert.alert("Erro", "Erro inesperado");
     } finally {
       setLoad(false)

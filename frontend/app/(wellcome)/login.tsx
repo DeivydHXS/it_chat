@@ -7,7 +7,6 @@ import { CustomInputText } from '@/components/custom-input-text';
 import { CustomLink } from '@/components/custom-link';
 import { InfoSection } from '@/components/info-section';
 import { mainStyles } from '@/constants/theme';
-import api from '@/services/api';
 import { CustomPressable } from '@/components/custom-pressable';
 import { AuthContext } from '@/context/auth-context';
 import { LoginInterface, ResponseInterface } from '@/interfaces/common-interfaces';

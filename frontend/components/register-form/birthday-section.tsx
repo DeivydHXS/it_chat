@@ -17,10 +17,8 @@ export function BirthdaySection(props: BirthdaySectionProps) {
   const [year, setYear] = useState<string>('')
   const [error, setError] = useState<string | undefined>(undefined)
 
-  // evita chamadas repetidas para props.canProceed
   const isProceedRef = useRef<boolean>(false)
 
-  // Preenche os valores iniciais se props.value já existir
   useEffect(() => {
     if (props.value) {
       const [y, m, d] = props.value.split('-')
@@ -30,14 +28,11 @@ export function BirthdaySection(props: BirthdaySectionProps) {
     }
   }, [props.value])
 
-  // Propagação de erro externo (ex: validação do servidor)
   useEffect(() => {
     setError(props.error)
   }, [props.error])
 
-  // Validação e formatação — chama props.handle(formatted) e props.canProceed apenas quando necessário
   useEffect(() => {
-    // se algum campo não preenchido, desabilita avanço (somente se estava habilitado antes)
     if (!year || !month || !day) {
       if (isProceedRef.current) {
         isProceedRef.current = false
@@ -66,7 +61,6 @@ export function BirthdaySection(props: BirthdaySectionProps) {
       return
     }
 
-    // data válida
     setError('')
     const formatted = `${year.padStart(4, '0')}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
     props.handle(formatted)
@@ -77,7 +71,6 @@ export function BirthdaySection(props: BirthdaySectionProps) {
     }
   }, [year, month, day])
 
-  // Memorizar arrays para evitar recriação em cada render
   const days = useMemo(
     () =>
       Array.from({ length: 31 }, (_, i) => ({
