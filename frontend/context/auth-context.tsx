@@ -32,9 +32,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   async function logout() {
     try {
-      setUser(undefined);
       await AsyncStorage.removeItem(LOCAL_STORAGE_KEYS.USER);
       await AsyncStorage.removeItem(LOCAL_STORAGE_KEYS.TOKEN);
+      setUser(undefined);
     } catch (err) {
       console.error('Erro ao remover dados do AsyncStorage', err);
     }

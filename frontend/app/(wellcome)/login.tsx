@@ -2,7 +2,7 @@ import { Alert, Image, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Link, LinkTrigger, router } from 'expo-router';
 import icon_img from '../../assets/images/logo-it.png';
-import { useContext, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { CustomInputText } from '@/components/custom-input-text';
 import { CustomLink } from '@/components/custom-link';
 import { InfoSection } from '@/components/info-section';
@@ -19,10 +19,9 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ email: string, password: string }>()
 
-  async function handleLogin() {
+  const handleLogin = useCallback(async () => {
     try {
       const response = await post<LoginInterface>('/auth/login', { email, password });
-
       if (response.status > 299) {
         setErrors(response.data.errors)
         return
@@ -34,7 +33,7 @@ export default function LoginScreen() {
     } catch (err) {
       Alert.alert('Erro', JSON.stringify(err));
     }
-  }
+  }, [email, password])
 
   return (
     <View style={mainStyles.container}>
@@ -48,7 +47,15 @@ export default function LoginScreen() {
       <CustomInputText
         placeholder='Digite seu email'
         value={email}
-        onChangeText={setEmail}
+        onChangeText={(text) => {
+          setErrors((prev) => {
+            return {
+              password: prev?.password || '',
+              email: ''
+            }
+          })
+          setEmail(text)
+        }}
         error={errors?.email}
       />
 
@@ -56,7 +63,15 @@ export default function LoginScreen() {
         placeholder='Digite sua senha'
         value={password}
         secureTextEntry
-        onChangeText={setPassword}
+        onChangeText={(text) => {
+          setErrors((prev) => {
+            return {
+              password: '',
+              email: prev?.email || ''
+            }
+          })
+          setPassword(text)
+        }}
         error={errors?.password}
       />
 
