@@ -9,7 +9,7 @@ export default class extends BaseSchema {
       table.uuid('send_by').references('users.id')
       table.uuid('send_to').references('users.id')
       
-      table.string('status', 2).notNullable().comment('p - pending | a - approved | b - blocked')
+      table.string('status', 2).notNullable().comment('p - pending | a - approved | b - blocked | r - refused')
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

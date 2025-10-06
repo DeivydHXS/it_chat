@@ -1,23 +1,30 @@
 import { BaseModel, beforeCreate, column } from '@adonisjs/lucid/orm'
-import { type UUIDTypes, v4 } from 'uuid'
+import { v4 } from 'uuid'
+
+export enum FriendshipStatus {
+  Pending = 'p',
+  Accepted = 'a',
+  Blocked = 'b',
+  Refused = 'r',
+}
 
 export default class Friendship extends BaseModel {
-    static selfAssignPrimaryKey = true
+  public static selfAssignPrimaryKey = true
 
-    @beforeCreate()
-    public static addId(friendship: Friendship) {
-        friendship.id = v4()
-    }
+  @beforeCreate()
+  public static assignId(friendship: Friendship) {
+    friendship.id = v4()
+  }
 
-    @column({ isPrimary: true })
-    declare id: UUIDTypes
+  @column({ isPrimary: true })
+  declare id: string
 
-    @column()
-    declare send_by: UUIDTypes
+  @column()
+  declare send_by: string
 
-    @column()
-    declare send_to: UUIDTypes
+  @column()
+  declare send_to: string
 
-    @column()
-    declare status: string
+  @column()
+  declare status: FriendshipStatus
 }

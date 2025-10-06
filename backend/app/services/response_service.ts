@@ -51,7 +51,7 @@ export default class ResponseService {
                 })
                 break
             default:
-                ResponseService.send(response, 400, error.message, error.errors)
+                ResponseService.send(response, 400, error.message || 'Erro desconhecido', error.errors || { error: error })
                 break
         }
     }

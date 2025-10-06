@@ -18,7 +18,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
   static selfAssignPrimaryKey = true
 
   @beforeCreate()
-  public static addId(user: User) {
+  public static assignId(user: User) {
     user.id = v4()
   }
 

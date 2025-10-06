@@ -30,20 +30,6 @@ export default class UserService {
         return users
     }
 
-    public async friendsSearch(user: User, search: string) {
-        const friends = await user.related('friendships').query()
-            .if(search, (query) => {
-                query.where((q) => {
-                    q.whereILike('name', `%${search}%`)
-                        .orWhereILike('nickname', `%${search}%`)
-                        .orWhereILike('nickname_hash', `%${search}%`)
-                })
-            })
-            .orderBy('created_at', 'desc')
-
-        return friends
-    }
-
     public async findById(id: UUIDTypes) {
         const user = await User.find(id)
         return user ? UserService.formatUserResponse(user) : null

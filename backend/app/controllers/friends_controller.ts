@@ -1,123 +1,248 @@
-import Friendship from '#models/friendship'
+import Friendship, { FriendshipStatus } from '#models/friendship'
 import User from '#models/user'
+import FriendService from '#services/friend_service'
 import ResponseService from '#services/response_service'
-import UserService from '#services/user_service'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
-import db from '@adonisjs/lucid/services/db'
-import { v4 } from 'uuid'
 
 @inject()
 export default class FriendsController {
-    constructor(
-        private userService: UserService
-    ) { }
+    constructor(private friendService: FriendService) { }
 
     public async search({ response, request, auth }: HttpContext) {
         try {
+            const currentUser = await auth.authenticateUsing(['api'])
             const search = request.input('search')
-            const user = await auth.authenticateUsing(['api'])
 
-            const friends = await this.userService.friendsSearch(user, search)
+            const friends = await this.friendService.search(currentUser, search)
+
             ResponseService.send(response, 200, 'Busca de usuário.', { friends })
         } catch (err) {
             ResponseService.error(response, err)
         }
     }
 
-    public async send_solicitation({ auth, response, params }: HttpContext) {
+    public async send_solicitation({ auth, response, request, params }: HttpContext) {
         try {
             const currentUser = await auth.authenticate()
-            const friendId = params.user_id
-            console.log(currentUser.id)
-            console.log(friendId)
-            if (currentUser.id === friendId) {
+            const friendId = params.friendship_id || request.input('friendship_id')
+
+            if (!friendId) {
                 return ResponseService.error(response, {
-                    message: 'Erro ao enviar solicitação.', errors: {
-                        friendship: 'Você não pode enviar solicitação para si mesmo.'
-                    }
+                    message: 'Erro ao enviar solicitação.',
+                    errors: { friendship: 'ID do amigo não informado.' },
                 })
             }
 
-            const existing = await db
-                .from('friendships')
-                .where(function (query) {
-                    query.where('send_by', currentUser.id).andWhere('send_to', friendId)
+            if (currentUser.id as string === friendId) {
+                return ResponseService.error(response, {
+                    message: 'Usuário de destino inválido.',
+                    errors: { friendship: 'Não é possível enviar solicitação de amizade para o próprio usuário.' },
                 })
-                .orWhere(function (query) {
-                    query.where('send_by', friendId).andWhere('send_to', currentUser.id)
+            }
+
+            const friendUser = await User.find(friendId)
+            if (!friendUser) {
+                return ResponseService.error(response, {
+                    message: 'Recurso não encontrado.',
+                    errors: { friendship: 'O perfil do usuário que você tentou acessar não foi encontrado.' },
                 })
-                .first()
+            }
+
+            const existing = await Friendship.query()
+                .where((query) => {
+                    query.where('send_by', currentUser.id as string).andWhere('send_to', friendId)
+                })
+                .orWhere((query) => {
+                    query.where('send_by', friendId).andWhere('send_to', currentUser.id as string)
+                }).first()
 
             if (existing) {
                 return ResponseService.error(response, {
-                    message: 'Erro ao enviar solicitação.', errors: {
-                        friendship: 'Já existe uma solicitação ou amizade entre vocês.'
-                    }
+                    message: 'Já existe uma solicitação de amizade pendente.',
+                    errors: { friendship: 'Você já enviou uma solicitação de amizade para este usuário e ela ainda está pendente.' },
                 })
             }
 
-            await currentUser.related('friendships').attach({
-                [friendId]: {
-                    id: v4(),
-                    status: 'p'
-                }
-            })
+            await this.friendService.send_solicitation(currentUser, currentUser.id as string)
 
-            return ResponseService.send(response, 200, 'Solicitação enviada com sucesso.')
+            return ResponseService.send(response, 200, 'Solicitação enviada com sucesso.', {
+                friends: await currentUser.related('friendships').pivotQuery(),
+            })
         } catch (error) {
             return ResponseService.error(response, error)
         }
     }
-
 
     public async accept({ auth, response, params }: HttpContext) {
         try {
             const currentUser = await auth.authenticate()
             const friendshipId = params.friendship_id
 
-            // const solicitation = await db.from('friendships').where('id', friendshipId).andWhere('send_to', currentUser.id as string)
-            const solicitation = await Friendship.findBy('id', friendshipId)
-
-            if (!solicitation) {
-                return
+            const friendship = await Friendship.find(friendshipId)
+            if (!friendship) {
+                return ResponseService.error(response, {
+                    message: 'Erro ao aceitar solicitação.',
+                    errors: { friendship: 'Solicitação não encontrada.' },
+                })
             }
 
-            if (solicitation.send_to !== currentUser.id) {
-                return
+            if (friendship.status === FriendshipStatus.Accepted) {
+                return ResponseService.error(response, {
+                    message: 'O relacionamento de amizade já está ativo.',
+                    errors: { friendship: 'A solicitação de amizade já foi aceita.' },
+                })
             }
 
-            solicitation.status = 'a'
-            await solicitation.save()
-            
+            if (friendship.send_to !== currentUser.id as string) {
+                return ResponseService.error(response, {
+                    message: 'Acesso negado. Você não tem autorização para realizar esta ação.',
+                    errors: { friendship: 'Você não é o destinatário desta solicitação de amizade.' },
+                })
+            }
+
+            await this.friendService.accept(friendship)
+
             return ResponseService.send(response, 200, 'Solicitação aceita com sucesso.')
         } catch (error) {
             return ResponseService.error(response, error)
         }
     }
 
+    public async decline({ auth, response, params }: HttpContext) {
+        try {
+            const currentUser = await auth.authenticate()
+            const friendshipId = params.friendship_id
 
-    public async decline({ response, params }: HttpContext) {
-        const id = params.user_id
+            const friendship = await Friendship.find(friendshipId)
+            if (!friendship) {
+                return ResponseService.error(response, {
+                    message: 'Erro ao recusar solicitação.',
+                    errors: { friendship: 'Solicitação não encontrada.' },
+                })
+            }
 
-        ResponseService.send(response, 200, 'Sucesso.')
+            if (friendship.send_to !== currentUser.id as string) {
+                return ResponseService.error(response, {
+                    message: 'Erro ao recusar solicitação.',
+                    errors: { friendship: 'Você não tem permissão para recusar esta solicitação.' },
+                })
+            }
+
+            await this.friendService.refuse(friendship)
+
+            return ResponseService.send(response, 200, 'Solicitação recusada com sucesso.')
+        } catch (error) {
+            return ResponseService.error(response, error)
+        }
     }
 
-    public async block({ response, params }: HttpContext) {
-        const id = params.user_id
+    public async block({ auth, response, params }: HttpContext) {
+        try {
+            const currentUser = await auth.authenticate()
+            const userId = params.user_id
 
-        ResponseService.send(response, 200, 'Sucesso.')
+            if (!userId) {
+                return ResponseService.error(response, {
+                    message: 'Erro ao bloquear usuário.',
+                    errors: { friendship: 'ID do usuário não informado.' },
+                })
+            }
+
+            const userToBlock = await User.find(userId)
+            if (!userToBlock) {
+                return ResponseService.error(response, {
+                    message: 'Erro ao bloquear usuário.',
+                    errors: { friendship: 'Usuário não encontrado.' },
+                })
+            }
+
+            const existing = await Friendship.query()
+                .where((q) => {
+                    q.where('send_by', currentUser.id as string).andWhere('send_to', userId)
+                })
+                .orWhere((q) => {
+                    q.where('send_by', userId).andWhere('send_to', currentUser.id as string)
+                })
+                .first()
+
+            if (!existing) {
+                return ResponseService.error(response, {
+                    message: 'Erro ao bloquear usuário.',
+                    errors: { friendship: 'Registro de amizade não encontrada.' },
+                })
+            }
+
+            this.friendService.block(existing)
+
+            return ResponseService.send(response, 200, 'Usuário bloqueado com sucesso.')
+        } catch (error) {
+            return ResponseService.error(response, error)
+        }
     }
 
-    public async unblock({ response, params }: HttpContext) {
-        const id = params.user_id
+    public async unblock({ auth, response, params }: HttpContext) {
+        try {
+            const currentUser = await auth.authenticate()
+            const userId = params.user_id
 
-        ResponseService.send(response, 200, 'Sucesso.')
+            const friendship = await Friendship.query()
+                .where((q) => {
+                    q.where('send_by', currentUser.id as string).andWhere('send_to', userId)
+                })
+                .orWhere((q) => {
+                    q.where('send_by', userId).andWhere('send_to', currentUser.id as string)
+                })
+                .first()
+
+            if (!friendship) {
+                return ResponseService.error(response, {
+                    message: 'Erro ao desbloquear usuário.',
+                    errors: { friendship: 'Amizade não encontrada.' },
+                })
+            }
+
+            if (friendship.status !== FriendshipStatus.Blocked) {
+                return ResponseService.error(response, {
+                    message: 'O usuário não está bloqueado.',
+                    errors: { friendship: 'Este usuário não consta na sua lista de bloqueios para ser desbloqueado.' },
+                })
+            }
+
+            this.friendService.accept(friendship)
+
+            return ResponseService.send(response, 200, 'Amizade desbloqueada com sucesso!')
+        } catch (error) {
+            return ResponseService.error(response, error)
+        }
     }
 
-    public async unfriend({ response, params }: HttpContext) {
-        const id = params.user_id
+    public async unfriend({ auth, response, params }: HttpContext) {
+        try {
+            const currentUser = await auth.authenticate()
+            const userId = params.user_id
 
-        ResponseService.send(response, 200, 'Sucesso.')
+            const friendship = await Friendship.query()
+                .where((q) => {
+                    q.where('send_by', currentUser.id as string).andWhere('send_to', userId)
+                })
+                .orWhere((q) => {
+                    q.where('send_by', userId).andWhere('send_to', currentUser.id as string)
+                })
+                .first()
+
+            if (!friendship) {
+                return ResponseService.error(response, {
+                    message: 'Recurso não encontrado.',
+                    errors: { friendship: 'Não existe um registro de amizade ativa com este usuário. A amizade já foi excluída.' },
+                })
+            }
+
+            this.friendService.unfriend(friendship)
+
+            return ResponseService.send(response, 200, 'Amizade excluida com sucesso!')
+        } catch (error) {
+            return ResponseService.error(response, error)
+        }
     }
 }
