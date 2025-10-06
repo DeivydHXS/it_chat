@@ -40,7 +40,7 @@ export default class ResponseService {
                 ResponseService.send(response, 422, 'Campos obrigatórios inválidos.', errorMessages)
                 break
             case adonisErrors.E_INVALID_CREDENTIALS:
-                ResponseService.send(response, 401, 'Campos obrigatórios inválidos.', {
+                ResponseService.send(response, 422, 'Campos obrigatórios inválidos.', {
                     email: 'Email e/ou senha inválido(s).',
                     password: 'Email e/ou senha inválido(s).'
                 })

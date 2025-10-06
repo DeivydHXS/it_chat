@@ -9,7 +9,7 @@ import { InfoSection } from '@/components/info-section';
 import { mainStyles } from '@/constants/theme';
 import { CustomPressable } from '@/components/custom-pressable';
 import { AuthContext } from '@/context/auth-context';
-import { LoginInterface, ResponseInterface } from '@/interfaces/common-interfaces';
+import { LoginInterface } from '@/interfaces/common-interfaces';
 import { useApi } from '@/hooks/use-api';
 
 export default function LoginScreen() {
