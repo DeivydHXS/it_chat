@@ -14,6 +14,7 @@ export default function RegisterScreen() {
     const { post } = useApi()
     const [emailError, setEmailError] = useState<string>('')
     const [birthdayError, setBirthdayError] = useState<string>('')
+    const [codeError, setCodeError] = useState<string>('')
     const [canProceed, setCanProceed] = useState<boolean>(false)
 
     const steps = [
@@ -98,6 +99,12 @@ export default function RegisterScreen() {
                 email: form.email,
                 code: form.code
             })
+
+            if (response.status > 299) {
+                setCodeError(response.data.errors?.code || '')
+                return
+            }
+
             Alert.alert('Sucesso', response?.data?.message)
             router.back()
         } catch (err: any) {
@@ -180,8 +187,12 @@ export default function RegisterScreen() {
 
             {step === 'code' && (
                 <BaseSection step='code'
+                    error={codeError}
                     value={form.code}
-                    handle={(text) => handleForm(text, 'code')}
+                    handle={(text) => {
+                        setCodeError('')
+                        handleForm(text, 'code')
+                    }}
                 />
             )}
 

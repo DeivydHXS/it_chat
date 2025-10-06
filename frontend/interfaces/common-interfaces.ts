@@ -5,7 +5,20 @@ export interface ResponseInterface {
     data?: {
         user: UserInterface
     }
-    errors?: UserInfo | UserUpdateErrors
+    errors?: ErrorsInterface
+}
+
+interface ErrorsInterface {
+    email?: string
+    password?: string
+    password_confirmation?: string
+    name?: string
+    nickname?: string
+    nickname_hash?: string
+    birthday?: string
+    bio?: string
+    profile_image?: string
+    code?: string
 }
 
 export interface UserUpdateResponse {
