@@ -9,6 +9,32 @@ import type { HttpContext } from '@adonisjs/core/http'
 export default class FriendsController {
     constructor(private friendService: FriendService) { }
 
+    public async getSolicitationId({ response, request, params, auth }: HttpContext) {
+        try {
+            const currentUser = await auth.authenticateUsing(['api'])
+            const friendId = params.friendship_id || request.input('friendship_id')
+
+            const friendship = await Friendship.query()
+                .where((query) => {
+                    query.where('send_by', currentUser.id as string).andWhere('send_to', friendId)
+                })
+                .orWhere((query) => {
+                    query.where('send_by', friendId).andWhere('send_to', currentUser.id as string)
+                }).first()
+                console.log('aqui')
+            if (!friendship) {
+                return ResponseService.error(response, {
+                    message: 'Erro ao encontrar solicitação.',
+                    errors: { friendship: 'Solicitação não encontrada.' },
+                })
+            }
+
+            return ResponseService.send(response, 200, 'Solicitação encontrada!', { friendship })
+        } catch (err) {
+            ResponseService.error(response, err)
+        }
+    }
+
     public async search({ response, request, auth }: HttpContext) {
         try {
             const currentUser = await auth.authenticateUsing(['api'])
@@ -22,7 +48,7 @@ export default class FriendsController {
         }
     }
 
-    public async send_solicitation({ auth, response, request, params }: HttpContext) {
+    public async sendSolicitation({ auth, response, request, params }: HttpContext) {
         try {
             const currentUser = await auth.authenticate()
             const friendId = params.friendship_id || request.input('friendship_id')
@@ -35,21 +61,20 @@ export default class FriendsController {
             }
 
             if (currentUser.id as string === friendId) {
-                return ResponseService.error(response, {
-                    message: 'Usuário de destino inválido.',
-                    errors: { friendship: 'Não é possível enviar solicitação de amizade para o próprio usuário.' },
+                return ResponseService.send(response, 422, 'Usuário de destino inválido.', {
+                    friendship: 'Não é possível enviar solicitação de amizade para o próprio usuário.'
                 })
             }
 
             const friendUser = await User.find(friendId)
+
             if (!friendUser) {
-                return ResponseService.error(response, {
-                    message: 'Recurso não encontrado.',
-                    errors: { friendship: 'O perfil do usuário que você tentou acessar não foi encontrado.' },
+                return ResponseService.send(response, 404, 'Recurso não encontrado.', {
+                    friendship: 'O perfil do usuário que você tentou acessar não foi encontrado.'
                 })
             }
 
-            const existing = await Friendship.query()
+            const friendship = await Friendship.query()
                 .where((query) => {
                     query.where('send_by', currentUser.id as string).andWhere('send_to', friendId)
                 })
@@ -57,18 +82,18 @@ export default class FriendsController {
                     query.where('send_by', friendId).andWhere('send_to', currentUser.id as string)
                 }).first()
 
-            if (existing) {
-                return ResponseService.error(response, {
-                    message: 'Já existe uma solicitação de amizade pendente.',
-                    errors: { friendship: 'Você já enviou uma solicitação de amizade para este usuário e ela ainda está pendente.' },
+            if (friendship) {
+                return ResponseService.send(response, 409, 'Já existe uma solicitação de amizade pendente.', {
+                    friendship: 'Você já enviou uma solicitação de amizade para este usuário e ela ainda está pendente.'
                 })
             }
 
-            await this.friendService.send_solicitation(currentUser, currentUser.id as string)
+            await this.friendService.send_solicitation(currentUser, friendId)
 
-            return ResponseService.send(response, 200, 'Solicitação enviada com sucesso.', {
-                friends: await currentUser.related('friendships').pivotQuery(),
-            })
+            return ResponseService.send(response, 200, 'Solicitação enviada com sucesso!')
+            // return ResponseService.send(response, 200, 'Solicitação enviada com sucesso!', {
+            //     friends: await currentUser.related('friendships').pivotQuery(),
+            // })
         } catch (error) {
             return ResponseService.error(response, error)
         }
@@ -81,23 +106,20 @@ export default class FriendsController {
 
             const friendship = await Friendship.find(friendshipId)
             if (!friendship) {
-                return ResponseService.error(response, {
-                    message: 'Erro ao aceitar solicitação.',
-                    errors: { friendship: 'Solicitação não encontrada.' },
+                return ResponseService.send(response, 404, 'Solicitação de amizade não encontrada.', {
+                    friendship: 'Não existe solicitação de amizade pendente para este usuário.'
                 })
             }
 
             if (friendship.status === FriendshipStatus.Accepted) {
-                return ResponseService.error(response, {
-                    message: 'O relacionamento de amizade já está ativo.',
-                    errors: { friendship: 'A solicitação de amizade já foi aceita.' },
+                return ResponseService.send(response, 422, 'O relacionamento de amizade já está ativo.', {
+                    friendship: 'A solicitação de amizade já foi aceita.'
                 })
             }
 
             if (friendship.send_to !== currentUser.id as string) {
-                return ResponseService.error(response, {
-                    message: 'Acesso negado. Você não tem autorização para realizar esta ação.',
-                    errors: { friendship: 'Você não é o destinatário desta solicitação de amizade.' },
+                return ResponseService.send(response, 403, 'Acesso negado. Você não tem autorização para realizar esta ação.', {
+                    friendship: 'Você não é o destinatário desta solicitação de amizade.'
                 })
             }
 

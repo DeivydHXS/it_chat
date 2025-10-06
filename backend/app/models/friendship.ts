@@ -19,10 +19,10 @@ export default class Friendship extends BaseModel {
   @column({ isPrimary: true })
   declare id: string
 
-  @column()
+  @column({ serializeAs: 'send_by'})
   declare send_by: string
 
-  @column()
+  @column({ serializeAs: 'send_to'})
   declare send_to: string
 
   @column()

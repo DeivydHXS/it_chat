@@ -82,7 +82,9 @@ router
         router
           .group(() => {
             router
-              .post('', '#controllers/friends_controller.send_solicitation')
+              .get('get_solicitation_id', '#controllers/friends_controller.getSolicitationId')
+            router
+              .post('', '#controllers/friends_controller.sendSolicitation')
             router
               .post('accept', '#controllers/friends_controller.accept')
             router
