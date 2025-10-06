@@ -21,7 +21,7 @@ export default function EditScreen() {
 
   const [errors, setErrors] = useState<UserUpdateErrors>()
   const [file, setFile] = useState<DocumentPicker.DocumentPickerAsset | null>(null)
-  const [load,setLoad] = useState<boolean>(false);
+  const [load, setLoad] = useState<boolean>(false)
 
   const pickDocument = async () => {
     setLoad(true)
@@ -38,9 +38,9 @@ export default function EditScreen() {
       console.error("Erro ao selecionar documento: ", err)
     } finally {
       setTimeout(() => {
-         setLoad(false)
+        setLoad(false)
       }, 1000)
-     
+
     }
   }
 
@@ -61,13 +61,13 @@ export default function EditScreen() {
     setLoad(true)
     try {
       console.log('file', file)
-      const data = new FormData();
+      const data = new FormData()
 
-      data.append("name", form.name);
-      data.append("nickname", form.nickname);
+      data.append("name", form.name)
+      data.append("nickname", form.nickname)
 
       if (form.bio) {
-        data.append("bio", form.bio);
+        data.append("bio", form.bio)
       }
 
       if (file) {
@@ -76,29 +76,29 @@ export default function EditScreen() {
           uri: file.uri,
           name: file.name || "profile.jpg",
           type: file.mimeType || "image/jpeg",
-        } as any);
+        } as any)
       }
-      
-      const response = await post<UserUpdateResponse>('/me', data);
+
+      const response = await post<UserUpdateResponse>('/me', data, true)
 
       if (!response) {
-        Alert.alert("Erro", "Erro inesperado");
+        Alert.alert("Erro", "Erro inesperado")
         return
       }
 
       if (response.status > 299) {
-        setErrors(response.data.errors);
-        return;
+        setErrors(response.data.errors)
+        return
       }
 
-      setUser(response.data.data?.user);
-      goBack();
+      setUser(response.data.data?.user)
+      goBack()
     } catch (err: any) {
-      Alert.alert("Erro", "Erro inesperado");
+      Alert.alert("Erro", "Erro inesperado")
     } finally {
       setLoad(false)
     }
-  }, [form, file]);
+  }, [form, file])
 
 
   return (
