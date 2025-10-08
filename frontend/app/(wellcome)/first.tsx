@@ -1,14 +1,20 @@
-import { StyleSheet, Text, View, Image, Animated } from 'react-native';
+import { StyleSheet, Text, View, Image, Animated, Pressable, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import icon_img from '../../assets/images/logo-it.png';
-import { useRef, useState } from 'react';
+import { useCallback, useContext, useRef, useState } from 'react';
 import SlideUpCarousel from '@/components/slide-up-carousel';
+import { LoginInterface } from '@/interfaces/common-interfaces';
+import { useApi } from '@/hooks/use-api';
+import { AuthContext } from '@/context/auth-context';
+import { router } from 'expo-router';
 
 export default function WellcomeScreen() {
   const [ative, setAtive] = useState<boolean>(false)
   const translateY = useRef(new Animated.Value(0)).current;
-
+  const { post } = useApi()
+  const { login } = useContext(AuthContext)
+  
   const active = () => {
     setAtive(true)
     Animated.timing(translateY, {
@@ -18,6 +24,18 @@ export default function WellcomeScreen() {
     }).start();
   };
 
+  const handleLogin = useCallback(async () => {
+    try {
+      const response = await post<LoginInterface>('/auth/login', { email: 'superdev@email.com', password: 'SuperDEV1@' });
+
+      // @ts-ignore
+      await login(response.data.data?.user, response.data.data?.token);
+      router.replace('/(tabs)')
+    } catch (err) {
+      Alert.alert('Erro', JSON.stringify(err));
+    }
+  }, [])
+
   return (
     <View>
       <LinearGradient
@@ -26,6 +44,10 @@ export default function WellcomeScreen() {
       />
       <View style={styles.container}>
         <View style={styles.content}>
+          <Pressable onPress={handleLogin}>
+            <Text>DEV</Text>
+          </Pressable>
+
           <Animated.View
             style={[
               { transform: [{ translateY }] },

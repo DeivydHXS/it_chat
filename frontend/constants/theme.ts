@@ -44,7 +44,7 @@ export const Fonts = Platform.select({
 
 export const mainStyles = StyleSheet.create({
   container: {
-    backgroundColor: '#F8F9FE',
+    backgroundColor: Colors.light,
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
@@ -53,10 +53,20 @@ export const mainStyles = StyleSheet.create({
     gap: 16,
   },
   container_alt: {
-    backgroundColor: '#F8F9FE',
+    backgroundColor: Colors.light,
     height: '100%',
     paddingHorizontal: 16,
     paddingVertical: 24,
     gap: 16,
   },
-});
+  main_container: {
+    backgroundColor: Colors.light,
+    height: '100%',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingHorizontal: 16,
+    paddingVertical: 24,
+    gap: 16,
+  },
+});  

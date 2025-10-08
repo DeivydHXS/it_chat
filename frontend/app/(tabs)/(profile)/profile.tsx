@@ -1,6 +1,6 @@
 
 import { MenuCustomPressable } from '@/components/menu-custom-pressable';
-import { Colors } from '@/constants/theme';
+import { Colors, mainStyles } from '@/constants/theme';
 import { AuthContext } from '@/context/auth-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { navigate, replace } from 'expo-router/build/global-state/routing';
@@ -21,7 +21,7 @@ export default function TabFourScreen() {
   }, [])
 
   return (
-    <View style={styles.container}>
+    <View style={mainStyles.main_container}>
       <View style={styles.profile_image}>
         {user?.profile_image_url ?
           <Image
@@ -56,16 +56,6 @@ export default function TabFourScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: Colors.light,
-    height: '100%',
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingHorizontal: 16,
-    paddingVertical: 48,
-    gap: 16,
-  },
   profile_image: {
     width: 100,
     height: 100,

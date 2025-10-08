@@ -1,23 +1,17 @@
-import { Colors } from '@/constants/theme';
+import { SearchBar } from '@/components/search-bar';
+import { Colors, mainStyles } from '@/constants/theme';
 import { StyleSheet, Text, View } from 'react-native';
 
 export default function TabThreeScreen() {
   return (
-    <View style={styles.container}>
-      <Text>Amigos</Text>
+    <View style={mainStyles.main_container}>
+      <SearchBar
+        value=''
+        onChange={() => {}}
+        />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: Colors.light,
-    height: '100%',
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingHorizontal: 16,
-    paddingVertical: 48,
-    gap: 16,
-  },
 })

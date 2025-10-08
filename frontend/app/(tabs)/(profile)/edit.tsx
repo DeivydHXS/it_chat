@@ -3,7 +3,7 @@ import { CustomInputLargeText } from '@/components/custom-input-large-text'
 import { CustomInputText } from '@/components/custom-input-text'
 import { CustomPressable } from '@/components/custom-pressable'
 import { InfoSection } from '@/components/info-section'
-import { Colors } from '@/constants/theme'
+import { Colors, mainStyles } from '@/constants/theme'
 import { AuthContext } from '@/context/auth-context'
 import { useApi } from '@/hooks/use-api'
 import { UserUpdateResponse } from '@/interfaces/common-interfaces'
@@ -102,7 +102,7 @@ export default function EditScreen() {
 
 
   return (
-    <View style={styles.container}>
+    <View style={mainStyles.main_container}>
       <InfoSection
         head='Mude suas informações'
         body='Essa area é voltada para a atualização de suas 
@@ -193,16 +193,6 @@ informações básicas.'
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: Colors.light,
-    height: '100%',
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingHorizontal: 16,
-    paddingVertical: 24,
-    gap: 16,
-  },
   profile_image: {
     width: 100,
     height: 100,
