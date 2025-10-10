@@ -11,10 +11,9 @@ interface SearchBarProps {
 export function SearchBar({ value, onChange, placeholder }: SearchBarProps) {
   return (
     <View style={styles.container}>
-      <Ionicons name="search" size={18} color={Colors.dark} style={{ marginRight: 16 }} />
+      <Ionicons name="search" size={16} color={Colors.dark} />
       <TextInput
         placeholder={placeholder || 'Digite sua pesquisa'}
-        placeholderTextColor="#999"
         value={value}
         onChangeText={onChange}
         style={styles.input}
@@ -26,16 +25,16 @@ export function SearchBar({ value, onChange, placeholder }: SearchBarProps) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: Colors.light,
+    backgroundColor: Colors.light2,
     alignItems: 'center',
     paddingHorizontal: 12,
     borderRadius: 24,
     height: 50,
-    borderColor: Colors.gray3
+    gap: 8
   },
   input: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 16,
     color: Colors.gray3,
   },
 })

@@ -1,23 +1,17 @@
-import { Colors } from '@/constants/theme';
+import { SearchBar } from '@/components/search-bar';
+import { Colors, mainStyles } from '@/constants/theme';
+import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 export default function TabTwoScreen() {
+  const [search, setSearch] = useState('')
+
   return (
-      <View style={styles.container}>
-        <Text>Grupos</Text>
-      </View>
-    );
-  }
-  
-  const styles = StyleSheet.create({
-    container: {
-      backgroundColor: Colors.light,
-      height: '100%',
-      width: '100%',
-      alignItems: 'center',
-      justifyContent: 'flex-start',
-      paddingHorizontal: 16,
-      paddingVertical: 48,
-      gap: 16,
-    },
-  })
+    <View style={mainStyles.main_container}>
+      <SearchBar value={search} onChange={setSearch} />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+})

@@ -5,13 +5,13 @@ export type TokenInterface = {
 }
 
 export interface UserInfo {
-  email: string
-  password: string
-  password_confirmation: string
-  name: string
-  nickname: string
-  nickname_hash: string
-  birthday: string
+  email?: string
+  password?: string
+  password_confirmation?: string
+  name?: string
+  nickname?: string
+  nickname_hash?: string
+  birthday?: string
 }
 
 export interface UserInterface extends UserInfo {

@@ -9,6 +9,7 @@ import { Platform, StyleSheet } from 'react-native';
 export const Colors = {
   dark: '#1F2024',
   light: '#F8F9FE',
+  light2: '#fff',
   red: '#cb3f42ff',
   gray1: '#333333',
   gray2: '#4F4F4F',
