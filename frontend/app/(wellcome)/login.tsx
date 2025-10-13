@@ -2,7 +2,7 @@ import { Alert, Image, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Link, LinkTrigger, router } from 'expo-router';
 import icon_img from '../../assets/images/logo-it.png';
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { CustomInputText } from '@/components/custom-input-text';
 import { CustomLink } from '@/components/custom-link';
 import { InfoSection } from '@/components/info-section';

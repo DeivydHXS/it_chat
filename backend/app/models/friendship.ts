@@ -27,4 +27,6 @@ export default class Friendship extends BaseModel {
 
   @column()
   declare status: FriendshipStatus
+
+  
 }

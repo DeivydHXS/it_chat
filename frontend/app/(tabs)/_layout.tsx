@@ -40,6 +40,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="search"
+        options={{
+          title: 'Pesquisa',
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="search" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="friends"
         options={{
           title: 'Amigos',

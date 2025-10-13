@@ -3,8 +3,17 @@ import User from "#models/user";
 import { v4 } from "uuid";
 
 export default class FriendService {
-    public async search(user: User, search: string) {
-        const friends = await user.related('friendships').query()
+    public async search(user: User, search: string, status: string) {
+        const ids = (await user.getFriends()).filter(f => f.status === status).map(f => {
+            if (f.send_by === user.id) {
+                return f.send_to as string
+            }
+            if (f.send_to === user.id) {
+                return f.send_by as string
+            }
+        }).filter((id): id is string => !!id)
+
+        const friends = await User.query().whereIn('id', ids)
             .if(search, (query) => {
                 query.where((q) => {
                     q.whereILike('name', `%${search}%`)
@@ -12,14 +21,46 @@ export default class FriendService {
                         .orWhereILike('nickname_hash', `%${search}%`)
                 })
             })
-            .orderBy('created_at', 'desc')
 
         return friends
     }
 
+    public async accepted(user: User) {
+        const ids = (await user.getFriends()).filter(f => f.status === 'a').map(f => {
+            if (f.send_by === user.id) {
+                return f.send_to as string
+            }
+            if (f.send_to === user.id) {
+                return f.send_by as string
+            }
+        }).filter((id): id is string => !!id)
+
+        const friends = await User.query().whereIn('id', ids)
+
+        return friends
+    }
+
+    public async pending(user: User) {
+        const ids = (await user.getFriends()).filter(f => f.status === 'p').map(f => {
+            if (f.send_by === user.id) {
+                return f.send_to as string
+            }
+            if (f.send_to === user.id) {
+                return f.send_by as string
+            }
+        }).filter((id): id is string => !!id)
+
+        const solicitations = await User.query().whereIn('id', ids)
+
+        return solicitations
+    }
+
     public async send_solicitation(currentUser: User, friendId: string) {
-        await currentUser.related('friendships').attach({
-            [friendId]: { id: v4(), status: FriendshipStatus.Pending },
+        await Friendship.create({
+            id: v4(),
+            send_by: currentUser.id as string,
+            send_to: friendId,
+            status: FriendshipStatus.Pending
         })
     }
 

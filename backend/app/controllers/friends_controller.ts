@@ -38,10 +38,35 @@ export default class FriendsController {
         try {
             const currentUser = await auth.authenticateUsing(['api'])
             const search = request.input('search')
-
-            const friends = await this.friendService.search(currentUser, search)
+            const tab = request.input('tab')
+            
+            const friends = await this.friendService.search(currentUser, search, tab === 'friends' ? 'a' : 'p')
 
             ResponseService.send(response, 200, 'Busca de usuário.', { friends })
+        } catch (err) {
+            ResponseService.error(response, err)
+        }
+    }
+
+    public async accepted({ response, auth }: HttpContext) {
+        try {
+            const currentUser = await auth.authenticateUsing(['api'])
+
+            const friends = await this.friendService.accepted(currentUser)
+
+            ResponseService.send(response, 200, 'Lista de amigos.', { friends })
+        } catch (err) {
+            ResponseService.error(response, err)
+        }
+    }
+
+    public async pending({ response, auth }: HttpContext) {
+        try {
+            const currentUser = await auth.authenticateUsing(['api'])
+
+            const solicitations = await this.friendService.pending(currentUser)
+
+            ResponseService.send(response, 200, 'Lista de solicitações pendentes.', { solicitations })
         } catch (err) {
             ResponseService.error(response, err)
         }

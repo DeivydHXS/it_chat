@@ -38,7 +38,7 @@ export function TabSelector({ active, onChange, requestsCount }: TabSelectorProp
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: Colors.light,
+    backgroundColor: Colors.light2,
     borderRadius: 24,
     overflow: 'hidden'
   },

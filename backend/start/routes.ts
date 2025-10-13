@@ -80,6 +80,10 @@ router
         router
           .get('', '#controllers/friends_controller.search')
         router
+          .get('accepted', '#controllers/friends_controller.accepted')
+        router
+          .get('pending', '#controllers/friends_controller.pending')
+        router
           .group(() => {
             router
               .get('get_solicitation_id', '#controllers/friends_controller.getSolicitationId')

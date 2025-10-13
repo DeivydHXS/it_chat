@@ -43,6 +43,13 @@ export interface IsBirthdayValidResponse {
     }
 }
 
+export interface ResponseInterfaceAlt<K extends string = string, T = any> {
+  message: string
+  data?: Record<K, T>
+  errors?: Record<K, T>
+}
+
+
 export interface LoginInterface {
     message: string
     data?: {
