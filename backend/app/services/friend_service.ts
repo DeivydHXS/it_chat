@@ -3,56 +3,79 @@ import User from "#models/user";
 import { v4 } from "uuid";
 
 export default class FriendService {
-    public async search(user: User, search: string, status: string) {
-        const ids = (await user.getFriends()).filter(f => f.status === status).map(f => {
-            if (f.send_by === user.id) {
-                return f.send_to as string
-            }
-            if (f.send_to === user.id) {
-                return f.send_by as string
-            }
-        }).filter((id): id is string => !!id)
-
-        const friends = await User.query().whereIn('id', ids)
-            .if(search, (query) => {
-                query.where((q) => {
-                    q.whereILike('name', `%${search}%`)
-                        .orWhereILike('nickname', `%${search}%`)
-                        .orWhereILike('nickname_hash', `%${search}%`)
+    public async search(userId: string, search?: string, status?: string) {
+        const users = await User.query()
+            .select('users.*', 'friendships.id as friendship_id', 'friendships.status as friendship_status')
+            .innerJoin('friendships', (join) => {
+                join.on((q) => {
+                    q.on('users.id', '=', 'friendships.send_to')
+                        .orOn('users.id', '=', 'friendships.send_by')
                 })
             })
+            .where((q) => {
+                q.where('friendships.send_by', userId).orWhere('friendships.send_to', userId)
+            })
+            .andWhereNot('users.id', userId)
+            .if(status, (q) => q.andWhere('friendships.status', status as string))
+            .if(search && search.trim() !== '', (q) => {
+                q.where((sub) => {
+                    sub
+                        .whereILike('users.name', `%${search}%`)
+                        .orWhereILike('users.nickname', `%${search}%`)
+                        .orWhereILike('users.nickname_hash', `%${search}%`)
+                })
+            })
+            .orderBy('friendships.created_at', 'desc')
 
-        return friends
+        return users.map((u) => ({
+            ...u.serialize(),
+            friendship_id: u.$extras.friendship_id,
+            friendship_status: u.$extras.friendship_status,
+        }))
     }
 
     public async accepted(user: User) {
-        const ids = (await user.getFriends()).filter(f => f.status === 'a').map(f => {
-            if (f.send_by === user.id) {
-                return f.send_to as string
-            }
-            if (f.send_to === user.id) {
-                return f.send_by as string
-            }
-        }).filter((id): id is string => !!id)
+        const users = await User.query()
+            .select('users.*', 'friendships.id as friendship_id', 'friendships.status as friendship_status')
+            .innerJoin('friendships', (join) => {
+                join.on((q) => {
+                    q.on('users.id', '=', 'friendships.send_to')
+                        .orOn('users.id', '=', 'friendships.send_by')
+                })
+            })
+            .where((q) => {
+                q.where('friendships.send_by', user.id as string).orWhere('friendships.send_to', user.id as string)
+            })
+            .andWhereNot('users.id', user.id as string)
+            .andWhere('friendships.status', 'a')
+            .orderBy('friendships.created_at', 'desc')
 
-        const friends = await User.query().whereIn('id', ids)
-
-        return friends
+        return users.map((u) => ({
+            ...u.serialize(),
+            friendship_id: u.$extras.friendship_id,
+            friendship_status: u.$extras.friendship_status,
+        }))
     }
 
     public async pending(user: User) {
-        const ids = (await user.getFriends()).filter(f => f.status === 'p').map(f => {
-            if (f.send_by === user.id) {
-                return f.send_to as string
-            }
-            if (f.send_to === user.id) {
-                return f.send_by as string
-            }
-        }).filter((id): id is string => !!id)
+        const users = await User.query()
+            .select('users.*', 'friendships.id as friendship_id')
+            .innerJoin('friendships', (join) => {
+                join
+                    .on((q) => {
+                        q.on('users.id', '=', 'friendships.send_by')
+                            .orOn('users.id', '=', 'friendships.send_to')
+                    })
+            })
+            .where('friendships.send_to', user.id as string)
+            .andWhere('friendships.status', 'p')
+            .andWhereNot('users.id', user.id as string)
+            .orderBy('friendships.created_at', 'desc')
 
-        const solicitations = await User.query().whereIn('id', ids)
-
-        return solicitations
+        return users.map((u) => ({
+            ...u.serialize(),
+            friendship_id: u.$extras.friendship_id,
+        }))
     }
 
     public async send_solicitation(currentUser: User, friendId: string) {
@@ -76,6 +99,11 @@ export default class FriendService {
 
     public async block(friendship: Friendship) {
         friendship.status = FriendshipStatus.Blocked
+        await friendship.save()
+    }
+
+    public async unblock(friendship: Friendship) {
+        friendship.status = FriendshipStatus.Accepted
         await friendship.save()
     }
 

@@ -1,5 +1,5 @@
-import { FriendItem } from '@/components/friend-item';
 import { SearchBar } from '@/components/search-bar';
+import { SearchUserItem } from '@/components/search-user-item';
 import { mainStyles } from '@/constants/theme';
 import { useApi } from '@/hooks/use-api';
 import { ResponseInterfaceAlt } from '@/interfaces/common-interfaces';
@@ -27,7 +27,7 @@ export default function SearchScreen() {
         }} />
 
       <ScrollView showsVerticalScrollIndicator={false}>
-          {users.map((f, i) => <FriendItem key={i} user={f} />)}
+          {users.map((f, i) => <SearchUserItem key={i} user={f} />)}
       </ScrollView>
     </View>
   )

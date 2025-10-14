@@ -1,16 +1,20 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, Pressable } from 'react-native'
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { Colors } from '@/constants/theme'
 import { UserInterface } from '@/interfaces/user-interfaces'
+import { useState } from 'react'
 
 interface FriendItemProps {
     user: UserInterface
     onChatPress?: () => void
-    onMenuPress?: () => void
+    block: (id: string) => void
+    unblock: (id: string) => void
+    unfriend: (id: string) => void
 }
 
-export function FriendItem({ user, onChatPress, onMenuPress }: FriendItemProps) {
+export function FriendItem({ user, onChatPress, block, unfriend, unblock }: FriendItemProps) {
     const baseURL = process.env.EXPO_PUBLIC_BASE_API_URL
+    const [open, setOpen] = useState<boolean>(false)
 
     return (
         <View style={styles.container}>
@@ -27,14 +31,63 @@ export function FriendItem({ user, onChatPress, onMenuPress }: FriendItemProps) 
                 <Text style={styles.name}>{user.name}</Text>
             </View>
 
-            <View style={styles.right}>
-                <TouchableOpacity onPress={onChatPress} style={[styles.btn, {backgroundColor: Colors.red}]}>
-                <Ionicons name="chatbubble" size={20} color={Colors.light} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={onMenuPress} style={styles.btn}>
-                <Ionicons name="ellipsis-vertical" size={18} color={Colors.dark} />
-            </TouchableOpacity>
-        </View>
+            <View style={[styles.right, { position: 'relative' }]}>
+                <TouchableOpacity onPress={onChatPress} style={[styles.btn, { backgroundColor: Colors.red }]}>
+                    <Ionicons name="chatbubble" size={20} color={Colors.light} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setOpen(true)} style={styles.btn}>
+                    <Ionicons name="ellipsis-vertical" size={18} color={Colors.dark} />
+                </TouchableOpacity>
+                {open &&
+                    <View style={{
+                        borderRadius: 24,
+                        backgroundColor: Colors.light,
+                        minWidth: 120,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        position: 'absolute',
+                        top: 2,
+                        right: 2,
+                        borderColor: Colors.dark,
+                        borderWidth: 1,
+                    }}>
+                        <View style={{
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '100%',
+                            padding: 8,
+                            borderColor: Colors.dark,
+                            borderBottomWidth: 1
+                        }}>
+                            <Pressable style={{ width: '100%' }} onPress={() => setOpen(false)} >
+                                <Text style={{ textAlign: 'center', fontWeight: 'condensed', color: Colors.dark }}>X</Text>
+                            </Pressable>
+                        </View>
+                        <View style={{
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '100%',
+                            padding: 8,
+                            borderColor: Colors.dark,
+                            borderBottomWidth: 1,
+                        }}>
+                            <Pressable style={{ width: '100%' }} disabled={user.friendship_status === 'b'} onPress={() => block(user.friendship_id as string)} >
+                                <Text style={{ textAlign: 'center', fontWeight: 'condensed', color: Colors.dark }}>{'Desbloquear'}</Text>
+                            </Pressable>
+                        </View>
+                        <View style={{
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '100%',
+                            padding: 8
+                        }}>
+                            <Pressable style={{ width: '100%' }} onPress={() => unfriend(user.friendship_id as string)} >
+                                <Text style={{ textAlign: 'center', fontWeight: 'condensed', color: Colors.dark }}>Excluir amigo</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                }
+            </View>
         </View >
     )
 }
@@ -75,7 +128,7 @@ const styles = StyleSheet.create({
     },
     btn: {
         width: 40,
-        height: 30  ,
+        height: 30,
         borderRadius: 100,
         justifyContent: 'center',
         alignItems: 'center',

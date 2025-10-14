@@ -36,6 +36,18 @@ export default function WellcomeScreen() {
     }
   }, [])
 
+  const handleLoginTest = useCallback(async () => {
+    try {
+      const response = await post<LoginInterface>('/auth/login', { email: 'superqa@email.com', password: 'SuperQA1@' });
+
+      // @ts-ignore
+      await login(response.data.data?.user, response.data.data?.token);
+      router.replace('/(tabs)')
+    } catch (err) {
+      Alert.alert('Erro', JSON.stringify(err));
+    }
+  }, [])
+
   return (
     <View>
       <LinearGradient
@@ -46,6 +58,9 @@ export default function WellcomeScreen() {
         <View style={styles.content}>
           <Pressable onPress={handleLogin}>
             <Text>DEV</Text>
+          </Pressable>
+          <Pressable onPress={handleLoginTest}>
+            <Text>TEST</Text>
           </Pressable>
 
           <Animated.View

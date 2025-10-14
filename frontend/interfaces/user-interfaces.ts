@@ -18,6 +18,9 @@ export interface UserInterface extends UserInfo {
   id: string,
   bio: string | null,
   profile_image_url: string | null
+  status?: string
+  friendship_id?: string
+  friendship_status?: string
 }
 
 export interface UserRegister extends UserInfo {

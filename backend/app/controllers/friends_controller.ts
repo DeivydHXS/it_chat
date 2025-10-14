@@ -21,6 +21,7 @@ export default class FriendsController {
                 .orWhere((query) => {
                     query.where('send_by', friendId).andWhere('send_to', currentUser.id as string)
                 }).first()
+                
             if (!friendship) {
                 return ResponseService.error(response, {
                     message: 'Erro ao encontrar solicitação.',
@@ -40,8 +41,7 @@ export default class FriendsController {
             const search = request.input('search')
             const tab = request.input('tab')
             
-            const friends = await this.friendService.search(currentUser, search, tab === 'friends' ? 'a' : 'p')
-
+            const friends = await this.friendService.search(currentUser.id as string, search, tab === 'friends' ? 'a' : 'p')
             ResponseService.send(response, 200, 'Busca de usuário.', { friends })
         } catch (err) {
             ResponseService.error(response, err)
@@ -202,12 +202,12 @@ export default class FriendsController {
                 })
             }
 
-            if (friendship.send_to !== currentUser.id as string) {
-                return ResponseService.error(response, {
-                    message: 'Requisição inválida.',
-                    errors: { friendship: 'Você não tem permissão para bloquear.' },
-                })
-            }
+            // if (friendship.send_to !== currentUser.id as string) {
+            //     return ResponseService.error(response, {
+            //         message: 'Requisição inválida.',
+            //         errors: { friendship: 'Você não tem permissão para bloquear.' },
+            //     })
+            // }
 
             if (friendship.status === FriendshipStatus.Blocked) {
                 return ResponseService.send(response, 422, 'Requisição inválida.', {

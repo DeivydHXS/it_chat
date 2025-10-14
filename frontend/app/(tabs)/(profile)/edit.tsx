@@ -60,7 +60,6 @@ export default function EditScreen() {
   const handleUpdate = useCallback(async () => {
     setLoad(true)
     try {
-      console.log('file', file)
       const data = new FormData()
 
       data.append("name", form.name)
@@ -71,7 +70,6 @@ export default function EditScreen() {
       }
 
       if (file) {
-        console.log('arquivo valido')
         data.append("profile_image", {
           uri: file.uri,
           name: file.name || "profile.jpg",
