@@ -45,6 +45,7 @@
     "@swc/core": "1.11.24",
     "@types/luxon": "^3.7.1",
     "@types/node": "^22.15.18",
+    "@types/socket.io": "^3.0.1",
     "eslint": "^9.26.0",
     "hot-hook": "^0.4.0",
     "mkdirp": "^3.0.1",
@@ -64,6 +65,7 @@
     "luxon": "^3.7.1",
     "mysql2": "^3.14.3",
     "reflect-metadata": "^0.2.2",
+    "socket.io": "^4.8.1",
     "uuid": "^13.0.0"
   },
   "hotHook": {

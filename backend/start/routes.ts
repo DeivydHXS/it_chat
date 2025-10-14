@@ -10,7 +10,6 @@
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
 
-
 router
   .group(() => {
     router.get('/', async () => {
@@ -115,6 +114,17 @@ router
           .get(':id', '#controllers/chats_controller.get')
       })
       .prefix('chats')
+      .use(
+        middleware.auth({
+          guards: ['api'],
+        })
+      )
+
+    router
+      .group(() => {
+        router.get('', '#controllers/messages_controller.index')
+        router.post(':chatId', '#controllers/messages_controller.store')
+      }).prefix('messages')
       .use(
         middleware.auth({
           guards: ['api'],

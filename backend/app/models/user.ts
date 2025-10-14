@@ -1,12 +1,12 @@
 import { DateTime } from 'luxon'
 import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
-import { BaseModel, beforeCreate, column, computed, manyToMany } from '@adonisjs/lucid/orm'
+import { BaseModel, beforeCreate, column, manyToMany } from '@adonisjs/lucid/orm'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
 import Chat from './chat.js'
 import type { ManyToMany } from '@adonisjs/lucid/types/relations'
-import { v4, type UUIDTypes } from 'uuid'
+import { v4 } from 'uuid'
 import { randomBytes } from 'crypto'
 import Friendship from './friendship.js'
 
@@ -34,7 +34,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
   }
 
   @column({ isPrimary: true })
-  declare id: UUIDTypes
+  declare id: string
 
   @column()
   declare name: string
@@ -73,7 +73,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare updatedAt: DateTime | null
 
   static accessTokens = DbAccessTokensProvider.forModel(User, {
-    expiresIn: '1 hour',
+    expiresIn: '1 month',
     prefix: 'oat_',
     table: 'auth_access_tokens',
     type: 'auth_token',
