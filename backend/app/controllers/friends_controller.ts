@@ -1,13 +1,15 @@
 import Friendship, { FriendshipStatus } from '#models/friendship'
 import User from '#models/user'
+import ChatService from '#services/chat_service'
 import FriendService from '#services/friend_service'
 import ResponseService from '#services/response_service'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
+import { v4 } from 'uuid'
 
 @inject()
 export default class FriendsController {
-    constructor(private friendService: FriendService) { }
+    constructor(private friendService: FriendService, private chatService: ChatService) { }
 
     public async getSolicitationId({ response, request, params, auth }: HttpContext) {
         try {
@@ -147,6 +149,20 @@ export default class FriendsController {
 
             await this.friendService.accept(friendship)
 
+            const friendshipChat = await this.chatService.store('p')
+
+            const friend = await User.find(friendship.send_by)
+
+            if (friend) {
+                await currentUser.related('chats').attach({
+                    [friendshipChat.id]: { id: v4(), permission_type: 'm' }
+                })
+
+                await friend.related('chats').attach({
+                    [friendshipChat.id]: { id: v4(), permission_type: 'm' }
+                })
+            }
+
             return ResponseService.send(response, 200, 'Solicitação de amizade aceita com sucesso!', {
                 friendship
             })
@@ -241,7 +257,7 @@ export default class FriendsController {
                     errors: { friendship: 'Você não tem permissão para desbloquear esta amizade.' },
                 })
             }
-            
+
             this.friendService.unblock(friendship)
 
             return ResponseService.send(response, 200, 'Amizade desbloqueada com sucesso!')

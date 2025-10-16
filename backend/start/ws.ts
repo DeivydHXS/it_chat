@@ -3,8 +3,13 @@ import Ws from '#services/ws_service'
 
 app.ready(() => {
   Ws.boot()
-  const io = Ws.io
-  io?.on('connection', (socket) => {
-    console.log(socket.id)
+
+  Ws.io?.on('connection', (socket) => {
+    console.log('Socket conectado:', socket.id)
+
+    socket.on('join_chat', (chatId: string) => {
+      socket.join(`chat:${chatId}`)
+      console.log(`Socket ${socket.id} joined room chat:${chatId}`)
+    })
   })
 })

@@ -6,7 +6,7 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.uuid('id').primary()
-      table.string('name', 254).notNullable()
+      table.string('name', 254).nullable()
       table.string('type', 2).notNullable().comment('p - private chat | g - group chat')
       table.string('description').nullable()
       table.string('cover_image_url').nullable()

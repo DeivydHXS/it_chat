@@ -20,6 +20,9 @@ export default class Chat extends BaseModel {
   declare type: string
 
   @column()
+  declare name: string | null
+  
+  @column()
   declare description: string | null
 
   @column()
@@ -34,7 +37,9 @@ export default class Chat extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 
-  @manyToMany(() => User)
+  @manyToMany(() => User, {
+    pivotTable: 'user_chats'
+  })
   declare users: ManyToMany<typeof User>
 
   @hasMany(() => Message)

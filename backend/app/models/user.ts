@@ -89,7 +89,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
   })
   declare friendships: ManyToMany<typeof User>
 
-  @manyToMany(() => Chat)
+  @manyToMany(() => Chat, {
+    pivotTable: 'user_chats',
+  })
   declare chats: ManyToMany<typeof Chat>
 
   public async getFriends() {

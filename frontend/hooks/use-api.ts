@@ -16,6 +16,8 @@ export const useApi = () => {
         return err.response
     }
 
+    const transformResponse = () => {}
+
     const get = async <T>(url: string, params?: any): Promise<ApiResponse<T>> => {
         const result = await apiRequest.get(url, { params })
             .then((res) => { return res })
