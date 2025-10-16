@@ -22,12 +22,13 @@ export default function TabLayout() {
         headerTitleAlign: 'center'
       }}>
       <Tabs.Screen
-        name="index"
+        name="(chats)"
         options={{
           title: 'Conversas',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name="chatbubble" size={24} color={color} />
           ),
+          headerShown: false
         }}
       />
       <Tabs.Screen
@@ -46,16 +47,6 @@ export default function TabLayout() {
           title: 'Pesquisa',
           tabBarIcon: ({ color }) => (
             <Ionicons name="search" size={24} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="chat"
-        options={{
-          href: null,
-          title: 'Chat',
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="chatbubble" size={24} color={color} />
           ),
         }}
       />
