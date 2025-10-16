@@ -16,7 +16,7 @@ import * as DocumentPicker from 'expo-document-picker'
 
 export default function EditScreen() {
   const { post } = useApi()
-  const baseURL = process.env.EXPO_PUBLIC_BASE_API_URL
+  const baseURL = process.env.EXPO_PUBLIC_API_URL
   const { user, setUser } = useContext(AuthContext)
 
   const [errors, setErrors] = useState<UserUpdateErrors>()

@@ -19,14 +19,15 @@ export default class Friendship extends BaseModel {
   @column({ isPrimary: true })
   declare id: string
 
-  @column({ serializeAs: 'send_by'})
+  @column({ serializeAs: 'send_by' })
   declare send_by: string
 
-  @column({ serializeAs: 'send_to'})
+  @column({ serializeAs: 'send_to' })
   declare send_to: string
+
+  @column({ serializeAs: 'blocker_id' })
+  declare blocker_id: string | null
 
   @column()
   declare status: FriendshipStatus
-
-  
 }

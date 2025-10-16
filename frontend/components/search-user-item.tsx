@@ -11,7 +11,7 @@ interface FriendItemProps {
 }
 
 export function SearchUserItem({ user }: FriendItemProps) {
-    const baseURL = process.env.EXPO_PUBLIC_BASE_API_URL
+    const baseURL = process.env.EXPO_PUBLIC_API_URL
     const { post } = useApi()
 
     const sendSolicitation = useCallback(async (id: string) => {

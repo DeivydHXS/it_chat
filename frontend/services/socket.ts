@@ -1,6 +1,6 @@
 import { io, Socket } from "socket.io-client"
 
-const SOCKET_URL = process.env.EXPO_PUBLIC_SOCKET_URL || "http://localhost:3333"
+const SOCKET_URL = process.env.EXPO_PUBLIC_API_URL
 
 interface ServerToClientEvents {
   message: (data: { from: string; text: string }) => void

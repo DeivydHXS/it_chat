@@ -5,7 +5,12 @@ import { v4 } from "uuid";
 export default class FriendService {
     public async search(userId: string, search?: string, status?: string) {
         const users = await User.query()
-            .select('users.*', 'friendships.id as friendship_id', 'friendships.status as friendship_status')
+            .select(
+                'users.*',
+                'friendships.id as friendship_id',
+                'friendships.status as friendship_status',
+                'friendships.blocker_id as friendship_blocker_id'
+            )
             .innerJoin('friendships', (join) => {
                 join.on((q) => {
                     q.on('users.id', '=', 'friendships.send_to')
@@ -16,7 +21,14 @@ export default class FriendService {
                 q.where('friendships.send_by', userId).orWhere('friendships.send_to', userId)
             })
             .andWhereNot('users.id', userId)
-            .if(status, (q) => q.andWhere('friendships.status', status as string))
+            // mostrar amizades sem blocker OR amizades que eu mesmo bloqueei
+            .andWhere((q) => {
+                q.whereNull('friendships.blocker_id')
+                    .orWhere('friendships.blocker_id', userId)
+            })
+            .if(status, (q) => {
+                q.andWhere('friendships.status', status as string)
+            })
             .if(search && search.trim() !== '', (q) => {
                 q.where((sub) => {
                     sub
@@ -31,12 +43,18 @@ export default class FriendService {
             ...u.serialize(),
             friendship_id: u.$extras.friendship_id,
             friendship_status: u.$extras.friendship_status,
+            friendship_blocker_id: u.$extras.friendship_blocker_id,
         }))
     }
 
     public async accepted(user: User) {
         const users = await User.query()
-            .select('users.*', 'friendships.id as friendship_id', 'friendships.status as friendship_status')
+            .select(
+                'users.*',
+                'friendships.id as friendship_id',
+                'friendships.status as friendship_status',
+                'friendships.blocker_id as friendship_blocker_id'
+            )
             .innerJoin('friendships', (join) => {
                 join.on((q) => {
                     q.on('users.id', '=', 'friendships.send_to')
@@ -44,16 +62,25 @@ export default class FriendService {
                 })
             })
             .where((q) => {
-                q.where('friendships.send_by', user.id as string).orWhere('friendships.send_to', user.id as string)
+                q.where('friendships.send_by', user.id as string)
+                    .orWhere('friendships.send_to', user.id as string)
             })
             .andWhereNot('users.id', user.id as string)
-            .andWhere('friendships.status', 'a')
+            .andWhere((q) => {
+                q.whereNull('friendships.blocker_id')
+                    .orWhere('friendships.blocker_id', user.id as string)
+            })
+            .andWhere((q) => {
+                q.where('friendships.status', 'a')
+                    .orWhere('friendships.status', 'b')
+            })
             .orderBy('friendships.created_at', 'desc')
 
         return users.map((u) => ({
             ...u.serialize(),
             friendship_id: u.$extras.friendship_id,
             friendship_status: u.$extras.friendship_status,
+            friendship_blocker_id: u.$extras.friendship_blocker_id,
         }))
     }
 
@@ -97,13 +124,15 @@ export default class FriendService {
         await friendship.save()
     }
 
-    public async block(friendship: Friendship) {
+    public async block(friendship: Friendship, blocker_id: string) {
         friendship.status = FriendshipStatus.Blocked
+        friendship.blocker_id = blocker_id
         await friendship.save()
     }
 
     public async unblock(friendship: Friendship) {
         friendship.status = FriendshipStatus.Accepted
+        friendship.blocker_id = null
         await friendship.save()
     }
 

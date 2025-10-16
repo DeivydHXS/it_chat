@@ -27,7 +27,6 @@ export default function WellcomeScreen() {
   const handleLogin = useCallback(async () => {
     try {
       const response = await post<LoginInterface>('/auth/login', { email: 'superdev@email.com', password: 'SuperDEV1@' });
-
       // @ts-ignore
       await login(response.data.data?.user, response.data.data?.token);
       router.replace('/(tabs)')

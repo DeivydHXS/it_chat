@@ -21,7 +21,7 @@ export default class FriendsController {
                 .orWhere((query) => {
                     query.where('send_by', friendId).andWhere('send_to', currentUser.id as string)
                 }).first()
-                
+
             if (!friendship) {
                 return ResponseService.error(response, {
                     message: 'Erro ao encontrar solicitação.',
@@ -40,7 +40,7 @@ export default class FriendsController {
             const currentUser = await auth.authenticateUsing(['api'])
             const search = request.input('search')
             const tab = request.input('tab')
-            
+
             const friends = await this.friendService.search(currentUser.id as string, search, tab === 'friends' ? 'a' : 'p')
             ResponseService.send(response, 200, 'Busca de usuário.', { friends })
         } catch (err) {
@@ -202,20 +202,13 @@ export default class FriendsController {
                 })
             }
 
-            // if (friendship.send_to !== currentUser.id as string) {
-            //     return ResponseService.error(response, {
-            //         message: 'Requisição inválida.',
-            //         errors: { friendship: 'Você não tem permissão para bloquear.' },
-            //     })
-            // }
-
             if (friendship.status === FriendshipStatus.Blocked) {
                 return ResponseService.send(response, 422, 'Requisição inválida.', {
                     friendship: 'Você já bloqueou este usuário.'
                 })
             }
 
-            this.friendService.block(friendship)
+            this.friendService.block(friendship, currentUser.id)
 
             return ResponseService.send(response, 200, 'Amizade bloqueada com sucesso!')
         } catch (error) {
@@ -236,20 +229,20 @@ export default class FriendsController {
                 })
             }
 
-            if (friendship.send_to !== currentUser.id as string) {
-                return ResponseService.error(response, {
-                    message: 'Requisição inválida.',
-                    errors: { friendship: 'Você não tem permissão para desbloquear.' },
-                })
-            }
-
             if (friendship.status !== FriendshipStatus.Blocked) {
                 return ResponseService.send(response, 422, 'Requisição inválida.', {
                     friendship: 'Este usuário não consta na sua lista de bloqueios para ser desbloqueado.'
                 })
             }
 
-            this.friendService.accept(friendship)
+            if (friendship.blocker_id !== currentUser.id) {
+                return ResponseService.error(response, {
+                    message: 'Requisição inválida.',
+                    errors: { friendship: 'Você não tem permissão para desbloquear esta amizade.' },
+                })
+            }
+            
+            this.friendService.unblock(friendship)
 
             return ResponseService.send(response, 200, 'Amizade desbloqueada com sucesso!')
         } catch (error) {

@@ -68,7 +68,7 @@ export default function FriendsScreen() {
   }, [setFriends])
 
   const unblock = useCallback(async (id: string) => {
-    const res = await post<ResponseInterface>(`/friends/${id}/block`)
+    const res = await post<ResponseInterface>(`/friends/${id}/unblock`)
     setFriends(prev => prev.map(f => f.id === id ? { ...f, friendship_status: 'a' } : f))
 
     Alert.alert(res.data.message)

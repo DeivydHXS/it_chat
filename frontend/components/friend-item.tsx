@@ -13,7 +13,7 @@ interface FriendItemProps {
 }
 
 export function FriendItem({ user, onChatPress, block, unfriend, unblock }: FriendItemProps) {
-    const baseURL = process.env.EXPO_PUBLIC_BASE_API_URL
+    const baseURL = process.env.EXPO_PUBLIC_API_URL
     const [open, setOpen] = useState<boolean>(false)
 
     return (
@@ -32,8 +32,8 @@ export function FriendItem({ user, onChatPress, block, unfriend, unblock }: Frie
             </View>
 
             <View style={[styles.right, { position: 'relative' }]}>
-                <TouchableOpacity onPress={onChatPress} style={[styles.btn, { backgroundColor: Colors.red }]}>
-                    <Ionicons name="chatbubble" size={20} color={Colors.light} />
+                <TouchableOpacity onPress={onChatPress} disabled={user.friendship_status === 'b'} style={[styles.btn, { backgroundColor: Colors.red }]}>
+                    <Ionicons name={user.friendship_status === 'b' ? "lock-closed" : "chatbubble"} size={20} color={Colors.light} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setOpen(true)} style={styles.btn}>
                     <Ionicons name="ellipsis-vertical" size={18} color={Colors.dark} />
@@ -71,8 +71,8 @@ export function FriendItem({ user, onChatPress, block, unfriend, unblock }: Frie
                             borderColor: Colors.dark,
                             borderBottomWidth: 1,
                         }}>
-                            <Pressable style={{ width: '100%' }} disabled={user.friendship_status === 'b'} onPress={() => block(user.friendship_id as string)} >
-                                <Text style={{ textAlign: 'center', fontWeight: 'condensed', color: Colors.dark }}>{'Desbloquear'}</Text>
+                            <Pressable style={{ width: '100%' }} onPress={() => user.friendship_status === 'b' ? unblock(user.friendship_id as string) : block(user.friendship_id as string)} >
+                                <Text style={{ textAlign: 'center', fontWeight: 'condensed', color: Colors.dark }}>{user.friendship_status === 'b' ? 'Desbloquear' : 'Bloquear'}</Text>
                             </Pressable>
                         </View>
                         <View style={{
