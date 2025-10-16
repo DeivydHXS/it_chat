@@ -10,4 +10,12 @@ export interface ChatInterface {
     createdAt?: string,
     updatedAt?: string,
     users: UserInterface[]
+    messages: MessageInterface[]
+}
+
+export interface MessageInterface {
+    id: string
+    type: string
+    content: string
+    user_id: string
 }

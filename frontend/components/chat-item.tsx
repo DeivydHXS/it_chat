@@ -9,7 +9,7 @@ interface ChatItemProps {
 }
 
 export function ChatItem({ user, onPress }: ChatItemProps) {
-    const baseURL = process.env.EXPO_PUBLIC_API_URL
+    const baseURL = process.env.EXPO_PUBLIC_API_URL + '/'
 
     return (
         <Pressable style={{ width: '100%', height: '100%' }} onPress={onPress} >

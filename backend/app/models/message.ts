@@ -14,13 +14,12 @@ export default class Message extends BaseModel {
 
   @column({ isPrimary: true })
   declare id: string
+  
+  @column({ columnName: 'chat_id' })
+  declare chatId: string
 
-  @column()
-  declare chat_id: string
-
-  @column()
-  declare user_id: string
-
+  @column({ columnName: 'user_id' })
+  declare userId: string
   @column()
   declare type: string
 
@@ -32,10 +31,11 @@ export default class Message extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
-
-  @belongsTo(() => Chat)
+ 
+  @belongsTo(() => Chat, { foreignKey: 'chat_id' })
   declare chat: BelongsTo<typeof Chat>
 
-  @belongsTo(() => User)
+  @belongsTo(() => User, { foreignKey: 'user_id' })
   declare user: BelongsTo<typeof User>
+
 }

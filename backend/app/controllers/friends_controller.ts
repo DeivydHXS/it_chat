@@ -9,7 +9,10 @@ import { v4 } from 'uuid'
 
 @inject()
 export default class FriendsController {
-    constructor(private friendService: FriendService, private chatService: ChatService) { }
+    constructor(
+        private friendService: FriendService,
+        private chatService: ChatService
+    ) { }
 
     public async getSolicitationId({ response, request, params, auth }: HttpContext) {
         try {

@@ -13,7 +13,7 @@ interface FriendItemProps {
 }
 
 export function FriendItem({ user, onChatPress, block, unfriend, unblock }: FriendItemProps) {
-    const baseURL = process.env.EXPO_PUBLIC_API_URL
+    const baseURL = process.env.EXPO_PUBLIC_API_URL + '/'
     const [open, setOpen] = useState<boolean>(false)
 
     return (

@@ -15,7 +15,7 @@ export default function ChatsLayout() {
         headerTintColor: Colors.light,
       }} />
       <Stack.Screen name="[chatId]" options={{
-        title: 'asdsda',
+        title: 'ChatID',
         headerTitleStyle: { fontWeight: 'condensedBold' },
         headerTitleAlign: 'center',
         headerShown: true,

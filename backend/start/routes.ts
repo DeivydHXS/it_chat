@@ -111,7 +111,7 @@ router
         router
           .get('', '#controllers/chats_controller.all')
         router
-          .get(':id', '#controllers/chats_controller.get')
+          .get(':chatId', '#controllers/chats_controller.get')
       })
       .prefix('chats')
       .use(

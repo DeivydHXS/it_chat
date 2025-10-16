@@ -33,6 +33,9 @@ export default function ChatsIndex() {
                         user={chat.users[0]}
                         onPress={() => router.push({
                             pathname: `/(chats)/${chat.id}` as any,
+                            params: {
+                                friendJSON: JSON.stringify(chat.users[0])
+                            }
                         })}
                     />
                 ))}
