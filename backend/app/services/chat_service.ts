@@ -5,7 +5,7 @@ export default class ChatService {
   public async get(id: string) {
     const chat = await Chat.query()
       .where('id', id)
-    //   .preload('users')
+      .preload('users')
       .preload('messages', (q) => {
         q.orderBy('created_at', 'asc')
       })
@@ -20,7 +20,7 @@ export default class ChatService {
 
   public async createPrivateChat(user1Id: string, user2Id: string) {
     const existingChat = await Chat.query()
-      .where('type', 'p') // "p" = private
+      .where('type', 'p')
       .whereHas('users', (q) => q.where('users.id', user1Id))
       .whereHas('users', (q) => q.where('users.id', user2Id))
       .preload('users')
@@ -32,7 +32,6 @@ export default class ChatService {
 
     const chat = await Chat.create({ type: 'p' })
     await chat.related('users').attach([user1Id, user2Id])
-    await chat.load('users')
 
     return chat
   }

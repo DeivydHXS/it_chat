@@ -23,8 +23,8 @@ app.ready(() => {
 
     socket.on('send_message', async ({ chatId, text }) => {
       const message = await Message.create({
-        chatId,
-        userId: socket.data.userId,
+        chat_id: chatId,
+        user_id: socket.data.userId,
         type: 'text',
         content: text,
       })

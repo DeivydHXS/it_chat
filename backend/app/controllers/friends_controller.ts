@@ -1,3 +1,4 @@
+import Chat from '#models/chat'
 import Friendship, { FriendshipStatus } from '#models/friendship'
 import User from '#models/user'
 import ChatService from '#services/chat_service'
@@ -152,7 +153,7 @@ export default class FriendsController {
 
             await this.friendService.accept(friendship)
 
-            const friendshipChat = await this.chatService.store('p')
+            const friendshipChat = await Chat.create({ type: 'p' })
 
             const friend = await User.find(friendship.send_by)
 

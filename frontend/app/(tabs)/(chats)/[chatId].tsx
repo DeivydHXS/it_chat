@@ -32,6 +32,7 @@ export default function ChatScreen() {
 
   const getChat = useCallback(async () => {
     const res = await get<{ data: { chat: ChatInterface } }>(`/chats/${chatId}`)
+    console.log(res.data)
     setChat(res.data.data.chat)
   }, [])
 
@@ -128,19 +129,53 @@ export default function ChatScreen() {
       />
 
       <View style={[mainStyles.main_container, { flex: 1 }]}>
-        <ScrollView>
-          {chat ? (
-            chat.messages.map((mes, k) => (
-              <View key={k} style={{
+        <ScrollView
+          style={{ width: '100%' }}
+        >
+          {chat && chat.messages.length > 0 ? (
+            chat.messages.map((mes, k) => {
+              const isMine = mes.user_id === user?.id
+
+              return (
+                <View
+                  key={k}
+                  style={{
+                    maxWidth: '80%',
+                    alignSelf: isMine ? 'flex-end' : 'flex-start',
+                    backgroundColor: isMine ? Colors.red : Colors.gray5,
+                    borderRadius: 20,
+                    paddingVertical: 8,
+                    paddingHorizontal: 12,
+                    marginBottom: 8,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: isMine ? Colors.light : Colors.dark,
+                      fontWeight: 'semibold'
+                    }}
+                  >
+                    {mes.user_id}
+                  </Text>
+                  <Text
+                    style={{
+                      color: isMine ? Colors.light : Colors.dark,
+                    }}
+                  >
+                    {mes.content}
+                  </Text>
+                </View>
+              )
+            })
+          ) : (
+            <View
+              style={{
                 width: '100%',
                 height: 40,
-                backgroundColor: Colors.light2
-              }}>
-                <Text>{mes.content}</Text>
-              </View>
-            ))
-          ) : (
-            <View>
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
               <Text>Mande um 'oi' para seu amigo.</Text>
             </View>
           )}

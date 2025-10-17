@@ -16,10 +16,11 @@ export default class Message extends BaseModel {
   declare id: string
   
   @column({ columnName: 'chat_id' })
-  declare chatId: string
+  declare chat_id: string
 
   @column({ columnName: 'user_id' })
-  declare userId: string
+  declare user_id: string
+
   @column()
   declare type: string
 

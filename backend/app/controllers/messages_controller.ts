@@ -23,8 +23,8 @@ export default class MessagesController {
       const { chatId, text } = request.only(['chatId', 'text'])
 
       const message = await Message.create({
-        chatId,
-        userId: currentUser.id,
+        chat_id: chatId,
+        user_id: currentUser.id,
         type: 'text',
         content: text,
       })
