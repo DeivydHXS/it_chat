@@ -1,10 +1,12 @@
 import { Colors, mainStyles } from '@/constants/theme'
+import { AuthContext } from '@/context/auth-context'
 import { useApi } from '@/hooks/use-api'
 import { ChatInterface } from '@/interfaces/chat-interfaces'
 import { UserInterface } from '@/interfaces/user-interfaces'
+import SocketService from '@/services/socket'
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { Stack, useLocalSearchParams } from 'expo-router'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import {
   View,
   Text,
@@ -19,12 +21,14 @@ import {
 } from 'react-native'
 
 export default function ChatScreen() {
+  const { user } = useContext(AuthContext)
   const baseURL = process.env.EXPO_PUBLIC_API_URL + '/'
   const { get } = useApi()
   const { chatId, friendJSON } = useLocalSearchParams()
   const [friend, setFriend] = useState<UserInterface>()
   const [chat, setChat] = useState<ChatInterface>()
   const translateY = useRef(new Animated.Value(0)).current
+  const [inputValue, setInputValue] = useState('')
 
   const getChat = useCallback(async () => {
     const res = await get<{ data: { chat: ChatInterface } }>(`/chats/${chatId}`)
@@ -68,6 +72,25 @@ export default function ChatScreen() {
     }
   }, [translateY])
 
+  const socket = SocketService.getInstance(user?.id || '')
+
+  useEffect(() => {
+    socket.connect()
+    socket.joinChat(String(chatId))
+
+    socket.onMessage((msg) => {
+      setChat(prev => prev ? { ...prev, messages: [...prev.messages, msg] } : prev)
+    })
+
+    return () => socket.disconnect()
+  }, [chatId])
+
+  const handleSend = () => {
+    if (!inputValue.trim()) return
+    socket.sendMessage(chatId as string, inputValue)
+    setInputValue('')
+  }
+
   return (
     <>
       <Stack.Screen
@@ -107,8 +130,12 @@ export default function ChatScreen() {
       <View style={[mainStyles.main_container, { flex: 1 }]}>
         <ScrollView>
           {chat ? (
-            chat.messages.map((mes) => (
-              <View key={mes.id}>
+            chat.messages.map((mes, k) => (
+              <View key={k} style={{
+                width: '100%',
+                height: 40,
+                backgroundColor: Colors.light2
+              }}>
                 <Text>{mes.content}</Text>
               </View>
             ))
@@ -155,6 +182,8 @@ export default function ChatScreen() {
           </Pressable>
 
           <TextInput
+            value={inputValue}
+            onChangeText={setInputValue}
             placeholder="Escreva sua mensagem"
             multiline
             textAlignVertical="top"
@@ -171,6 +200,7 @@ export default function ChatScreen() {
           />
 
           <Pressable
+            onPress={handleSend}
             style={{
               backgroundColor: Colors.red,
               alignItems: 'center',

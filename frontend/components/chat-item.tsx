@@ -30,9 +30,11 @@ export function ChatItem({ user, onPress }: ChatItemProps) {
                     </View>
                 </View>
 
-                {/* <View style={styles.badge}>
+                <View style={[styles.badge, {
+                    backgroundColor: Colors.light2,
+                }]}>
                     <Text style={{ fontSize: 14, color: Colors.light }}></Text>
-                </View> */}
+                </View>
             </View >
         </Pressable>
     )
@@ -90,7 +92,6 @@ const styles = StyleSheet.create({
         marginRight: 16
     },
     badge: {
-        backgroundColor: Colors.red,
         color: Colors.light,
         fontWeight: 'condensedBold',
         borderRadius: 100,

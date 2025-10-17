@@ -1,9 +1,10 @@
 import { io, Socket } from 'socket.io-client'
+import { AuthStorageService } from './authStorageService'
 
 const SOCKET_URL = process.env.EXPO_PUBLIC_API_URL
 
 interface ServerToClientEvents {
-  receive_message: (data: {
+  message: (data: {
     id: string
     chat_id: string
     user_id: string
@@ -15,22 +16,24 @@ interface ServerToClientEvents {
 
 interface ClientToServerEvents {
   join_chat: (chatId: string) => void
+  send_message: (data: { chatId: string; text: string }) => void
 }
 
 class SocketService {
   private static instance: SocketService
-  private socket: Socket<ServerToClientEvents, ClientToServerEvents>
+  private socket!: Socket
 
-  private constructor() {
+  private constructor(userId: string) {
     this.socket = io(SOCKET_URL, {
       transports: ['websocket'],
       autoConnect: false,
+      auth: { userId }
     })
   }
 
-  public static getInstance(): SocketService {
+  public static getInstance(userId: string): SocketService {
     if (!SocketService.instance) {
-      SocketService.instance = new SocketService()
+      SocketService.instance = new SocketService(userId)
     }
     return SocketService.instance
   }
@@ -54,12 +57,16 @@ class SocketService {
     console.log(`[Socket] Entrou na sala chat:${chatId}`)
   }
 
-  onNewMessage(callback: (...args: Parameters<ServerToClientEvents['receive_message']>) => void) {
-    this.socket.on('receive_message', callback)
+  sendMessage(chatId: string, text: string) {
+    this.socket.emit('send_message', { chatId, text })
   }
 
-  offNewMessage(callback: (...args: Parameters<ServerToClientEvents['receive_message']>) => void) {
-    this.socket.off('receive_message', callback)
+  onMessage(callback: (...args: Parameters<ServerToClientEvents['message']>) => void) {
+    this.socket.on('message', callback)
+  }
+
+  offMessage(callback: (...args: Parameters<ServerToClientEvents['message']>) => void) {
+    this.socket.off('message', callback)
   }
 
   getSocket() {

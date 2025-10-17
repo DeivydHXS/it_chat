@@ -3,11 +3,14 @@ import { SearchBar } from '@/components/search-bar'
 import { mainStyles } from '@/constants/theme'
 import { useApi } from '@/hooks/use-api'
 import { ChatInterface } from '@/interfaces/chat-interfaces'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { ScrollView, View } from 'react-native'
 import { useRouter } from 'expo-router'
+import { UserInterface } from '@/interfaces/user-interfaces'
+import { AuthContext } from '@/context/auth-context'
 
 export default function ChatsIndex() {
+    const { user } = useContext(AuthContext)
     const { get } = useApi()
     const router = useRouter()
 
@@ -23,6 +26,10 @@ export default function ChatsIndex() {
         getChats()
     }, [])
 
+    const excludeUser = (users: UserInterface[]) => {
+        return users.filter(u => u.id !== user?.id)
+    }
+
     return (
         <View style={mainStyles.main_container}>
             <SearchBar value={search} onChange={setSearch} />
@@ -30,7 +37,7 @@ export default function ChatsIndex() {
                 {chats.map((chat, index) => (
                     <ChatItem
                         key={chat.id}
-                        user={chat.users[0]}
+                        user={excludeUser(chat.users)[0]}
                         onPress={() => router.push({
                             pathname: `/(chats)/${chat.id}` as any,
                             params: {
