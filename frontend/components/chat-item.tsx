@@ -30,9 +30,9 @@ export function ChatItem({ user, onPress }: ChatItemProps) {
                     </View>
                 </View>
 
-                <View style={styles.badge}>
+                {/* <View style={styles.badge}>
                     <Text style={{ fontSize: 14, color: Colors.light }}></Text>
-                </View>
+                </View> */}
             </View >
         </Pressable>
     )

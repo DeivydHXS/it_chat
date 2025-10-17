@@ -37,13 +37,12 @@ export default function ChatScreen() {
     getChat()
   }, [])
 
-  // 👉 controla o movimento da barra conforme o teclado
   useEffect(() => {
     const showSub = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
       (event) => {
         Animated.timing(translateY, {
-          toValue: event.endCoordinates.height, // sobe igual à altura do teclado
+          toValue: event.endCoordinates.height,
           duration: 250,
           useNativeDriver: false,
           easing: Easing.out(Easing.ease),
@@ -140,7 +139,7 @@ export default function ChatScreen() {
             justifyContent: 'space-between',
             gap: 8,
             paddingTop: 8,
-            paddingBottom: Platform.OS === 'ios' ? 72 : 56,
+            paddingBottom: 56,
           }}
         >
           <Pressable
