@@ -1,16 +1,21 @@
-import { Tabs } from 'expo-router';
+import { Tabs, useSegments } from 'expo-router';
 
 import { Colors } from '@/constants/theme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function TabLayout() {
+  const segments = useSegments();
+  const hideTabs =
+    segments.includes("[chatId]") ||
+    segments.includes("edit");
+
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors.red,
         tabBarInactiveTintColor: Colors.gray2,
-        tabBarStyle: {
+        tabBarStyle: hideTabs ? { display: "none" } : {
           backgroundColor: Colors.light
         },
         headerShown: true,
