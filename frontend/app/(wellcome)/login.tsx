@@ -121,7 +121,7 @@ export default function LoginScreen() {
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: 24
-        }} onPress={handleLogin}>
+        }} onPress={handleLoginDev}>
           <Text style={{
             color: Colors.light,
             fontWeight: 'bold'
