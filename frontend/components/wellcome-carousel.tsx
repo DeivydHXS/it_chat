@@ -44,7 +44,7 @@ const WellcomeCarousel: React.FC = () => {
   const goToSlide = (index: number) => {
     if (index >= 0 && index < DATA.length) {
       flatListRef.current?.scrollToIndex({ index, animated: true });
-      setCurrentIndex(index);
+      // setCurrentIndex(index);
     }
   };
 

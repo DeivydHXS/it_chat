@@ -2,19 +2,49 @@ import { StyleSheet, Text, View, Image, Animated, Pressable, Alert } from 'react
 import { LinearGradient } from 'expo-linear-gradient';
 
 import icon_img from '../../assets/images/logo-it.png';
-import { useCallback, useContext, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import SlideUpCarousel from '@/components/slide-up-carousel';
 import { LoginInterface } from '@/interfaces/common-interfaces';
 import { useApi } from '@/hooks/use-api';
 import { AuthContext } from '@/context/auth-context';
 import { router } from 'expo-router';
+import { StorageService } from '@/services/storageService';
+import { navigate } from 'expo-router/build/global-state/routing';
 
 export default function WellcomeScreen() {
   const [ative, setAtive] = useState<boolean>(false)
   const translateY = useRef(new Animated.Value(0)).current;
   const { post } = useApi()
   const { login } = useContext(AuthContext)
-  
+
+  const [first, setFirst] = useState<boolean | null>(null)
+
+  const setStorageFirst = useCallback(async () => {
+    await StorageService.setFirst(false)
+    setFirst(false)
+  }, [])
+
+  const getStorageFirst = useCallback(async () => {
+    const res = await StorageService.getFirst()
+    console.log('welcome', res)
+    setFirst(Boolean(res))
+  }, [])
+
+  useEffect(() => {
+    getStorageFirst()
+  }, [getStorageFirst])
+
+  useEffect(() => {
+    if (first === null) return
+
+    if (first) {
+      navigate('/login')
+    } else {
+      setStorageFirst()
+    }
+  }, [first, setStorageFirst, navigate])
+
+
   const active = () => {
     setAtive(true)
     Animated.timing(translateY, {
@@ -24,28 +54,7 @@ export default function WellcomeScreen() {
     }).start();
   };
 
-  const handleLogin = useCallback(async () => {
-    try {
-      const response = await post<LoginInterface>('/auth/login', { email: 'superdev@email.com', password: 'SuperDEV1@' });
-      // @ts-ignore
-      await login(response.data.data?.user, response.data.data?.token);
-      router.replace('/(tabs)')
-    } catch (err) {
-      Alert.alert('Erro', JSON.stringify(err));
-    }
-  }, [])
 
-  const handleLoginTest = useCallback(async () => {
-    try {
-      const response = await post<LoginInterface>('/auth/login', { email: 'superqa@email.com', password: 'SuperQA1@' });
-
-      // @ts-ignore
-      await login(response.data.data?.user, response.data.data?.token);
-      router.replace('/(tabs)')
-    } catch (err) {
-      Alert.alert('Erro', JSON.stringify(err));
-    }
-  }, [])
 
   return (
     <View>
@@ -55,13 +64,6 @@ export default function WellcomeScreen() {
       />
       <View style={styles.container}>
         <View style={styles.content}>
-          <Pressable onPress={handleLogin}>
-            <Text>DEV</Text>
-          </Pressable>
-          <Pressable onPress={handleLoginTest}>
-            <Text>TEST</Text>
-          </Pressable>
-
           <Animated.View
             style={[
               { transform: [{ translateY }] },

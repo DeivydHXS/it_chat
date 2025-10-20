@@ -18,7 +18,7 @@ app.ready(() => {
 
     socket.on('join_chat', (chatId: string) => {
       socket.join(`chat:${chatId}`)
-      console.log(`Socket ${socket.id} entrou na sala chat:${chatId}`)
+      // console.log(`Socket ${socket.id} entrou na sala chat:${chatId}`)
     })
 
     socket.on('send_message', async ({ chatId, text }) => {

@@ -86,8 +86,8 @@ export default class FriendService {
                     .orWhere('friendships.status', 'b')
             })
             .orderBy('friendships.created_at', 'desc')
-            console.log(users)
-        return users.map((u) => ({
+
+            return users.map((u) => ({
             ...u.serialize(),
             friendship_id: u.$extras.friendship_id,
             friendship_status: u.$extras.friendship_status,
