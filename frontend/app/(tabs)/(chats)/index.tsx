@@ -27,21 +27,24 @@ export default function ChatsIndex() {
     }, [])
 
     const excludeUser = (users: UserInterface[]) => {
-        return users.filter(u => u.id !== user?.id)
+        return users.filter(u => u.id !== user?.id)[0]
     }
 
     return (
         <View style={mainStyles.main_container}>
             <SearchBar value={search} onChange={setSearch} />
-            <ScrollView>
+            <ScrollView style={{
+                height: '100%',
+                width: '100%'
+            }}>
                 {chats.map((chat, index) => (
                     <ChatItem
-                        key={chat.id}
-                        user={excludeUser(chat.users)[0]}
+                        key={index}
+                        user={excludeUser(chat.users)}
                         onPress={() => router.push({
                             pathname: `/(chats)/${chat.id}` as any,
                             params: {
-                                friendJSON: JSON.stringify(chat.users[0])
+                                friendJSON: JSON.stringify(excludeUser(chat.users))
                             }
                         })}
                     />

@@ -1,17 +1,10 @@
 import { io, Socket } from 'socket.io-client'
-import { AuthStorageService } from './authStorageService'
+import { MessageInterface } from '@/interfaces/chat-interfaces'
 
 const SOCKET_URL = process.env.EXPO_PUBLIC_API_URL
 
 interface ServerToClientEvents {
-  message: (data: {
-    id: string
-    chat_id: string
-    user_id: string
-    type: string
-    content: string
-    created_at: string
-  }) => void
+  message: (data: MessageInterface) => void
 }
 
 interface ClientToServerEvents {
@@ -57,8 +50,12 @@ class SocketService {
     console.log(`[Socket] Entrou na sala chat:${chatId}`)
   }
 
-  sendMessage(chatId: string, text: string) {
-    this.socket.emit('send_message', { chatId, text })
+   async sendMessage(chatId: string, text: string) {
+      await new Promise((resolve) => {
+           this.socket.emit('send_message', { chatId, text })
+           resolve(true)
+     })
+    
   }
 
   onMessage(callback: (...args: Parameters<ServerToClientEvents['message']>) => void) {

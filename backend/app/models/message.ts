@@ -15,10 +15,10 @@ export default class Message extends BaseModel {
   @column({ isPrimary: true })
   declare id: string
   
-  @column({ columnName: 'chat_id' })
+  @column({ serializeAs: 'chat_id' })
   declare chat_id: string
 
-  @column({ columnName: 'user_id' })
+  @column({ serializeAs: 'user_id' })
   declare user_id: string
 
   @column()

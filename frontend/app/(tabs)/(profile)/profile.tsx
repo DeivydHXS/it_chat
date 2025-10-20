@@ -8,7 +8,7 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 export default function TabFourScreen() {
-  const baseURL = process.env.EXPO_PUBLIC_API_URL + '/'
+  const baseURL = process.env.EXPO_PUBLIC_API_URL
   const { user, getUser, logout } = useContext(AuthContext);
 
   useEffect(() => {

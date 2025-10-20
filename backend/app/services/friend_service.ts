@@ -1,5 +1,6 @@
 import Friendship, { FriendshipStatus } from "#models/friendship";
 import User from "#models/user";
+import db from "@adonisjs/lucid/services/db";
 import { v4 } from "uuid";
 
 export default class FriendService {
@@ -48,12 +49,22 @@ export default class FriendService {
     }
 
     public async accepted(user: User) {
+
         const users = await User.query()
             .select(
                 'users.*',
                 'friendships.id as friendship_id',
                 'friendships.status as friendship_status',
-                'friendships.blocker_id as friendship_blocker_id'
+                'friendships.blocker_id as friendship_blocker_id',
+                db.raw(`
+      (
+        select uc1.chat_id
+        from user_chats uc1
+        join user_chats uc2 on uc1.chat_id = uc2.chat_id
+        where uc1.user_id = ? and uc2.user_id = users.id
+        limit 1
+      ) as chat_id
+    `, [user.id])
             )
             .innerJoin('friendships', (join) => {
                 join.on((q) => {
@@ -75,12 +86,13 @@ export default class FriendService {
                     .orWhere('friendships.status', 'b')
             })
             .orderBy('friendships.created_at', 'desc')
-
+            console.log(users)
         return users.map((u) => ({
             ...u.serialize(),
             friendship_id: u.$extras.friendship_id,
             friendship_status: u.$extras.friendship_status,
             friendship_blocker_id: u.$extras.friendship_blocker_id,
+            chat_id: u.$extras.chat_id, // 👈 agora vem o id do chat compartilhado
         }))
     }
 

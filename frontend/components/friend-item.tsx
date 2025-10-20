@@ -3,18 +3,19 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { Colors } from '@/constants/theme'
 import { UserInterface } from '@/interfaces/user-interfaces'
 import { useState } from 'react'
+import { useRouter } from 'expo-router'
 
 interface FriendItemProps {
     user: UserInterface
-    onChatPress?: () => void
     block: (id: string) => void
     unblock: (id: string) => void
     unfriend: (id: string) => void
 }
 
-export function FriendItem({ user, onChatPress, block, unfriend, unblock }: FriendItemProps) {
-    const baseURL = process.env.EXPO_PUBLIC_API_URL + '/'
+export function FriendItem({ user, block, unfriend, unblock }: FriendItemProps) {
+    const baseURL = process.env.EXPO_PUBLIC_API_URL
     const [open, setOpen] = useState<boolean>(false)
+    const router = useRouter()
 
     return (
         <View style={styles.container}>
@@ -32,7 +33,17 @@ export function FriendItem({ user, onChatPress, block, unfriend, unblock }: Frie
             </View>
 
             <View style={[styles.right, { position: 'relative' }]}>
-                <TouchableOpacity onPress={onChatPress} disabled={user.friendship_status === 'b'} style={[styles.btn, { backgroundColor: Colors.red }]}>
+                <TouchableOpacity
+                    onPress={() =>
+                        user.friendship_status === 'b' ?
+                            {} :
+                            router.push({
+                                pathname: `/(chats)/${user?.chat_id}` as any,
+                                params: {
+                                    friendJSON: JSON.stringify(user)
+                                }
+                            })}
+                    disabled={user.friendship_status === 'b'} style={[styles.btn, { backgroundColor: Colors.red }]}>
                     <Ionicons name={user.friendship_status === 'b' ? "lock-closed" : "chatbubble"} size={20} color={Colors.light} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setOpen(true)} style={styles.btn}>

@@ -10,7 +10,7 @@ interface FriendRequestItemProps {
 }
 
 export function FriendRequestItem({ user, onAccept, onReject }: FriendRequestItemProps) {
-    const baseURL = process.env.EXPO_PUBLIC_API_URL + '/'
+    const baseURL = process.env.EXPO_PUBLIC_API_URL
 
     return (
         <View style={styles.container}>

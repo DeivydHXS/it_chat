@@ -9,10 +9,10 @@ interface ChatItemProps {
 }
 
 export function ChatItem({ user, onPress }: ChatItemProps) {
-    const baseURL = process.env.EXPO_PUBLIC_API_URL + '/'
+    const baseURL = process.env.EXPO_PUBLIC_API_URL
 
     return (
-        <Pressable style={{ width: '100%', height: '100%' }} onPress={onPress} >
+        <Pressable style={{ width: '100%', marginBottom: 8 }} onPress={onPress} >
             <View style={styles.container}>
                 <View style={styles.left}>
                     <View style={styles.profile_image}>
@@ -49,8 +49,7 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 24,
         width: '100%',
-        height: 72,
-        marginBottom: 8
+        // height: 72
     },
     left: {
         flexDirection: 'row',

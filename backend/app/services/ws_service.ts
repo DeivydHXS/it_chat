@@ -1,5 +1,6 @@
 import { Server } from 'socket.io'
 import server from '@adonisjs/core/services/server'
+import Message from '#models/message'
 
 class Ws {
   public io: Server | undefined
@@ -14,7 +15,7 @@ class Ws {
     })
   }
 
-  sendMessage(chatId: string, message: any) {
+  sendMessage(chatId: string, message: Message) {
     this.io?.to(`chat:${chatId}`).emit('message', message)
   }
 }

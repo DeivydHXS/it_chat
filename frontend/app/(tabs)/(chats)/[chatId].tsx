@@ -22,18 +22,23 @@ import {
 
 export default function ChatScreen() {
   const { user } = useContext(AuthContext)
-  const baseURL = process.env.EXPO_PUBLIC_API_URL + '/'
+  const baseURL = process.env.EXPO_PUBLIC_API_URL
   const { get } = useApi()
   const { chatId, friendJSON } = useLocalSearchParams()
   const [friend, setFriend] = useState<UserInterface>()
   const [chat, setChat] = useState<ChatInterface>()
   const translateY = useRef(new Animated.Value(0)).current
   const [inputValue, setInputValue] = useState('')
+  const scrollViewRef = useRef<ScrollView>(null)
+  const viewRef = useRef<View>(null)
 
   const getChat = useCallback(async () => {
     const res = await get<{ data: { chat: ChatInterface } }>(`/chats/${chatId}`)
-    console.log(res.data)
     setChat(res.data.data.chat)
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true })
+    }, 300)
+
   }, [])
 
   useEffect(() => {
@@ -86,9 +91,11 @@ export default function ChatScreen() {
     return () => socket.disconnect()
   }, [chatId])
 
-  const handleSend = () => {
+  const handleSend = async () => {
+    Keyboard.dismiss()
     if (!inputValue.trim()) return
-    socket.sendMessage(chatId as string, inputValue)
+    await socket.sendMessage(chatId as string, inputValue)
+    scrollViewRef.current?.scrollToEnd()
     setInputValue('')
   }
 
@@ -96,7 +103,7 @@ export default function ChatScreen() {
     <>
       <Stack.Screen
         options={{
-          title: friend?.name ?? 'Chat',
+          title: friend?.name ?? 'Conversa',
           headerBackTitle: 'Voltar',
           headerRight: () => (
             <View
@@ -128,9 +135,14 @@ export default function ChatScreen() {
         }}
       />
 
-      <View style={[mainStyles.main_container, { flex: 1 }]}>
+      <View style={[mainStyles.main_container, { paddingVertical: 0, height: '100%' }]}>
         <ScrollView
-          style={{ width: '100%' }}
+          ref={scrollViewRef}
+          showsVerticalScrollIndicator={false}
+          style={{
+            width: '100%',
+            height: '80%',
+          }}
         >
           {chat && chat.messages.length > 0 ? (
             chat.messages.map((mes, k) => {
@@ -146,16 +158,17 @@ export default function ChatScreen() {
                     borderRadius: 20,
                     paddingVertical: 8,
                     paddingHorizontal: 12,
-                    marginBottom: 8,
+                    marginBottom: 4,
+                    marginTop: 4,
                   }}
                 >
                   <Text
                     style={{
                       color: isMine ? Colors.light : Colors.dark,
-                      fontWeight: 'semibold'
+                      fontWeight: 'bold'
                     }}
                   >
-                    {mes.user_id}
+                    {isMine ? user?.name : friend?.name}
                   </Text>
                   <Text
                     style={{
@@ -179,7 +192,19 @@ export default function ChatScreen() {
               <Text>Mande um 'oi' para seu amigo.</Text>
             </View>
           )}
+          <View ref={viewRef}></View>
         </ScrollView>
+
+        <View
+          style={{
+            height: 100,
+            backgroundColor: Colors.light2,
+            paddingHorizontal: 8,
+            gap: 8,
+            paddingTop: 8,
+            paddingBottom: 56,
+          }}
+        ></View>
       </View>
 
       <Animated.View
@@ -204,7 +229,7 @@ export default function ChatScreen() {
             paddingBottom: 56,
           }}
         >
-          <Pressable
+          {/* <Pressable
             style={{
               alignItems: 'center',
               justifyContent: 'center',
@@ -214,7 +239,7 @@ export default function ChatScreen() {
             }}
           >
             <Ionicons name="add-outline" color={Colors.red} size={32} />
-          </Pressable>
+          </Pressable> */}
 
           <TextInput
             value={inputValue}

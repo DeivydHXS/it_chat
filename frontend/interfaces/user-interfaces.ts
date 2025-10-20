@@ -21,6 +21,7 @@ export interface UserInterface extends UserInfo {
   status?: string
   friendship_id?: string
   friendship_status?: string
+  chat_id?: string
 }
 
 export interface UserRegister extends UserInfo {

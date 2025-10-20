@@ -67,7 +67,7 @@ Ela deve ser algo que outras pessoas não consigam adivinhar."
       <CustomInputText
         placeholder="Digite sua senha novamente"
         value={confirmation}
-        secureTextEntry
+        secureTextEntry={true}
         onChangeText={verifyConfirmation}
       />
 
