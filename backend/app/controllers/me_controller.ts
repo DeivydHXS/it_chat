@@ -8,6 +8,7 @@ import app from '@adonisjs/core/services/app'
 import { inject } from '@adonisjs/core'
 import path from 'path'
 import fs from 'fs'
+import sharp from 'sharp'
 
 @inject()
 export default class MeController {
@@ -28,7 +29,8 @@ export default class MeController {
         try {
             const payload = await request.validateUsing(updateUserValidator)
             const user = await auth.authenticateUsing(['api'])
-
+            var profileImageUrl: string | undefined
+            
             if (payload.profile_image) {
                 if (user.profile_image_url) {
                     const oldPath = path.join(app.makePath('storage/profile_images'), path.basename(user.profile_image_url))
@@ -36,15 +38,19 @@ export default class MeController {
                         fs.unlinkSync(oldPath)
                     }
                 }
+                const fileName = `${cuid()}.webp`
+                const outputPath = path.join(app.makePath('storage/profile_images'), fileName)
 
-                await payload.profile_image.move(app.makePath('storage/profile_images'), {
-                    name: `${cuid()}.${payload.profile_image.extname}`
-                })
+                await sharp(payload.profile_image.tmpPath!)
+                    .toFormat('webp', { quality: 80 })
+                    .toFile(outputPath)
+
+                profileImageUrl = `/uploads/profile_images/${fileName}`
             }
+            console.log(profileImageUrl)
+            const res = await this.userService.update(user, { ...payload, profile_image_url: profileImageUrl })
 
-            const res = await this.userService.update(user, { ...payload, profile_image_url: payload.profile_image ? `/uploads/profile_images/${payload.profile_image?.fileName}` : undefined })
-
-            ResponseService.send(response, 200, 'Usuário atualizado com sucesso.', { user: {...res} })
+            ResponseService.send(response, 200, 'Usuário atualizado com sucesso.', { user: { ...res } })
         } catch (error) {
             ResponseService.error(response, error)
         }

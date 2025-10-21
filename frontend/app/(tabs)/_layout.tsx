@@ -6,10 +6,9 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function TabLayout() {
   const segments = useSegments();
-  const hideTabs =
-    segments.includes("[chatId]") ||
-    segments.includes("options") ||
-    segments.includes("edit");
+  
+  // @ts-ignore
+  const hideTabs = segments.includes("[chatId]") || segments.includes("options") || segments.includes("edit");
 
   return (
     <Tabs
