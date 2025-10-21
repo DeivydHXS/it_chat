@@ -17,6 +17,7 @@ export const Colors = {
   gray4: '#BDBDBD',
   gray5: '#E0E0E0',
   check: '#27AE60',
+  textOnInput: '#1F2024',
 };
 
 export const Fonts = Platform.select({

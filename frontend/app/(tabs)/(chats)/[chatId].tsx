@@ -228,14 +228,14 @@ export default function ChatScreen() {
       >
         <View
           style={{
-            height: 100,
+            height: 108,
             backgroundColor: Colors.light2,
             paddingHorizontal: 8,
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
             gap: 8,
-            paddingTop: 8,
+            paddingTop: 16,
             paddingBottom: 56,
           }}
         >
@@ -266,6 +266,7 @@ export default function ChatScreen() {
               paddingHorizontal: 12,
               paddingVertical: 8,
               marginHorizontal: 8,
+              color: Colors.textOnInput,
             }}
           />
 

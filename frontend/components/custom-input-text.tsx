@@ -35,7 +35,7 @@ export const styles = StyleSheet.create({
     borderColor: Colors.gray3,
     borderWidth: 1,
     borderRadius: 10,
-    color: Colors.gray3,
+    color: Colors.textOnInput,
     fontSize: 16,
     alignItems: "center",
     justifyContent: "center",

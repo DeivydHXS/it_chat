@@ -40,6 +40,6 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: Colors.gray3,
+    color: Colors.textOnInput,
   }
 })

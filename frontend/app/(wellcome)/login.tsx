@@ -1,4 +1,4 @@
-import { Alert, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Link, LinkTrigger, router } from 'expo-router';
 import icon_img from '../../assets/images/logo-it.png';
