@@ -77,7 +77,6 @@ export default class UserService {
                 fs.unlinkSync(oldPath)
             }
         }
-
         user.delete()
     }
 
