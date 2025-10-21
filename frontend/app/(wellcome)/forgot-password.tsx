@@ -125,9 +125,10 @@ export default function ForgotPasswordScreen() {
 
             {step === 'code' && (
                 <BaseSection step='code'
-                error={codeError}
+                    error={codeError}
                     value={form.code}
                     handle={(text) => handleForm(text, 'code')}
+                    
                 />
             )}
 

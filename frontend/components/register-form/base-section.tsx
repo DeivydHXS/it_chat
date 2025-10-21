@@ -3,9 +3,10 @@ import { StyleSheet, Text, View } from "react-native";
 import { InfoSection } from "../info-section";
 import { CustomInputText } from "../custom-input-text";
 import { useEffect, useState } from "react";
+import { CustomInputNumber } from "../custom-input-number";
 
 
-interface BaseSectionProps { 
+interface BaseSectionProps {
     step: 'email' | 'name' | 'nickname' | 'code'
     value: string | undefined
     handle: (newValue: string, field: string) => void
@@ -43,9 +44,15 @@ export function BaseSection(props: BaseSectionProps) {
                 body={placeholders[props.step].body}
             />
 
-            <CustomInputText error={props.error} placeholder={placeholders[props.step].button_text} value={props.value || ''} onChangeText={(text) => {
-                props.handle(text, props.step)
-            }} />
+            {props.step === 'code' ?
+                <CustomInputNumber error={props.error} placeholder={placeholders[props.step].button_text} value={props.value || ''} onChangeText={(text) => {
+                    props.handle(text, props.step)
+                }} />
+                :
+                <CustomInputText error={props.error} placeholder={placeholders[props.step].button_text} value={props.value || ''} onChangeText={(text) => {
+                    props.handle(text, props.step)
+                }} />
+            }
         </View>
     )
 }
