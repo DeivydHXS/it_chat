@@ -53,6 +53,8 @@ router
         router
           .post('', '#controllers/me_controller.update')
         router
+          .post('change_password', '#controllers/me_controller.changePassword')
+        router
           .delete('', '#controllers/me_controller.delete')
       })
       .prefix('me')

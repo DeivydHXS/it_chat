@@ -58,7 +58,7 @@ export default function TabFourScreen() {
 
         <View style={styles.options}>
           <MenuCustomPressable onPress={() => navigate('/(tabs)/(profile)/edit')} text='Editar perfil' />
-          <MenuCustomPressable onPress={() => { }} text='Alterar senha' />
+          <MenuCustomPressable onPress={() => navigate('/(tabs)/(profile)/change-password')} text='Alterar senha' />
           <MenuCustomPressable onPress={() => setOpen(true)} text='Excluir conta' />
           <MenuCustomPressable onPress={() => logoutUser()} text='Sair' />
         </View>

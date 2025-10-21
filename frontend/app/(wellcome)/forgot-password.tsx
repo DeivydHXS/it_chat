@@ -86,7 +86,7 @@ export default function ForgotPasswordScreen() {
         try {
             const response = await post<ResponseInterface>('/auth/change_password', form)
             if (response.status >= 300) {
-                Alert.alert('Erro', 'Deu errado meu...')
+                Alert.alert('Erro', response.data.message)
                 return
             }
             goBack()

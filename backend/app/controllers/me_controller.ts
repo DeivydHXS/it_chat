@@ -2,7 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 
 import ResponseService from "#services/response_service"
 import UserService from '#services/user_service'
-import { updateUserValidator } from '#validators/me_validator'
+import { changePasswordValidator, updateUserValidator } from '#validators/me_validator'
 import { cuid } from '@adonisjs/core/helpers'
 import app from '@adonisjs/core/services/app'
 import { inject } from '@adonisjs/core'
@@ -30,7 +30,7 @@ export default class MeController {
             const payload = await request.validateUsing(updateUserValidator)
             const user = await auth.authenticateUsing(['api'])
             var profileImageUrl: string | undefined
-            
+
             if (payload.profile_image) {
                 if (user.profile_image_url) {
                     const oldPath = path.join(app.makePath('storage/profile_images'), path.basename(user.profile_image_url))
@@ -53,6 +53,22 @@ export default class MeController {
             ResponseService.send(response, 200, 'Usuário atualizado com sucesso.', { user: { ...res } })
         } catch (error) {
             ResponseService.error(response, error)
+        }
+    }
+
+    public async changePassword({ response, request, auth }: HttpContext) {
+        try {
+            const payload = await request.validateUsing(changePasswordValidator)
+            const user = await auth.authenticateUsing(['api'])
+
+            user.merge({
+                password: payload.password
+            })
+            await user.save()
+
+            ResponseService.send(response, 200, 'Senha alterada com sucesso.', { user })
+        } catch (err) {
+            ResponseService.error(response, err)
         }
     }
 

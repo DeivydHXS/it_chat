@@ -1,4 +1,5 @@
 import vine from '@vinejs/vine'
+import { passwordHasAtLeastOneNumberRule, passwordHasAtLeastOneSymbolRule, passwordHasUpperAndLowercaseRule, passwordMinLengthRule } from './rules/password_rules.js'
 
 /**
  * Validates the me's update action
@@ -12,5 +13,19 @@ export const updateUserValidator = vine.compile(
       size: '20mb',
       extnames: ['jpg', 'png', 'jpeg']
     }).optional()
+  })
+)
+
+/**
+ * Validates the me's change password action
+ */
+export const changePasswordValidator = vine.compile(
+  vine.object({
+    password: vine.string()
+      .use(passwordMinLengthRule({}))
+      .use(passwordHasUpperAndLowercaseRule({}))
+      .use(passwordHasAtLeastOneNumberRule({}))
+      .use(passwordHasAtLeastOneSymbolRule({})),
+      password_confirmation: vine.string().sameAs('password')
   })
 )
