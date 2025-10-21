@@ -13,7 +13,7 @@ export default function ChatsIndex() {
     const { user } = useContext(AuthContext)
     const { get } = useApi()
     const router = useRouter()
-
+    
     const [search, setSearch] = useState('')
     const [chats, setChats] = useState<ChatInterface[]>([])
 

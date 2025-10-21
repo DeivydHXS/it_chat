@@ -1,3 +1,4 @@
+import { CustomPressable } from '@/components/custom-pressable'
 import { Colors, mainStyles } from '@/constants/theme'
 import { AuthContext } from '@/context/auth-context'
 import { useApi } from '@/hooks/use-api'
@@ -5,7 +6,8 @@ import { ChatInterface } from '@/interfaces/chat-interfaces'
 import { UserInterface } from '@/interfaces/user-interfaces'
 import SocketService from '@/services/socket'
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
-import { Stack, useLocalSearchParams } from 'expo-router'
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
+import { navigate } from 'expo-router/build/global-state/routing'
 import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import {
   View,
@@ -31,6 +33,7 @@ export default function ChatScreen() {
   const [inputValue, setInputValue] = useState('')
   const scrollViewRef = useRef<ScrollView>(null)
   const viewRef = useRef<View>(null)
+  const router = useRouter()
 
   const getChat = useCallback(async () => {
     const res = await get<{ data: { chat: ChatInterface } }>(`/chats/${chatId}`)
@@ -117,19 +120,26 @@ export default function ChatScreen() {
                 overflow: 'hidden',
               }}
             >
-              {friend?.profile_image_url ? (
-                <Image
-                  source={{ uri: baseURL + friend?.profile_image_url }}
-                  style={{ width: 40, height: 40 }}
-                />
-              ) : (
-                <MaterialIcons
-                  name="person"
-                  size={50}
-                  color={'#B4DBFF'}
-                  style={{ right: 5 }}
-                />
-              )}
+              <Pressable onPress={() => router.push({
+                pathname: '/options' as any,
+                params: {
+                  friendJSON: friendJSON
+                }
+              })}>
+                {friend?.profile_image_url ? (
+                  <Image
+                    source={{ uri: baseURL + friend?.profile_image_url }}
+                    style={{ width: 40, height: 40 }}
+                  />
+                ) : (
+                  <MaterialIcons
+                    name="person"
+                    size={50}
+                    color={'#B4DBFF'}
+                    style={{ right: 5 }}
+                  />
+                )}
+              </Pressable>
             </View>
           ),
         }}

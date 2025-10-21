@@ -8,6 +8,7 @@ export default function TabLayout() {
   const segments = useSegments();
   const hideTabs =
     segments.includes("[chatId]") ||
+    segments.includes("options") ||
     segments.includes("edit");
 
   return (

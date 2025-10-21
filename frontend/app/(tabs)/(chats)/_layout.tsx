@@ -30,6 +30,22 @@ export default function ChatsLayout() {
           />
         ),
       }} />
+      <Stack.Screen name="options" options={{
+        title: '',
+        headerTitleStyle: { fontWeight: 'condensedBold' },
+        headerTitleAlign: 'center',
+        headerShown: true,
+        headerStyle: { backgroundColor: Colors.red },
+        headerTintColor: Colors.light,
+        headerLeft: (props: any) => (
+          <Ionicons
+            name="chevron-back"
+            size={24}
+            color={Colors.light}
+            onPress={() => goBack()}
+          />
+        ),
+      }} />
     </Stack>
   )
 }
