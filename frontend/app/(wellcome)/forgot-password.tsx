@@ -119,8 +119,15 @@ export default function ForgotPasswordScreen() {
     return (
         <View style={mainStyles.container_alt}>
             {step === 'email' && (
-                <BaseSection step='email' error={emailError}
-                    value={form.email} handle={(text) => handleForm(text, 'email')} />
+                <BaseSection
+                    step='email'
+                    error={emailError}
+                    value={form.email}
+                    handle={(text) => {
+                        setEmailError('')
+                        handleForm(text, 'email')
+                    }}
+                />
             )}
 
             {step === 'code' && (
@@ -128,7 +135,7 @@ export default function ForgotPasswordScreen() {
                     error={codeError}
                     value={form.code}
                     handle={(text) => handleForm(text, 'code')}
-                    
+
                 />
             )}
 
