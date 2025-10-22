@@ -57,14 +57,14 @@ export default class FriendService {
                 'friendships.status as friendship_status',
                 'friendships.blocker_id as friendship_blocker_id',
                 db.raw(`
-      (
-        select uc1.chat_id
-        from user_chats uc1
-        join user_chats uc2 on uc1.chat_id = uc2.chat_id
-        where uc1.user_id = ? and uc2.user_id = users.id
-        limit 1
-      ) as chat_id
-    `, [user.id])
+                        (
+                            select uc1.chat_id
+                            from user_chats uc1
+                            join user_chats uc2 on uc1.chat_id = uc2.chat_id
+                            where uc1.user_id = ? and uc2.user_id = users.id
+                            limit 1
+                        ) as chat_id
+                        `, [user.id])
             )
             .innerJoin('friendships', (join) => {
                 join.on((q) => {
@@ -87,7 +87,7 @@ export default class FriendService {
             })
             .orderBy('friendships.created_at', 'desc')
 
-            return users.map((u) => ({
+        return users.map((u) => ({
             ...u.serialize(),
             friendship_id: u.$extras.friendship_id,
             friendship_status: u.$extras.friendship_status,

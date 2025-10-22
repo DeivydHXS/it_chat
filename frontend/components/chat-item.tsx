@@ -2,13 +2,15 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, Pressable } fro
 import { MaterialIcons } from '@expo/vector-icons'
 import { Colors } from '@/constants/theme'
 import { UserInterface } from '@/interfaces/user-interfaces'
+import { MessageInterface } from '@/interfaces/chat-interfaces'
 
 interface ChatItemProps {
     user: UserInterface
     onPress?: () => void
+    lastMessage?: MessageInterface
 }
 
-export function ChatItem({ user, onPress }: ChatItemProps) {
+export function ChatItem({ user, onPress, lastMessage }: ChatItemProps) {
     const baseURL = process.env.EXPO_PUBLIC_API_URL
 
     return (
@@ -26,7 +28,7 @@ export function ChatItem({ user, onPress }: ChatItemProps) {
                     </View>
                     <View>
                         <Text style={styles.name}>{user.name}</Text>
-                        <Text style={{ fontSize: 14, color: Colors.gray3 }}>{'Ultima mensagem do chat...'}</Text>
+                        <Text style={{ fontSize: 14, color: Colors.gray3 }}>{lastMessage?.content || ''}</Text>
                     </View>
                 </View>
 

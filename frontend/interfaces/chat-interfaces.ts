@@ -11,6 +11,7 @@ export interface ChatInterface {
     updatedAt?: string,
     users: UserInterface[]
     messages: MessageInterface[]
+    last_message?: MessageInterface
 }
 
 export interface MessageInterface {

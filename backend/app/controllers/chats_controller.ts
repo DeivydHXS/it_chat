@@ -13,11 +13,35 @@ export default class ChatsController {
         try {
             const currentUser = await auth.authenticateUsing(['api'])
 
-            await currentUser.load('chats', (query) => {
-                query.preload('users')
-            })
+            const chats = await currentUser
+                .related('chats')
+                .query()
+                .preload('users')
 
-            return ResponseService.send(response, 200, 'Lista de conversas.', { chats: currentUser.chats })
+            for (const chat of chats) {
+                const lastMessage = await chat
+                    .related('messages')
+                    .query()
+                    .orderBy('created_at', 'desc')
+                    .limit(1)
+                console.log(lastMessage)
+                chat.$setRelated('messages', lastMessage)
+            }
+
+            const serializedChats = chats
+                .map((chat) => {
+                    const s = chat.serialize()
+                    const lastMessage = s.messages?.[0] || null
+                    delete s.messages
+                    return { ...s, last_message: lastMessage }
+                })
+                .sort((a, b) => {
+                    if (!a.last_message) return 1
+                    if (!b.last_message) return -1
+                    return new Date(b.last_message.createdAt).getTime() - new Date(a.last_message.createdAt).getTime()
+                })
+
+            return ResponseService.send(response, 200, 'Lista de conversas.', { chats: serializedChats })
         } catch (err) {
             ResponseService.error(response, err)
         }

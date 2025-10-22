@@ -2,6 +2,7 @@ import { HttpContext } from '@adonisjs/core/http'
 import ResponseService from '#services/response_service'
 import Message from '#models/message'
 import Ws from '#services/ws_service'
+import Chat from '#models/chat'
 
 export default class MessagesController {
   public async index({ response, params }: HttpContext) {
@@ -17,21 +18,31 @@ export default class MessagesController {
     }
   }
 
-  public async store({ request, response, auth }: HttpContext) {
+  public async store({ request, response, params, auth }: HttpContext) {
     try {
       const currentUser = await auth.authenticate()
-      const { chatId, text } = request.only(['chatId', 'text'])
+      const { chatId } = params
+      const { type, content } = request.only(['type', 'content'])
 
       const message = await Message.create({
         chat_id: chatId,
         user_id: currentUser.id,
-        type: 'text',
-        content: text,
+        type: type,
+        content: content,
       })
 
       Ws.io?.to(`chat:${chatId}`).emit('message', message)
 
-      ResponseService.send(response, 200, 'Mensagem salva e emitida', { message })
+      const chat = await Chat.query()
+        .where('id', message.chat_id)
+        .preload('users')
+        .firstOrFail()
+        
+      for (const user of chat.users) {
+        Ws.io?.to(`user:${user.id}`).emit('new_message', message)
+      }
+
+      ResponseService.send(response, 200, 'Mensagem enviada.', { message })
     } catch (err) {
       ResponseService.error(response, err)
     }

@@ -1,6 +1,5 @@
 import app from '@adonisjs/core/services/app'
 import Ws from '#services/ws_service'
-import Message from '#models/message'
 
 app.ready(() => {
   Ws.boot()
@@ -21,15 +20,9 @@ app.ready(() => {
       // console.log(`Socket ${socket.id} entrou na sala chat:${chatId}`)
     })
 
-    socket.on('send_message', async ({ chatId, text }) => {
-      const message = await Message.create({
-        chat_id: chatId,
-        user_id: socket.data.userId,
-        type: 'text',
-        content: text,
-      })
-
-      Ws.io?.to(`chat:${chatId}`).emit('message', message)
+    socket.on('join_user', (userId) => {
+      socket.join(`user:${userId}`)
     })
+
   })
 })

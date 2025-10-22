@@ -1,4 +1,5 @@
 import { CustomPressable } from '@/components/custom-pressable'
+import { MessageItem } from '@/components/message-item'
 import { Colors, mainStyles } from '@/constants/theme'
 import { AuthContext } from '@/context/auth-context'
 import { useApi } from '@/hooks/use-api'
@@ -25,7 +26,7 @@ import {
 export default function ChatScreen() {
   const { user } = useContext(AuthContext)
   const baseURL = process.env.EXPO_PUBLIC_API_URL
-  const { get } = useApi()
+  const { get, post } = useApi()
   const { chatId, friendJSON } = useLocalSearchParams()
   const [friend, setFriend] = useState<UserInterface>()
   const [chat, setChat] = useState<ChatInterface>()
@@ -97,7 +98,7 @@ export default function ChatScreen() {
   const handleSend = async () => {
     Keyboard.dismiss()
     if (!inputValue.trim()) return
-    await socket.sendMessage(chatId as string, inputValue)
+    const res = await post(`/messages/${chatId}`, { type: 'text', content: inputValue })
     scrollViewRef.current?.scrollToEnd()
     setInputValue('')
   }
@@ -155,41 +156,21 @@ export default function ChatScreen() {
           }}
         >
           {chat && chat.messages.length > 0 ? (
-            chat.messages.map((mes, k) => {
+            chat.messages.map((mes) => {
               const isMine = mes.user_id === user?.id
 
               return (
-                <View
-                  key={k}
-                  style={{
-                    maxWidth: '80%',
-                    alignSelf: isMine ? 'flex-end' : 'flex-start',
-                    backgroundColor: isMine ? Colors.red : Colors.gray5,
-                    borderRadius: 20,
-                    paddingVertical: 8,
-                    paddingHorizontal: 12,
-                    marginBottom: 4,
-                    marginTop: 4,
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: isMine ? Colors.light : Colors.dark,
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    {isMine ? user?.name : friend?.name}
-                  </Text>
-                  <Text
-                    style={{
-                      color: isMine ? Colors.light : Colors.dark,
-                    }}
-                  >
-                    {mes.content}
-                  </Text>
-                </View>
+                <MessageItem
+                  key={mes.id}
+                  isMine={isMine}
+                  user={user}
+                  friend={friend}
+                  mes={mes}
+                  onDeleteMessage={() => console.log('deletando mensagem')}
+                />
               )
             })
+
           ) : (
             <View
               style={{

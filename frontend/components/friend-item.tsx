@@ -17,8 +17,6 @@ export function FriendItem({ user, block, unfriend, unblock }: FriendItemProps) 
     const baseURL = process.env.EXPO_PUBLIC_API_URL
     const [open, setOpen] = useState<boolean>(false)
     const router = useRouter()
-    const [blockConfirmation, setBlockConfirmation] = useState<boolean>(false)
-    const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false)
 
     return (
         <View style={styles.container}>

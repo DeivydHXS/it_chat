@@ -10,7 +10,7 @@ import { UserInterface } from '@/interfaces/user-interfaces'
 import { Ionicons } from '@expo/vector-icons'
 import { navigate } from 'expo-router/build/global-state/routing'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Alert, Pressable, ScrollView, View } from 'react-native'
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 
 type ModalAction = 'close' | 'block' | 'unfriend' | 'unblock'
 
@@ -142,22 +142,22 @@ export default function FriendsScreen() {
         <ScrollView showsVerticalScrollIndicator={false}>
           {tab === 'friends'
             ? friends.map((f, i) => (
-                <FriendItem
-                  key={i}
-                  user={f}
-                  block={() => handleOpenModal('block', f)}
-                  unfriend={() => handleOpenModal('unfriend', f)}
-                  unblock={() => handleOpenModal('unblock', f)}
-                />
-              ))
+              <FriendItem
+                key={i}
+                user={f}
+                block={() => handleOpenModal('block', f)}
+                unfriend={() => handleOpenModal('unfriend', f)}
+                unblock={() => handleOpenModal('unblock', f)}
+              />
+            ))
             : requests.map((r, i) => (
-                <FriendRequestItem
-                  key={i}
-                  user={r}
-                  onAccept={() => accept(r.friendship_id as string)}
-                  onReject={() => refuse(r.friendship_id as string)}
-                />
-              ))}
+              <FriendRequestItem
+                key={i}
+                user={r}
+                onAccept={() => accept(r.friendship_id as string)}
+                onReject={() => refuse(r.friendship_id as string)}
+              />
+            ))}
         </ScrollView>
 
         <View
@@ -183,14 +183,31 @@ export default function FriendsScreen() {
         </View>
       </View>
 
-      {modalInfo && (
-        <ConfirmationModal
-          title={modalInfo.title}
-          message={modalInfo.message}
-          onAccept={modalInfo.onAccept}
-          onCancel={modalInfo.onCancel}
-        />
-      )}
+      <Modal
+        transparent
+        visible={modal !== 'close'}
+        animationType="fade"
+        onRequestClose={() => handleOpenModal()}
+      >
+        <Pressable style={styles.overlay} onPress={() => handleOpenModal()}>
+          {modalInfo && (
+            <ConfirmationModal
+              title={modalInfo.title}
+              message={modalInfo.message}
+              onAccept={modalInfo.onAccept}
+              onCancel={modalInfo.onCancel}
+            />
+          )}
+        </Pressable>
+      </Modal>
     </>
   )
 }
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    justifyContent: 'flex-end',
+  },
+})
