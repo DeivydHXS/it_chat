@@ -6,8 +6,8 @@ import { InfoSection } from '@/components/info-section'
 import { Colors, mainStyles } from '@/constants/theme'
 import { AuthContext } from '@/context/auth-context'
 import { useApi } from '@/hooks/use-api'
-import { UserUpdateResponse } from '@/interfaces/common-interfaces'
-import { UserUpdateErrors, UserUpdateForm } from '@/interfaces/user-interfaces'
+import { ResponseInterface, UserUpdateResponse } from '@/interfaces/common-interfaces'
+import { UserInterface, UserUpdateErrors, UserUpdateForm } from '@/interfaces/user-interfaces'
 import { MaterialIcons } from '@expo/vector-icons'
 import { goBack } from 'expo-router/build/global-state/routing'
 import { useCallback, useContext, useEffect, useState } from 'react'
@@ -21,6 +21,7 @@ export default function EditScreen() {
 
   const [errors, setErrors] = useState<UserUpdateErrors>()
   const [file, setFile] = useState<DocumentPicker.DocumentPickerAsset | null>(null)
+  const [profileImageUrlTemp, setProfileImageUrlTemp] = useState<string | null>(null)
   const [load, setLoad] = useState<boolean>(false)
 
   const pickDocument = async () => {
@@ -39,8 +40,7 @@ export default function EditScreen() {
     } finally {
       setTimeout(() => {
         setLoad(false)
-      }, 1000)
-
+      }, 500)
     }
   }
 
@@ -50,6 +50,14 @@ export default function EditScreen() {
     bio: user?.bio || ''
   })
 
+  useEffect(() => {
+    setProfileImageUrlTemp(user?.profile_image_url || null)
+  }, [])
+
+  const handleDeleteProfileImage = useCallback(async () => {
+    setProfileImageUrlTemp(null)
+    setFile(null)
+  }, [])
 
   const handleForm = useCallback((newValue: string, field: keyof UserUpdateForm) => {
     setForm((prev) => {
@@ -80,7 +88,7 @@ export default function EditScreen() {
       const response = await post<UserUpdateResponse>('/me', data, true)
 
       if (!response) {
-        Alert.alert("Erro", "Erro inesperado")
+        Alert.alert("Erro", "Erro interno")
         return
       }
 
@@ -103,8 +111,7 @@ export default function EditScreen() {
     <View style={mainStyles.main_container}>
       <InfoSection
         head='Mude suas informações'
-        body='Essa area é voltada para a atualização de suas 
-informações básicas.'
+        body='Essa area é voltada para a atualização de suas informações básicas.'
       />
 
       <View style={{
@@ -116,15 +123,15 @@ informações básicas.'
           position: 'relative'
         }}>
           <View style={styles.profile_image}>
-            {file || user?.profile_image_url ?
+            {file || profileImageUrlTemp ?
               <Image
-                source={{ uri: file ? file.uri : String(baseURL) + user?.profile_image_url }}
+                source={{ uri: file ? file.uri : String(baseURL) + profileImageUrlTemp }}
                 style={{ width: 100, height: 100 }}
               />
               :
-              user?.profile_image_url ?
+              profileImageUrlTemp ?
                 <Image
-                  source={{ uri: baseURL + user?.profile_image_url }}
+                  source={{ uri: baseURL + profileImageUrlTemp }}
                   style={{ width: 100, height: 100 }}
                 /> :
                 <MaterialIcons name="person" size={120} color={'#B4DBFF'} style={{
@@ -145,6 +152,24 @@ informações básicas.'
           }}>
             <Pressable onPress={pickDocument}><MaterialIcons name="edit" size={16} color={Colors.light} /></Pressable>
           </View>
+
+          {file || profileImageUrlTemp ?
+            <View style={{
+              position: 'absolute',
+              right: 1,
+              top: 1,
+              borderRadius: 50,
+              width: 32,
+              height: 32,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: Colors.red
+            }}>
+              <Pressable onPress={handleDeleteProfileImage}><MaterialIcons name="delete" size={16} color={Colors.light} /></Pressable>
+            </View>
+            : ''
+          }
+
         </View>
         <View>
           <Text style={styles.profile_image_error}>{errors?.profile_image ? errors.profile_image : ''}</Text>

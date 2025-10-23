@@ -4,6 +4,7 @@ import { Colors, mainStyles } from '@/constants/theme'
 import { AuthContext } from '@/context/auth-context'
 import { useApi } from '@/hooks/use-api'
 import { MaterialIcons } from '@expo/vector-icons'
+import { usePathname } from 'expo-router'
 import { navigate, replace } from 'expo-router/build/global-state/routing'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import { Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native'
@@ -64,10 +65,10 @@ export default function TabFourScreen() {
             onPress={() => navigate('/(tabs)/(profile)/change-password')}
             text="Alterar senha"
           />
-          <MenuCustomPressable
+          {/* <MenuCustomPressable
             onPress={() => setDeleteConfirmation(true)}
             text="Excluir conta"
-          />
+          /> */}
           <MenuCustomPressable
             onPress={() => setExitConfirmation(true)}
             text="Sair"

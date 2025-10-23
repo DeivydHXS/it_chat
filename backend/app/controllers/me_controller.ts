@@ -46,10 +46,18 @@ export default class MeController {
                     .toFile(outputPath)
 
                 profileImageUrl = `/uploads/profile_images/${fileName}`
+            } else {
+                if (user.profile_image_url) {
+                    const oldPath = path.join(app.makePath('storage/profile_images'), path.basename(user.profile_image_url))
+                    if (fs.existsSync(oldPath)) {
+                        fs.unlinkSync(oldPath)
+                    }
+                    user.profile_image_url = null
+                    await user.save()
+                }
             }
-            console.log(profileImageUrl)
-            const res = await this.userService.update(user, { ...payload, profile_image_url: profileImageUrl })
 
+            const res = await this.userService.update(user, { ...payload, profile_image_url: profileImageUrl })
             ResponseService.send(response, 200, 'Usuário atualizado com sucesso.', { user: { ...res } })
         } catch (error) {
             ResponseService.error(response, error)
