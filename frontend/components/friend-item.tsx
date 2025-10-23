@@ -44,7 +44,7 @@ export function FriendItem({ user, block, unfriend, unblock }: FriendItemProps) 
                                     friendJSON: JSON.stringify(user)
                                 }
                             })}
-                    disabled={user.friendship_status === 'b'} style={[styles.btn, { backgroundColor: Colors.red }]}>
+                    disabled={user.friendship_status === 'b'} style={[styles.btn, { backgroundColor: user.friendship_status === 'b' ? Colors.gray3 : Colors.red }]}>
                     <Ionicons name={user.friendship_status === 'b' ? "lock-closed" : "chatbubble"} size={20} color={Colors.light} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setOpen(!open)} style={styles.btn}>
