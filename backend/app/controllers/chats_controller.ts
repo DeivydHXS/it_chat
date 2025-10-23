@@ -24,7 +24,6 @@ export default class ChatsController {
                     .query()
                     .orderBy('created_at', 'desc')
                     .limit(1)
-                console.log(lastMessage)
                 chat.$setRelated('messages', lastMessage)
             }
 

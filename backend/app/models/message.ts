@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, belongsTo, column } from '@adonisjs/lucid/orm'
+import { BaseModel, beforeCreate, beforeFetch, beforeFind, belongsTo, column, ModelQueryBuilder } from '@adonisjs/lucid/orm'
 import { v4 } from 'uuid'
 import { type BelongsTo } from '@adonisjs/lucid/types/relations'
 import Chat from './chat.js'
@@ -12,9 +12,15 @@ export default class Message extends BaseModel {
     message.id = v4()
   }
 
+  @beforeFetch()
+  @beforeFind()
+  public static ignoreDeleted(query: ModelQueryBuilder) {
+    query.where('deleted', false)
+  }
+
   @column({ isPrimary: true })
   declare id: string
-  
+
   @column({ serializeAs: 'chat_id' })
   declare chat_id: string
 
@@ -27,16 +33,18 @@ export default class Message extends BaseModel {
   @column()
   declare content: string
 
+  @column({ serializeAs: null })
+  declare deleted: boolean
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
- 
+
   @belongsTo(() => Chat, { foreignKey: 'chat_id' })
   declare chat: BelongsTo<typeof Chat>
 
   @belongsTo(() => User, { foreignKey: 'user_id' })
   declare user: BelongsTo<typeof User>
-
 }

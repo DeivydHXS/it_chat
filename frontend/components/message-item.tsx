@@ -93,10 +93,14 @@ export function MessageItem({ isMine, user, friend, mes, onDeleteMessage }: Mess
               <Text style={styles.optionText}>Copiar mensagem</Text>
             </TouchableOpacity>
 
+            {isMine ? 
             <TouchableOpacity style={styles.option} onPress={handleDelete}>
               <MaterialIcons name="delete" size={22} color={Colors.red} />
               <Text style={[styles.optionText, { color: Colors.red }]}>Excluir mensagem</Text>
             </TouchableOpacity>
+            :
+            ''
+            }
           </Animated.View>
         </Pressable>
       </Modal>

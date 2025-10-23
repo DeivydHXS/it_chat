@@ -4,6 +4,7 @@ import { Colors, mainStyles } from '@/constants/theme'
 import { AuthContext } from '@/context/auth-context'
 import { useApi } from '@/hooks/use-api'
 import { ChatInterface } from '@/interfaces/chat-interfaces'
+import { ResponseInterface } from '@/interfaces/common-interfaces'
 import { UserInterface } from '@/interfaces/user-interfaces'
 import SocketService from '@/services/socket'
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
@@ -21,12 +22,13 @@ import {
   Animated,
   Easing,
   Platform,
+  Alert,
 } from 'react-native'
 
 export default function ChatScreen() {
   const { user } = useContext(AuthContext)
   const baseURL = process.env.EXPO_PUBLIC_API_URL
-  const { get, post } = useApi()
+  const { get, post, del } = useApi()
   const { chatId, friendJSON } = useLocalSearchParams()
   const [friend, setFriend] = useState<UserInterface>()
   const [chat, setChat] = useState<ChatInterface>()
@@ -98,10 +100,22 @@ export default function ChatScreen() {
   const handleSend = async () => {
     Keyboard.dismiss()
     if (!inputValue.trim()) return
-    const res = await post(`/messages/${chatId}`, { type: 'text', content: inputValue })
+    await post(`/messages/${chatId}`, { type: 'text', content: inputValue })
     scrollViewRef.current?.scrollToEnd()
     setInputValue('')
   }
+
+  const deleteMessage = useCallback(async (id: string, idx: number) => {
+    const res = await del<ResponseInterface>(`/messages/${id}`)
+    if (res.status > 299) {
+      Alert.alert('Erro', res.data.message)
+    }
+    setChat(prev =>
+      prev
+        ? { ...prev, messages: prev.messages.filter(m => m.id !== id) }
+        : prev
+    )
+  }, [setChat])
 
   return (
     <>
@@ -156,7 +170,7 @@ export default function ChatScreen() {
           }}
         >
           {chat && chat.messages.length > 0 ? (
-            chat.messages.map((mes) => {
+            chat.messages.map((mes, idx) => {
               const isMine = mes.user_id === user?.id
 
               return (
@@ -166,7 +180,9 @@ export default function ChatScreen() {
                   user={user}
                   friend={friend}
                   mes={mes}
-                  onDeleteMessage={() => console.log('deletando mensagem')}
+                  onDeleteMessage={() => {
+                    deleteMessage(mes.id, idx)
+                  }}
                 />
               )
             })

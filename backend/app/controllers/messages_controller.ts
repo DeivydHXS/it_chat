@@ -37,12 +37,40 @@ export default class MessagesController {
         .where('id', message.chat_id)
         .preload('users')
         .firstOrFail()
-        
+
       for (const user of chat.users) {
         Ws.io?.to(`user:${user.id}`).emit('new_message', message)
       }
 
       ResponseService.send(response, 200, 'Mensagem enviada.', { message })
+    } catch (err) {
+      ResponseService.error(response, err)
+    }
+  }
+
+  public async delete({ response, params, auth }: HttpContext) {
+    try {
+      const currentUser = await auth.authenticate()
+      const { messageId } = params
+
+      const message = await Message.find(messageId)
+
+      if (!message) {
+        ResponseService.send(response, 404, 'Mensagem não encontrada.', { })
+        return
+      }
+
+      if (message?.user_id !== currentUser.id) {
+        ResponseService.send(response, 403, 'Você não é o dono dessa mensagem.', { })
+        return
+      }
+
+      message?.merge({
+        deleted: true
+      })
+      await message?.save()
+
+      ResponseService.send(response, 200, 'Mensagem deleteda com sucesso.')
     } catch (err) {
       ResponseService.error(response, err)
     }
