@@ -17,7 +17,7 @@ export default class ChatsController {
                 .related('chats')
                 .query()
                 .preload('users')
-
+            
             for (const chat of chats) {
                 const lastMessage = await chat
                     .related('messages')

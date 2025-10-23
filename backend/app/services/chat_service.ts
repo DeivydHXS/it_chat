@@ -1,4 +1,5 @@
 import Chat from '#models/chat'
+import Friendship from '#models/friendship'
 import User from '#models/user'
 
 export default class ChatService {
@@ -15,7 +16,24 @@ export default class ChatService {
       throw new Error('Chat não encontrado')
     }
 
-    return chat
+    const user1 = chat?.users[0].id
+    const user2 = chat?.users[1].id
+
+    const friendship = await Friendship.query()
+      .where(query => {
+        query.where('send_to', user2 as string).andWhere('send_by', user1 as string)
+      })
+      .orWhere(query => {
+        query.where('send_to', user1 as string).andWhere('send_by', user2 as string)
+      })
+      .first()
+
+    const result = {
+      ...chat.serialize(),
+      blocker_id: friendship?.blocker_id
+    }
+
+    return result
   }
 
   public async createPrivateChat(user1Id: string, user2Id: string) {

@@ -220,23 +220,23 @@ export default function ChatScreen() {
           left: 0,
           right: 0,
           bottom: 0,
-          transform: [{ translateY: Animated.multiply(translateY, -1) }],
+          transform: chat?.blocker_id ? [] : [{ translateY: Animated.multiply(translateY, -1) }],
         }}
       >
-        <View
-          style={{
-            height: 108,
-            backgroundColor: Colors.light2,
-            paddingHorizontal: 8,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 8,
-            paddingTop: 16,
-            paddingBottom: 56,
-          }}
-        >
-          {/* <Pressable
+      <View
+        style={{
+          height: 108,
+          backgroundColor: Colors.light2,
+          paddingHorizontal: 8,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 8,
+          paddingTop: 16,
+          paddingBottom: 56,
+        }}
+      >
+        {/* <Pressable
             style={{
               alignItems: 'center',
               justifyContent: 'center',
@@ -248,40 +248,42 @@ export default function ChatScreen() {
             <Ionicons name="add-outline" color={Colors.red} size={32} />
           </Pressable> */}
 
-          <TextInput
-            value={inputValue}
-            onChangeText={setInputValue}
-            placeholder="Escreva sua mensagem"
-            multiline
-            textAlignVertical="top"
-            style={{
-              flex: 1,
-              minHeight: 40,
-              maxHeight: 120,
-              backgroundColor: Colors.light,
-              borderRadius: 12,
-              paddingHorizontal: 12,
-              paddingVertical: 8,
-              marginHorizontal: 8,
-              color: Colors.textOnInput,
-            }}
-          />
+        <TextInput
+          value={inputValue}
+          onChangeText={setInputValue}
+          placeholder={chat?.blocker_id ? 'Esta conversa está bloqueada.' : "Escreva sua mensagem"}
+          multiline
+          editable={chat?.blocker_id ? false : true}
+          textAlignVertical="top"
+          style={{
+            flex: 1,
+            minHeight: 40,
+            maxHeight: 120,
+            backgroundColor: Colors.light,
+            borderRadius: 12,
+            paddingHorizontal: 12,
+            paddingVertical: 8,
+            marginHorizontal: 8,
+            color: Colors.textOnInput,
+          }}
+        />
 
-          <Pressable
-            onPress={handleSend}
-            style={{
-              backgroundColor: Colors.red,
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 40,
-              height: 40,
-              borderRadius: 100,
-            }}
-          >
-            <Ionicons name="send" color={Colors.light} size={16} />
-          </Pressable>
-        </View>
-      </Animated.View>
+        <Pressable
+          onPress={handleSend}
+          disabled={chat?.blocker_id ? true : false}
+          style={{
+            backgroundColor: chat?.blocker_id ? Colors.gray3 : Colors.red,
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 40,
+            height: 40,
+            borderRadius: 100,
+          }}
+        >
+          <Ionicons name="send" color={Colors.light} size={16} />
+        </Pressable>
+      </View>
+    </Animated.View >
     </>
   )
 }

@@ -81,11 +81,17 @@ export default function FriendsScreen() {
           ...base,
           message: `Deseja realmente bloquear ${friend.name}?`,
           onAccept: async () => {
-            await post<ResponseInterface>(`/friends/${friend.id}/block`)
+            const res = await post<ResponseInterface>(`/friends/${friend.friendship_id}/block`)
+
+            if (res.status > 299) {
+              Alert.alert('Erro', res.data.message)
+              return
+            }
+
             setFriends(prev =>
               prev.map(f => (f.id === friend.id ? { ...f, friendship_status: 'b' } : f))
             )
-            Alert.alert('Usuário bloqueado com sucesso.')
+
             handleOpenModal()
           },
         }
@@ -94,11 +100,16 @@ export default function FriendsScreen() {
           ...base,
           message: `Deseja realmente desbloquear ${friend.name}?`,
           onAccept: async () => {
-            await post<ResponseInterface>(`/friends/${friend.id}/unblock`)
+            const res = await post<ResponseInterface>(`/friends/${friend.friendship_id}/unblock`)
+
+            if (res.status > 299) {
+              Alert.alert('Erro', res.data.message)
+              return
+            }
+
             setFriends(prev =>
               prev.map(f => (f.id === friend.id ? { ...f, friendship_status: 'a' } : f))
             )
-            Alert.alert('Usuário desbloqueado com sucesso.')
             handleOpenModal()
           },
         }
@@ -107,9 +118,14 @@ export default function FriendsScreen() {
           ...base,
           message: `Deseja realmente desfazer a amizade com ${friend.name}?`,
           onAccept: async () => {
-            await del<ResponseInterface>(`/friends/${friend.id}/unfriend`)
+            const res = await del<ResponseInterface>(`/friends/${friend.friendship_id}/unfriend`)
+
+            if (res.status > 299) {
+              Alert.alert('Erro', res.data.message)
+              return
+            }
+
             setFriends(prev => prev.filter(f => f.id !== friend.id))
-            Alert.alert('Amizade desfeita com sucesso.')
             handleOpenModal()
           },
         }

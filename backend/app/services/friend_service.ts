@@ -22,7 +22,6 @@ export default class FriendService {
                 q.where('friendships.send_by', userId).orWhere('friendships.send_to', userId)
             })
             .andWhereNot('users.id', userId)
-            // mostrar amizades sem blocker OR amizades que eu mesmo bloqueei
             .andWhere((q) => {
                 q.whereNull('friendships.blocker_id')
                     .orWhere('friendships.blocker_id', userId)
@@ -47,9 +46,8 @@ export default class FriendService {
             friendship_blocker_id: u.$extras.friendship_blocker_id,
         }))
     }
-
+ 
     public async accepted(user: User) {
-
         const users = await User.query()
             .select(
                 'users.*',
@@ -92,7 +90,7 @@ export default class FriendService {
             friendship_id: u.$extras.friendship_id,
             friendship_status: u.$extras.friendship_status,
             friendship_blocker_id: u.$extras.friendship_blocker_id,
-            chat_id: u.$extras.chat_id, // 👈 agora vem o id do chat compartilhado
+            chat_id: u.$extras.chat_id,
         }))
     }
 
