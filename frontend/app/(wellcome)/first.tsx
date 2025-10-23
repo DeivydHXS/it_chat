@@ -14,8 +14,6 @@ import { navigate } from 'expo-router/build/global-state/routing';
 export default function WellcomeScreen() {
   const [ative, setAtive] = useState<boolean>(false)
   const translateY = useRef(new Animated.Value(0)).current;
-  const { post } = useApi()
-  const { login } = useContext(AuthContext)
 
   const [first, setFirst] = useState<boolean | null>(null)
 
@@ -26,7 +24,6 @@ export default function WellcomeScreen() {
 
   const getStorageFirst = useCallback(async () => {
     const res = await StorageService.getFirst()
-    console.log('welcome', res)
     setFirst(Boolean(res))
   }, [])
 

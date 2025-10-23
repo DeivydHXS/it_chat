@@ -1,5 +1,5 @@
 import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Link, LinkTrigger, router } from 'expo-router';
+import { Link, LinkTrigger, router, usePathname } from 'expo-router';
 import icon_img from '../../assets/images/logo-it.png';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { CustomInputText } from '@/components/custom-input-text';
@@ -45,7 +45,6 @@ export default function LoginScreen() {
     setFirst();
   }, []);
 
-  // Array de usuários de teste
   const usersData = [
     { email: 'alice@email.com', password: 'Password123!' },
     { email: 'bob@email.com', password: 'Password123!' },
@@ -66,6 +65,14 @@ export default function LoginScreen() {
       Alert.alert('Erro', JSON.stringify(err));
     }
   }, []);
+
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (pathname === '/login') {
+      setErrors({ email: '', password: '' });
+    }
+  }, [pathname]);
 
   return (
     <View style={mainStyles.container}>

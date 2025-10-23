@@ -40,7 +40,7 @@ class SocketService {
       this.socket.connect()
 
       this.socket.on('connect', () => {
-        console.log('[Socket] Conectado ao servidor')
+        // console.log('[Socket] Conectado ao servidor')
         this.joinUser(this.userId)
       })
     }
@@ -49,18 +49,18 @@ class SocketService {
   disconnect() {
     if (this.socket.connected) {
       this.socket.disconnect()
-      console.log('[Socket] Desconectado do servidor')
+      // console.log('[Socket] Desconectado do servidor')
     }
   }
 
   joinChat(chatId: string) {
     this.socket.emit('join_chat', chatId)
-    console.log(`[Socket] Entrou na sala chat:${chatId}`)
+    // console.log(`[Socket] Entrou na sala chat:${chatId}`)
   }
 
   joinUser(userId: string) {
     this.socket.emit('join_user', userId)
-    console.log(`[Socket] Entrou na sala user:${userId}`)
+    // console.log(`[Socket] Entrou na sala user:${userId}`)
   }
 
   async sendMessage(chatId: string, text: string) {
