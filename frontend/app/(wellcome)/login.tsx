@@ -86,6 +86,9 @@ export default function LoginScreen() {
       <CustomInputText
         placeholder="Digite seu email"
         value={email}
+        onFocus={() => {
+          setErrors((prev) => ({ password: prev?.password || '', email: '' }));
+        }}
         onChangeText={(text) => {
           setErrors((prev) => ({ password: prev?.password || '', email: '' }));
           setEmail(text);
@@ -97,6 +100,9 @@ export default function LoginScreen() {
         placeholder="Digite sua senha"
         value={password}
         secureTextEntry
+        onFocus={() => {
+          setErrors((prev) => ({ password: '', email: prev?.email || '' }));
+        }}
         onChangeText={(text) => {
           setErrors((prev) => ({ password: '', email: prev?.email || '' }));
           setPassword(text);

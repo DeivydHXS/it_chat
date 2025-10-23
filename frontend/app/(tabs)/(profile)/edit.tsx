@@ -218,18 +218,32 @@ export default function EditScreen() {
           </View>
         </View>
 
-        <CustomInputText error={errors?.name} placeholder='Digite um nome' value={form.name} onChangeText={(text) => {
-          setErrors((prev) => ({ ...(prev || {}), name: undefined }))
-          handleForm(text, 'name')
-        }} />
+        <CustomInputText
+          error={errors?.name}
+          placeholder='Digite um nome'
+          value={form.name}
+          onFocus={() => {
+            setErrors((prev) => ({ ...(prev || {}), name: undefined }))
+          }}
+          onChangeText={(text) => {
+            setErrors((prev) => ({ ...(prev || {}), name: undefined }))
+            handleForm(text, 'name')
+          }} />
 
         <View style={{
           width: '100%'
         }}>
-          <CustomInputText error={errors?.nickname} placeholder='Digite um nome de usuário' value={form.nickname} onChangeText={(text) => {
-            setErrors((prev) => ({ ...(prev || {}), nickname: undefined }))
-            handleForm(text, 'nickname')
-          }} />
+          <CustomInputText
+            error={errors?.nickname}
+            placeholder='Digite um nome de usuário'
+            value={form.nickname}
+            onFocus={() => {
+              setErrors((prev) => ({ ...(prev || {}), nickname: undefined }))
+            }}
+            onChangeText={(text) => {
+              setErrors((prev) => ({ ...(prev || {}), nickname: undefined }))
+              handleForm(text, 'nickname')
+            }} />
           <View style={{
             height: 50,
             position: 'absolute',

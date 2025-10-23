@@ -18,6 +18,7 @@ export function CustomInputText(props: CustomInputTextProps) {
         secureTextEntry={props.secureTextEntry}
         maxLength={props.maxLength}
         autoCapitalize="none" 
+        onFocus={props.onFocus}
       />
       {props.error && <Text style={styles.error}>{props.error}</Text>}
     </View>

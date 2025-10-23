@@ -11,6 +11,7 @@ interface BaseSectionProps {
     value: string | undefined
     handle: (newValue: string, field: string) => void
     error?: string
+    onFocus?: () => void
 }
 
 export function BaseSection(props: BaseSectionProps) {
