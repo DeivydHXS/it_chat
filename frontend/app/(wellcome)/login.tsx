@@ -94,6 +94,7 @@ export default function LoginScreen() {
           setEmail(text);
         }}
         error={errors?.email}
+        maxLength={100}
       />
 
       <CustomInputText
@@ -108,6 +109,7 @@ export default function LoginScreen() {
           setPassword(text);
         }}
         error={errors?.password}
+        maxLength={30}
       />
 
       <CustomPressable text="Login" onPress={handleLogin} />

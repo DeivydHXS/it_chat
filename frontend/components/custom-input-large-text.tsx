@@ -4,33 +4,37 @@ import { StyleSheet, Text, TextInput, TextInputProps, View } from 'react-native'
 
 interface CustomInputLargeTextProps extends TextInputProps {
   error?: string
+  showCounter?: boolean;
 }
 
 export function CustomInputLargeText(props: CustomInputLargeTextProps) {
-  const [error, setError] = useState<string | undefined>(undefined)
+  const [length, setLength] = useState(props.value?.length || 0);
 
-  useEffect(() => {
-    setError(props.error)
-  }, [props.error])
-
-  const clearError = useCallback((text: string) => {
-    setError(undefined)
-    if (props.onChangeText) props.onChangeText(text)
-  }, [])
+  const handleChangeText = (text: string) => {
+    setLength(text.length);
+    props.onChangeText && props.onChangeText(text);
+  };
 
   return (
     <View style={styles.container}>
       <TextInput
         multiline
-        style={error ? styles.input_error : styles.input}
+        style={props.error ? styles.input_error : styles.input}
         placeholder={props.placeholder}
         value={props.value}
-        onChangeText={error ? (text) => clearError(text) : props.onChangeText}
+        onChangeText={handleChangeText}
         keyboardType={props.keyboardType}
         secureTextEntry={props.secureTextEntry}
         maxLength={props.maxLength}
       />
-      {error && <Text style={styles.error}>{error}</Text>}
+
+      {props.showCounter && props.maxLength && (
+        <Text style={styles.counter}>
+          {length}/{props.maxLength}
+        </Text>
+      )}
+
+      {props.error && <Text style={styles.error}>{props.error}</Text>}
     </View>
   );
 }
@@ -69,5 +73,14 @@ export const styles = StyleSheet.create({
   error: {
     color: 'red',
     fontSize: 12
-  }
+  },
+  counter: {
+    position: "absolute",
+    left: 12,
+    bottom: -6,
+    fontSize: 12,
+    color: Colors.gray3,
+    backgroundColor: Colors.light, 
+    paddingHorizontal: 3,
+  },
 });

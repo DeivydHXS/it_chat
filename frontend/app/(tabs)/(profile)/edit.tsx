@@ -181,6 +181,7 @@ export default function EditScreen() {
                   }} />
               }
             </View>
+
             <View style={{
               position: 'absolute',
               right: 1,
@@ -228,7 +229,10 @@ export default function EditScreen() {
           onChangeText={(text) => {
             setErrors((prev) => ({ ...(prev || {}), name: undefined }))
             handleForm(text, 'name')
-          }} />
+          }}
+          maxLength={25}
+          showCounter={true}
+        />
 
         <View style={{
           width: '100%'
@@ -243,7 +247,10 @@ export default function EditScreen() {
             onChangeText={(text) => {
               setErrors((prev) => ({ ...(prev || {}), nickname: undefined }))
               handleForm(text, 'nickname')
-            }} />
+            }}
+            maxLength={10}
+            showCounter={true}
+          />
           <View style={{
             height: 50,
             position: 'absolute',
@@ -260,10 +267,17 @@ export default function EditScreen() {
           </View>
         </View>
 
-        <CustomInputLargeText error={errors?.bio} placeholder='Escreva sua bio' value={form.bio} onChangeText={(text) => {
-          setErrors((prev) => ({ ...(prev || {}), bio: undefined }))
-          handleForm(text, 'bio')
-        }} />
+        <CustomInputLargeText
+          error={errors?.bio}
+          placeholder='Escreva sua bio'
+          value={form.bio}
+          onChangeText={(text) => {
+            setErrors((prev) => ({ ...(prev || {}), bio: undefined }))
+            handleForm(text, 'bio')
+          }}
+          maxLength={200}
+          showCounter={true}
+        />
 
         <CustomPressable
           text='Salvar'

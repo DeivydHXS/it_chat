@@ -19,22 +19,26 @@ export function BaseSection(props: BaseSectionProps) {
         'email': {
             head: "Qual é o seu endereço de e-mail?",
             body: "Insira um endereço de email válido. Ninguém verá essa informação no seu perfil.",
-            button_text: 'Digite seu email'
+            button_text: 'Digite seu email',
+            max_length: 50
         },
         'name': {
             head: "Qual é o seu nome?",
             body: "Insira um nome para seus amigos te encontrarem.",
-            button_text: 'Digite seu nome'
+            button_text: 'Digite seu nome',
+            max_length: 25
         },
         'nickname': {
             head: "Escolha um nome de usuário",
             body: "Escolha um apelido único para sua conta.",
-            button_text: 'Digite seu apelido'
+            button_text: 'Digite seu apelido',
+            max_length: 10
         },
         'code': {
             head: "Insira o código",
             body: "Insira o código de validação que foi enviado em seu e-mail.",
-            button_text: 'Digite seu código'
+            button_text: 'Digite seu código',
+            max_length: 6
         }
     }
 
@@ -46,13 +50,26 @@ export function BaseSection(props: BaseSectionProps) {
             />
 
             {props.step === 'code' ?
-                <CustomInputNumber error={props.error} placeholder={placeholders[props.step].button_text} value={props.value || ''} onChangeText={(text) => {
-                    props.handle(text, props.step)
-                }} />
+                <CustomInputNumber
+                    error={props.error}
+                    placeholder={placeholders[props.step].button_text}
+                    value={props.value || ''}
+                    onChangeText={(text) => {
+                        props.handle(text, props.step)
+                    }}
+                    maxLength={placeholders[props.step].max_length}
+                />
                 :
-                <CustomInputText error={props.error} placeholder={placeholders[props.step].button_text} value={props.value || ''} onChangeText={(text) => {
-                    props.handle(text, props.step)
-                }} />
+                <CustomInputText
+                    error={props.error}
+                    placeholder={placeholders[props.step].button_text}
+                    value={props.value || ''}
+                    onChangeText={(text) => {
+                        props.handle(text, props.step)
+                    }}
+                    maxLength={placeholders[props.step].max_length}
+                    showCounter={true}
+                />
             }
         </View>
     )

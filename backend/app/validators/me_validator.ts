@@ -6,9 +6,9 @@ import { passwordHasAtLeastOneNumberRule, passwordHasAtLeastOneSymbolRule, passw
  */
 export const updateUserValidator = vine.compile(
   vine.object({
-    name: vine.string().trim().minLength(1).maxLength(255),
-    nickname: vine.string().trim().minLength(1).maxLength(50),
-    bio: vine.string().trim().minLength(1).maxLength(1000).optional(),
+    name: vine.string().trim().minLength(1).maxLength(50),
+    nickname: vine.string().trim().minLength(1).maxLength(30),
+    bio: vine.string().trim().minLength(1).maxLength(300).optional(),
     profile_image: vine.file({
       size: '20mb',
       extnames: ['jpg', 'png', 'jpeg']
@@ -21,7 +21,7 @@ export const updateUserValidator = vine.compile(
  */
 export const changePasswordValidator = vine.compile(
   vine.object({
-    password: vine.string()
+    password: vine.string().maxLength(30)
       .use(passwordMinLengthRule({}))
       .use(passwordHasUpperAndLowercaseRule({}))
       .use(passwordHasAtLeastOneNumberRule({}))

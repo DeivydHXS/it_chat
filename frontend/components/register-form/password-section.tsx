@@ -63,12 +63,16 @@ Ela deve ser algo que outras pessoas não consigam adivinhar."
         value={password}
         secureTextEntry
         onChangeText={verifyPassword}
+        maxLength={30}
+        showCounter={true}
       />
       <CustomInputText
         placeholder="Digite sua senha novamente"
         value={confirmation}
         secureTextEntry={true}
         onChangeText={verifyConfirmation}
+        maxLength={30}
+        showCounter={true}
       />
 
       <View>
