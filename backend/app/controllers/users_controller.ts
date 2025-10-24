@@ -9,11 +9,12 @@ export default class UsersController {
         private userService: UserService
     ) { }
 
-    public async search({ response, request }: HttpContext) {
+    public async search({ response, request, auth }: HttpContext) {
         try {
-            const search = request.input('search') 
+            const user = await auth.authenticateUsing(['api'])
+            const search = request.input('search')
 
-            const users = await this.userService.search(search)
+            const users = await this.userService.search(search, user.id)
             ResponseService.send(response, 200, 'Busca de usuário.', { users })
         } catch (err) {
             ResponseService.error(response, err)

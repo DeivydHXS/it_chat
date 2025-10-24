@@ -6,8 +6,9 @@ import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
 import Chat from './chat.js'
 import type { ManyToMany } from '@adonisjs/lucid/types/relations'
-import { v4, type UUIDTypes } from 'uuid'
+import { v4 } from 'uuid'
 import { randomBytes } from 'crypto'
+import Friendship from './friendship.js'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email'],
@@ -33,12 +34,12 @@ export default class User extends compose(BaseModel, AuthFinder) {
   }
 
   @column({ isPrimary: true })
-  declare id: UUIDTypes
+  declare id: string
 
   @column()
   declare name: string
 
-  @column()
+  @column({ serializeAs: null })
   declare email: string
 
   @column()
@@ -72,7 +73,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare updatedAt: DateTime | null
 
   static accessTokens = DbAccessTokensProvider.forModel(User, {
-    expiresIn: '1 hour',
+    expiresIn: '30d',
     prefix: 'oat_',
     table: 'auth_access_tokens',
     type: 'auth_token',
@@ -88,6 +89,17 @@ export default class User extends compose(BaseModel, AuthFinder) {
   })
   declare friendships: ManyToMany<typeof User>
 
-  @manyToMany(() => Chat)
+  @manyToMany(() => Chat, {
+    pivotTable: 'user_chats',
+  })
   declare chats: ManyToMany<typeof Chat>
+
+  public async getFriends() {
+    const friends = await Friendship.query()
+      .where('send_by', this.id as string)
+      .orWhere('send_to', this.id as string)
+      .orderBy('created_at', 'desc')
+    return friends
+  }
+
 }

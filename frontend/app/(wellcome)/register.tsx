@@ -144,6 +144,9 @@ export default function RegisterScreen() {
                     step='email'
                     error={emailError}
                     value={form.email}
+                    onFocus={
+                        () => setEmailError('')
+                    }
                     handle={(text) => {
                         setEmailError('')
                         handleForm(text, 'email')

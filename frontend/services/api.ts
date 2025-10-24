@@ -1,13 +1,13 @@
 import axios from 'axios';
-import { AuthStorageService } from './authStorageService';
+import { StorageService } from './storageService';
 import { router } from 'expo-router';
 
 const api = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL
+  baseURL: process.env.EXPO_PUBLIC_API_URL + '/api'
 });
 
 api.interceptors.request.use(async (config) => {
-  const userToken = await AuthStorageService.getToken();
+  const userToken = await StorageService.getToken();
 
   if (userToken?.access_token) {
     config.headers?.set('Authorization', `Bearer ${userToken.access_token}`);
@@ -20,7 +20,7 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      await AuthStorageService.removeToken();
+      await StorageService.removeToken();
 
       router.replace('/(wellcome)/login');
     }

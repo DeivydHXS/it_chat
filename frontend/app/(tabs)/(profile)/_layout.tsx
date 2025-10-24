@@ -29,7 +29,9 @@ export default function ProfileLayout() {
       }} />
       <Stack.Screen name='edit' options={{
         title: 'Editar perfil',
-
+      }} />
+      <Stack.Screen name='change-password' options={{
+        title: 'Alterar senha',
       }} />
     </Stack>
   );
