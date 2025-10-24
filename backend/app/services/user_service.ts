@@ -16,7 +16,7 @@ export default class UserService {
         }
     }
 
-    public async search(search: string) {
+    public async search(search: string, user_id: string) {
         const users = await User.query()
             .if(search, (query) => {
                 query.where((q) => {
@@ -25,6 +25,7 @@ export default class UserService {
                         .orWhereILike('nickname_hash', `%${search}%`)
                 })
             })
+            .whereNot('id', user_id)
             .orderBy('created_at', 'desc')
 
         return users
@@ -77,7 +78,6 @@ export default class UserService {
                 fs.unlinkSync(oldPath)
             }
         }
-
         user.delete()
     }
 

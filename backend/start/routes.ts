@@ -10,7 +10,6 @@
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
 
-
 router
   .group(() => {
     router.get('/', async () => {
@@ -54,6 +53,8 @@ router
         router
           .post('', '#controllers/me_controller.update')
         router
+          .post('change_password', '#controllers/me_controller.changePassword')
+        router
           .delete('', '#controllers/me_controller.delete')
       })
       .prefix('me')
@@ -79,6 +80,10 @@ router
       .group(() => {
         router
           .get('', '#controllers/friends_controller.search')
+        router
+          .get('accepted', '#controllers/friends_controller.accepted')
+        router
+          .get('pending', '#controllers/friends_controller.pending')
         router
           .group(() => {
             router
@@ -108,9 +113,21 @@ router
         router
           .get('', '#controllers/chats_controller.all')
         router
-          .get(':id', '#controllers/chats_controller.get')
+          .get(':chatId', '#controllers/chats_controller.get')
       })
       .prefix('chats')
+      .use(
+        middleware.auth({
+          guards: ['api'],
+        })
+      )
+
+    router
+      .group(() => {
+        router.get('', '#controllers/messages_controller.index')
+        router.post(':chatId', '#controllers/messages_controller.store')
+        router.delete(':messageId', '#controllers/messages_controller.delete')
+      }).prefix('messages')
       .use(
         middleware.auth({
           guards: ['api'],

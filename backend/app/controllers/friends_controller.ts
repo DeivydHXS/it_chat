@@ -1,13 +1,19 @@
+import Chat from '#models/chat'
 import Friendship, { FriendshipStatus } from '#models/friendship'
 import User from '#models/user'
+import ChatService from '#services/chat_service'
 import FriendService from '#services/friend_service'
 import ResponseService from '#services/response_service'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
+import { v4 } from 'uuid'
 
 @inject()
 export default class FriendsController {
-    constructor(private friendService: FriendService) { }
+    constructor(
+        private friendService: FriendService,
+        private chatService: ChatService
+    ) { }
 
     public async getSolicitationId({ response, request, params, auth }: HttpContext) {
         try {
@@ -21,6 +27,7 @@ export default class FriendsController {
                 .orWhere((query) => {
                     query.where('send_by', friendId).andWhere('send_to', currentUser.id as string)
                 }).first()
+
             if (!friendship) {
                 return ResponseService.error(response, {
                     message: 'Erro ao encontrar solicitação.',
@@ -38,10 +45,34 @@ export default class FriendsController {
         try {
             const currentUser = await auth.authenticateUsing(['api'])
             const search = request.input('search')
+            const tab = request.input('tab')
 
-            const friends = await this.friendService.search(currentUser, search)
-
+            const friends = await this.friendService.search(currentUser.id as string, search, tab === 'friends' ? 'a' : 'p')
             ResponseService.send(response, 200, 'Busca de usuário.', { friends })
+        } catch (err) {
+            ResponseService.error(response, err)
+        }
+    }
+
+    public async accepted({ response, auth }: HttpContext) {
+        try {
+            const currentUser = await auth.authenticateUsing(['api'])
+
+            const friends = await this.friendService.accepted(currentUser)
+
+            ResponseService.send(response, 200, 'Lista de amigos.', { friends })
+        } catch (err) {
+            ResponseService.error(response, err)
+        }
+    }
+
+    public async pending({ response, auth }: HttpContext) {
+        try {
+            const currentUser = await auth.authenticateUsing(['api'])
+
+            const solicitations = await this.friendService.pending(currentUser)
+
+            ResponseService.send(response, 200, 'Lista de solicitações pendentes.', { solicitations })
         } catch (err) {
             ResponseService.error(response, err)
         }
@@ -122,6 +153,20 @@ export default class FriendsController {
 
             await this.friendService.accept(friendship)
 
+            const friendshipChat = await Chat.create({ type: 'p' })
+
+            const friend = await User.find(friendship.send_by)
+
+            if (friend) {
+                await currentUser.related('chats').attach({
+                    [friendshipChat.id]: { id: v4(), permission_type: 'm' }
+                })
+
+                await friend.related('chats').attach({
+                    [friendshipChat.id]: { id: v4(), permission_type: 'm' }
+                })
+            }
+
             return ResponseService.send(response, 200, 'Solicitação de amizade aceita com sucesso!', {
                 friendship
             })
@@ -177,20 +222,13 @@ export default class FriendsController {
                 })
             }
 
-            if (friendship.send_to !== currentUser.id as string) {
-                return ResponseService.error(response, {
-                    message: 'Requisição inválida.',
-                    errors: { friendship: 'Você não tem permissão para bloquear.' },
-                })
-            }
-
             if (friendship.status === FriendshipStatus.Blocked) {
                 return ResponseService.send(response, 422, 'Requisição inválida.', {
                     friendship: 'Você já bloqueou este usuário.'
                 })
             }
 
-            this.friendService.block(friendship)
+            this.friendService.block(friendship, currentUser.id)
 
             return ResponseService.send(response, 200, 'Amizade bloqueada com sucesso!')
         } catch (error) {
@@ -211,20 +249,20 @@ export default class FriendsController {
                 })
             }
 
-            if (friendship.send_to !== currentUser.id as string) {
-                return ResponseService.error(response, {
-                    message: 'Requisição inválida.',
-                    errors: { friendship: 'Você não tem permissão para desbloquear.' },
-                })
-            }
-
             if (friendship.status !== FriendshipStatus.Blocked) {
                 return ResponseService.send(response, 422, 'Requisição inválida.', {
                     friendship: 'Este usuário não consta na sua lista de bloqueios para ser desbloqueado.'
                 })
             }
 
-            this.friendService.accept(friendship)
+            if (friendship.blocker_id !== currentUser.id) {
+                return ResponseService.error(response, {
+                    message: 'Requisição inválida.',
+                    errors: { friendship: 'Você não tem permissão para desbloquear esta amizade.' },
+                })
+            }
+
+            this.friendService.unblock(friendship)
 
             return ResponseService.send(response, 200, 'Amizade desbloqueada com sucesso!')
         } catch (error) {

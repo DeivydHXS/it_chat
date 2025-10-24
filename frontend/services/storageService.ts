@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LOCAL_STORAGE_KEYS } from '../constants/localstorage';
 import type { TokenInterface } from '../interfaces/user-interfaces';
 
-export const AuthStorageService = {
+export const StorageService = {
     async saveToken(token: TokenInterface) {
         try {
             await AsyncStorage.setItem(LOCAL_STORAGE_KEYS.TOKEN, JSON.stringify(token));
@@ -28,4 +28,21 @@ export const AuthStorageService = {
             console.error('Erro ao remover token do AsyncStorage:', err);
         }
     },
+
+    async setFirst(bool: boolean) {
+        try {
+            await AsyncStorage.setItem(LOCAL_STORAGE_KEYS.FIRST, JSON.stringify(bool));
+        } catch (err) {
+            console.error('Erro ao salvar first no AsyncStorage:', err);
+        }
+    },
+
+    async getFirst() {
+        try {
+            const first = await AsyncStorage.getItem(LOCAL_STORAGE_KEYS.FIRST);
+            return Boolean(first)
+        } catch (err) {
+            console.error('Erro ao recuperar first do AsyncStorage:', err);
+        }
+    }
 };

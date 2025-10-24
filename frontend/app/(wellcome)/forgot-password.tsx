@@ -86,7 +86,7 @@ export default function ForgotPasswordScreen() {
         try {
             const response = await post<ResponseInterface>('/auth/change_password', form)
             if (response.status >= 300) {
-                Alert.alert('Erro', 'Deu errado meu...')
+                Alert.alert('Erro', response.data.message)
                 return
             }
             goBack()
@@ -119,15 +119,23 @@ export default function ForgotPasswordScreen() {
     return (
         <View style={mainStyles.container_alt}>
             {step === 'email' && (
-                <BaseSection step='email' error={emailError}
-                    value={form.email} handle={(text) => handleForm(text, 'email')} />
+                <BaseSection
+                    step='email'
+                    error={emailError}
+                    value={form.email}
+                    handle={(text) => {
+                        setEmailError('')
+                        handleForm(text, 'email')
+                    }}
+                />
             )}
 
             {step === 'code' && (
                 <BaseSection step='code'
-                error={codeError}
+                    error={codeError}
                     value={form.code}
                     handle={(text) => handleForm(text, 'code')}
+
                 />
             )}
 

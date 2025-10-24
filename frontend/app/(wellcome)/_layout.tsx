@@ -1,13 +1,31 @@
-import { LOCAL_STORAGE_KEYS } from '@/constants/localstorage';
 import { Colors } from '@/constants/theme';
+import { TokenInterface } from '@/interfaces/user-interfaces';
+import { StorageService } from '@/services/storageService';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Stack, useNavigation } from 'expo-router';
+import { Stack } from 'expo-router';
 import { goBack, navigate } from 'expo-router/build/global-state/routing';
+import { useCallback, useEffect, useState } from 'react';
 
 export default function WellcomeLayout() {
+  const [alreadyVisit, setAlreadyVisit] = useState<TokenInterface | null>()
+
+  const getToken = useCallback(async () => {
+    const res = await StorageService.getToken()
+    setAlreadyVisit(res)
+  }, [])
+
+  useEffect(() => {
+    getToken()
+  }, [])
+
+  useEffect(() => {
+    if (alreadyVisit) {
+      navigate('/(tabs)')
+    }
+  }, [alreadyVisit])
+
   return (
-    <Stack initialRouteName='first'>  
+    <Stack initialRouteName='first'>
       <Stack.Screen name='first' options={{ headerShown: false }} />
       <Stack.Screen name='login' options={{ headerShown: false }} />
       <Stack.Screen name='register' options={{
@@ -17,11 +35,11 @@ export default function WellcomeLayout() {
         headerShown: true,
         headerStyle: { backgroundColor: Colors.red },
         headerTintColor: Colors.light,
-        headerLeft: (props:any ) => (
+        headerLeft: (props: any) => (
           <Ionicons
             name="chevron-back"
             size={24}
-            color={ Colors.light }
+            color={Colors.light}
             onPress={() => goBack()}
           />
         ),
@@ -33,11 +51,11 @@ export default function WellcomeLayout() {
         headerShown: true,
         headerStyle: { backgroundColor: Colors.red },
         headerTintColor: Colors.light,
-        headerLeft: (props:any ) => (
+        headerLeft: (props: any) => (
           <Ionicons
             name="chevron-back"
             size={24}
-            color={ Colors.light }
+            color={Colors.light}
             onPress={() => goBack()}
           />
         ),

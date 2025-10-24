@@ -1,16 +1,22 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, Pressable } from 'react-native'
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { Colors } from '@/constants/theme'
 import { UserInterface } from '@/interfaces/user-interfaces'
+import { useState } from 'react'
+import { useRouter } from 'expo-router'
+import { ConfirmationModal } from './confirmation-modal'
 
 interface FriendItemProps {
     user: UserInterface
-    onChatPress?: () => void
-    onMenuPress?: () => void
+    block: (id: string) => void
+    unblock: (id: string) => void
+    unfriend: (id: string) => void
 }
 
-export function FriendItem({ user, onChatPress, onMenuPress }: FriendItemProps) {
-    const baseURL = process.env.EXPO_PUBLIC_BASE_API_URL
+export function FriendItem({ user, block, unfriend, unblock }: FriendItemProps) {
+    const baseURL = process.env.EXPO_PUBLIC_API_URL
+    const [open, setOpen] = useState<boolean>(false)
+    const router = useRouter()
 
     return (
         <View style={styles.container}>
@@ -27,14 +33,76 @@ export function FriendItem({ user, onChatPress, onMenuPress }: FriendItemProps) 
                 <Text style={styles.name}>{user.name}</Text>
             </View>
 
-            <View style={styles.right}>
-                <TouchableOpacity onPress={onChatPress} style={[styles.btn, {backgroundColor: Colors.red}]}>
-                <Ionicons name="chatbubble" size={20} color={Colors.light} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={onMenuPress} style={styles.btn}>
-                <Ionicons name="ellipsis-vertical" size={18} color={Colors.dark} />
-            </TouchableOpacity>
-        </View>
+            <View style={[styles.right, { position: 'relative' }]}>
+                <TouchableOpacity
+                    onPress={() =>
+                        user.friendship_status === 'b' ?
+                            {} :
+                            router.push({
+                                pathname: `/(chats)/${user?.chat_id}` as any,
+                                params: {
+                                    friendJSON: JSON.stringify(user)
+                                }
+                            })}
+                    disabled={user.friendship_status === 'b'} style={[styles.btn, { backgroundColor: user.friendship_status === 'b' ? Colors.gray3 : Colors.red }]}>
+                    <Ionicons name={user.friendship_status === 'b' ? "lock-closed" : "chatbubble"} size={20} color={Colors.light} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setOpen(!open)} style={styles.btn}>
+                    <Ionicons name="ellipsis-vertical" size={18} color={Colors.dark} />
+                </TouchableOpacity>
+                {open &&
+                    <View
+                        onBlur={() => setOpen(false)}
+                        style={{
+                            borderRadius: 16,
+                            backgroundColor: Colors.light,
+                            minWidth: 140,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            position: 'absolute',
+                            top: 0,
+                            right: 36,
+                            borderColor: Colors.dark,
+                            borderWidth: 1,
+                            zIndex: 10
+                        }}>
+                        <View style={{
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '100%',
+                            padding: 8,
+                            borderColor: Colors.dark,
+                            borderBottomWidth: 1,
+                        }}>
+                            <Pressable style={{ width: '100%' }} onPress={() => { }} >
+                                <Text style={{ textAlign: 'center', fontWeight: 'condensed', color: Colors.dark }}>{user.friendship_status === 'b' ? 'Desbloquear' : 'Silenciar amigo'}</Text>
+                            </Pressable>
+                        </View>
+                        <View style={{
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '100%',
+                            padding: 8,
+                            borderColor: Colors.dark,
+                            borderBottomWidth: 1,
+                        }}>
+                            <Pressable style={{ width: '100%' }} onPress={() => user.friendship_status === 'b' ? unblock(user.friendship_id as string) : block(user.friendship_id as string)} >
+                                <Text style={{ textAlign: 'center', fontWeight: 'condensed', color: Colors.dark }}>{user.friendship_status === 'b' ? 'Desbloquear' : 'Bloquear amigo'}</Text>
+                            </Pressable>
+                        </View>
+                        <View style={{
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '100%',
+                            padding: 8
+                        }}>
+                            <Pressable style={{ width: '100%' }} onPress={() => unfriend(user.friendship_id as string)} >
+                                <Text style={{ textAlign: 'center', fontWeight: 'condensed', color: Colors.dark }}>Excluir amigo</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                }
+            </View>
         </View >
     )
 }
@@ -75,7 +143,7 @@ const styles = StyleSheet.create({
     },
     btn: {
         width: 40,
-        height: 30  ,
+        height: 30,
         borderRadius: 100,
         justifyContent: 'center',
         alignItems: 'center',

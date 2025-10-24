@@ -13,13 +13,13 @@ import dayjs from 'dayjs'
  */
 export const registerAuthValidator = vine.compile(
   vine.object({
-    name: vine.string().trim().minLength(1).maxLength(255),
-    nickname: vine.string().trim().minLength(1).maxLength(50),
+    name: vine.string().trim().minLength(1).maxLength(50),
+    nickname: vine.string().trim().minLength(1).maxLength(30),
     birthday: vine.date().beforeOrEqual(() => {
       return dayjs().subtract(12, 'year').format('YYYY-MM-DD')
     }),
     email: vine.string().email().trim().unique({ table: 'users', column: 'email' }),
-    password: vine.string()
+    password: vine.string().maxLength(30)
       .use(passwordMinLengthRule({}))
       .use(passwordHasUpperAndLowercaseRule({}))
       .use(passwordHasAtLeastOneNumberRule({}))
@@ -34,7 +34,7 @@ export const registerAuthValidator = vine.compile(
 export const loginAuthValidation = vine.compile(
   vine.object({
     email: vine.string().email().trim().exists({ table: 'users', column: 'email' }),
-    password: vine.string()
+    password: vine.string().maxLength(30)
       .use(passwordMinLengthRule({}))
       .use(passwordHasUpperAndLowercaseRule({}))
       .use(passwordHasAtLeastOneNumberRule({}))
@@ -88,7 +88,7 @@ export const changePasswordValidator = vine.compile(
   vine.object({
     email: vine.string().email().exists({ table: 'users', column: 'email' }),
     code: vine.number(),
-    password: vine.string()
+    password: vine.string().maxLength(30)
       .use(passwordMinLengthRule({}))
       .use(passwordHasUpperAndLowercaseRule({}))
       .use(passwordHasAtLeastOneNumberRule({}))
