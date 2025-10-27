@@ -29,6 +29,9 @@ export default class SessionService {
             }
         } else {
             user = await User.verifyCredentials(email, password)
+            if (user.status !== 'a') {
+                throw new Error('Conta não verificada.')
+            }
             token = await auth.use('api').createToken(user)
         }
 

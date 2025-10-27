@@ -6,39 +6,55 @@ import { v4 as uuidv4 } from 'uuid'
 
 export default class extends BaseSeeder {
   public async run() {
-    await User.createMany([
-      {
-        name: 'Test User',
-        nickname: 'SuperQA',
-        email: 'superqa@email.com',
-        password: 'SuperQA1@',
-        birthday: '2000-08-21',
-        status: 'a',
-      },
-      {
-        name: 'Dev User',
-        nickname: 'SuperDEV',
-        email: 'superdev@email.com',
-        password: 'SuperDEV1@',
-        birthday: '2002-08-18',
-        status: 'a',
-      },
-    ])
-
     const usersData = [
-      { name: 'Alice', nickname: 'alice', email: 'alice@email.com' },
-      { name: 'Bob', nickname: 'bob', email: 'bob@email.com' },
-      { name: 'Carol', nickname: 'carol', email: 'carol@email.com' },
-      { name: 'Dave', nickname: 'dave', email: 'dave@email.com' },
-      { name: 'Eve', nickname: 'eve', email: 'eve@email.com' },
-    ].map((u) => ({
-      ...u,
-      password: 'Password123!',
-      birthday: '2000-01-01',
-      status: 'a',
-    }))
+      {
+        name: 'Davi',
+        nickname: 'davi',
+        email: 'davi@email.com',
+        password: 'Senha123@',
+        birthday: '2000-01-01',
+      },
+      {
+        name: 'Deivyd',
+        nickname: 'deivyd',
+        email: 'deivyd@email.com',
+        password: 'Senha123@',
+        birthday: '2000-01-01',
+      },
+      {
+        name: 'Diego',
+        nickname: 'diego',
+        email: 'diego@email.com',
+        password: 'Senha123@',
+        birthday: '2000-01-01',
+      },
+      {
+        name: 'Edu',
+        nickname: 'edu',
+        email: 'edu@email.com',
+        password: 'Senha123@',
+        birthday: '2000-01-01',
+      },
+      {
+        name: 'Maikon',
+        nickname: 'maikon',
+        email: 'maikon@email.com',
+        password: 'Senha123@',
+        birthday: '2000-01-01',
+      },
+      {
+        name: 'Pamela',
+        nickname: 'pam',
+        email: 'pam@email.com',
+        password: 'Senha123@', birthday: '2000-01-01',
+      },
+    ]
 
     const users = await User.createMany(usersData)
+    for (let i = 0; i < users.length; i++) {
+      users[i].status = 'a'
+      await users[i].save()
+    }
 
     for (let i = 0; i < users.length; i++) {
       for (let j = i + 1; j < users.length; j++) {
@@ -68,7 +84,5 @@ export default class extends BaseSeeder {
         })
       }
     }
-
-    console.log('✅ Seeder finalizado: 5 usuários, amizades e chats privados criados')
   }
 }
