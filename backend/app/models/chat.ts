@@ -20,15 +20,15 @@ export default class Chat extends BaseModel {
   declare type: string
 
   @column()
-  declare name: string | null
+  declare name: string
   
   @column()
   declare description: string | null
 
-  @column()
+  @column({ serializeAs: 'cover_image_url' })
   declare cover_image_url: string | null
 
-  @column()
+  @column({ serializeAs: 'icon_image_url' })
   declare icon_image_url: string | null
 
   @column.dateTime({ autoCreate: true })

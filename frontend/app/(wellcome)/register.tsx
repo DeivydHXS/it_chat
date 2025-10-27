@@ -141,7 +141,11 @@ export default function RegisterScreen() {
         <View style={mainStyles.container_alt}>
             {step === 'email' && (
                 <BaseSection
-                    step='email'
+                    head="Qual é o seu endereço de e-mail?"
+                    body="Insira um endereço de email válido. Ninguém verá essa informação no seu perfil."
+                    button_text='Digite seu email'
+                    max_length={50}
+                    showCounter={true}
                     error={emailError}
                     value={form.email}
                     onFocus={
@@ -174,7 +178,11 @@ export default function RegisterScreen() {
 
             {step === 'name' && (
                 <BaseSection
-                    step='name'
+                    head="Qual é o seu nome?"
+                    body="Insira um nome para seus amigos te encontrarem."
+                    button_text='Digite seu nome'
+                    max_length={25}
+                    showCounter={true}
                     value={form.name}
                     handle={(text) => handleForm(text, 'name')}
                 />
@@ -182,14 +190,23 @@ export default function RegisterScreen() {
 
             {step === 'nickname' && (
                 <BaseSection
-                    step='nickname'
+                    head="Escolha um nome de usuário"
+                    body="Escolha um apelido único para sua conta."
+                    button_text='Digite seu apelido'
+                    max_length={10}
+                    showCounter={true}
                     value={form.nickname}
                     handle={(text) => handleForm(text, 'nickname')}
                 />
             )}
 
             {step === 'code' && (
-                <BaseSection step='code'
+                <BaseSection
+                    head="Insira o código"
+                    body="Insira o código de validação que foi enviado em seu e-mail."
+                    button_text='Digite seu código'
+                    max_length={6}
+                    showCounter={true}
                     error={codeError}
                     value={form.code}
                     handle={(text) => {

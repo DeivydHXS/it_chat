@@ -1,5 +1,6 @@
 import ChatService from '#services/chat_service'
 import ResponseService from '#services/response_service'
+import { createGroupValidator } from '#validators/chat_validator'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 
@@ -17,7 +18,8 @@ export default class ChatsController {
                 .related('chats')
                 .query()
                 .preload('users')
-            
+                .where('type', 'p')
+
             for (const chat of chats) {
                 const lastMessage = await chat
                     .related('messages')
@@ -46,6 +48,21 @@ export default class ChatsController {
         }
     }
 
+    public async allGroups({ response, params, auth }: HttpContext) {
+        try {
+            const currentUser = await auth.authenticateUsing(['api'])
+            const groups = await currentUser
+                .related('chats')
+                .query()
+                .preload('users')
+                .where('type', 'g')
+
+            return ResponseService.send(response, 200, 'Conversa.', { groups })
+        } catch (err) {
+            ResponseService.error(response, err)
+        }
+    }
+
     public async get({ response, params, auth }: HttpContext) {
         try {
             const currentUser = await auth.authenticateUsing(['api'])
@@ -54,6 +71,19 @@ export default class ChatsController {
             const chat = await this.chatService.get(chatId)
 
             return ResponseService.send(response, 200, 'Conversa.', { chat })
+        } catch (err) {
+            ResponseService.error(response, err)
+        }
+    }
+
+    public async store({ response, request, auth }: HttpContext) {
+        try {
+            const payload = await request.validateUsing(createGroupValidator)
+            const currentUser = await auth.authenticateUsing(['api'])
+
+            const group = await this.chatService.createGroupChat(currentUser.id, payload.name, payload.description)
+
+            return ResponseService.send(response, 200, 'Conversa.', { group })
         } catch (err) {
             ResponseService.error(response, err)
         }

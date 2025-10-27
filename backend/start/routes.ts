@@ -137,7 +137,7 @@ router
     router
       .group(() => {
         router
-          .get('', '#controllers/chats_controller.all')
+          .get('', '#controllers/chats_controller.allGroups')
         router
           .post('', '#controllers/chats_controller.store')
         router

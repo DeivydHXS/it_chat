@@ -1,6 +1,7 @@
 import Chat from '#models/chat'
 import Friendship from '#models/friendship'
 import User from '#models/user'
+import { v4 } from 'uuid'
 
 export default class ChatService {
   public async get(id: string) {
@@ -54,17 +55,22 @@ export default class ChatService {
     return chat
   }
 
-  public async createGroupChat(userIds: string[], name: string, description?: string) {
-    const chat = await Chat.create({
-      type: 'g',
+  public async createGroupChat(ownerId: string, name: string, description?: string) {
+    const group = await Chat.create({
       name,
+      type: 'g',
       description: description || null,
     })
 
-    await chat.related('users').attach(userIds)
-    await chat.load('users')
+    await group.related('users').attach({
+      [ownerId]: {
+        id: v4(),
+        permission_type: 'a'
+      }
+    })
+    // await group.load('users')
 
-    return chat
+    return group
   }
 
   public async listForUser(userId: string) {

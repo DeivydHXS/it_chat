@@ -5,8 +5,8 @@ export interface ChatInterface {
     name?: string
     type: string
     description?: string
-    coverImageUrl?: string
-    iconImageUrl?: string
+    cover_image_url?: string
+    icon_image_url?: string
     createdAt?: string
     updatedAt?: string
     users: UserInterface[]

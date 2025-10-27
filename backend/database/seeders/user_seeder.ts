@@ -43,7 +43,7 @@ export default class extends BaseSeeder {
         birthday: '2000-01-01',
       },
       {
-        name: 'Pamela',
+        name: 'Pam',
         nickname: 'pam',
         email: 'pam@email.com',
         password: 'Senha123@', birthday: '2000-01-01',
@@ -71,7 +71,7 @@ export default class extends BaseSeeder {
       for (let j = i + 1; j < users.length; j++) {
         const chat = await Chat.create({
           id: uuidv4(),
-          name: null,
+          name: undefined,
           type: 'p',
         })
 

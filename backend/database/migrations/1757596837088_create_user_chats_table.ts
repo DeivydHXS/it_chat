@@ -11,7 +11,7 @@ export default class extends BaseSchema {
       table.uuid('chat_id').references('chats.id')
       table.unique(['user_id', 'chat_id'])
 
-      table.string('permission_type').notNullable()
+      table.string('permission_type').notNullable().comment('a - admin | c - co-admin | m - member')
 
       table.timestamp('created_at')
       table.timestamp('updated_at')
