@@ -143,7 +143,7 @@ router
         router
           .group(() => {
             router
-              .get('', '#controllers/chats_controller.get')
+              .get('', '#controllers/chats_controller.getGroup')
             router
               .post('', '#controllers/chats_controller.update')
             router
@@ -151,7 +151,7 @@ router
             router
               .post('add_member', '#controllers/chats_controller.add_member')
           })
-          .prefix(':id')
+          .prefix(':chatId')
       })
       .prefix('groups')
       .use(

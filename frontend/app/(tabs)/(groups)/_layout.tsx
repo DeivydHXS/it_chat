@@ -47,6 +47,38 @@ export default function GroupsLayout() {
                     />
                 ),
             }} />
+            <Stack.Screen name="options" options={{
+                title: 'Informações do grupo',
+                headerTitleStyle: { fontWeight: 'condensedBold' },
+                headerTitleAlign: 'center',
+                headerShown: true,
+                headerStyle: { backgroundColor: Colors.red },
+                headerTintColor: Colors.light,
+                headerLeft: (props: any) => (
+                    <Ionicons
+                        name="chevron-back"
+                        size={24}
+                        color={Colors.light}
+                        onPress={() => goBack()}
+                    />
+                ),
+            }} />
+            <Stack.Screen name="add-member" options={{
+                title: 'Adicionar membro',
+                headerTitleStyle: { fontWeight: 'condensedBold' },
+                headerTitleAlign: 'center',
+                headerShown: true,
+                headerStyle: { backgroundColor: Colors.red },
+                headerTintColor: Colors.light,
+                headerLeft: (props: any) => (
+                    <Ionicons
+                        name="chevron-back"
+                        size={24}
+                        color={Colors.light}
+                        onPress={() => goBack()}
+                    />
+                ),
+            }} />
         </Stack>
     )
 }

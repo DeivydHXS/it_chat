@@ -11,7 +11,7 @@ export const createGroupValidator = vine.compile(
       size: '20mb',
       extnames: ['jpg', 'png', 'jpeg']
     }).optional(),
-    vector_image: vine.file({
+    cover_image: vine.file({
       size: '20mb',
       extnames: ['jpg', 'png', 'jpeg']
     }).optional()

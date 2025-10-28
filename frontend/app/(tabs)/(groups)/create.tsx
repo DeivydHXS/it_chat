@@ -9,6 +9,8 @@ import { useState, useCallback, useMemo } from 'react'
 import { Alert, StyleSheet, View } from 'react-native'
 import * as DocumentPicker from 'expo-document-picker'
 import { GroupsItem } from '@/components/groups-item'
+import { goBack } from 'expo-router/build/global-state/routing'
+import { Loading } from '@/components/loading'
 
 interface GroupRegister {
     name: string
@@ -21,6 +23,7 @@ export default function CreateScreen() {
     const { post } = useApi()
     const [codeError, setCodeError] = useState<string>('')
     const [canProceed, setCanProceed] = useState<boolean>(false)
+    const [load, setLoad] = useState<boolean>(false)
 
     const steps = [
         'name',
@@ -74,8 +77,30 @@ export default function CreateScreen() {
     }, [setCanProceed])
 
     const handleCreate = useCallback(async () => {
+        setLoad(true)
         try {
-            const response = await post<ResponseInterface>('/groups', form)
+            const data = new FormData()
+
+            data.append("name", form.name)
+            data.append("description", form.description)
+
+            if (form.icon_image) {
+                data.append("icon_image", {
+                    uri: form.icon_image.uri,
+                    name: form.icon_image.name,
+                    type: form.icon_image.mimeType,
+                } as any)
+            }
+
+            if (form.cover_image) {
+                data.append("cover_image", {
+                    uri: form.cover_image.uri,
+                    name: form.cover_image.name,
+                    type: form.cover_image.mimeType,
+                } as any)
+            }
+
+            const response = await post<ResponseInterface>('/groups', data, true)
 
             if (response.status > 299) {
                 Alert.alert(response?.data?.message, JSON.stringify(response?.data?.errors))
@@ -86,8 +111,12 @@ export default function CreateScreen() {
                 'Grupo criado com sucesso!',
                 response?.data?.message
             )
+
+            goBack()
         } catch (err: any) {
             Alert.alert('Erro', err.response?.data?.message || JSON.stringify(err))
+        } finally {
+            setLoad(false)
         }
     }, [form])
 
@@ -114,82 +143,88 @@ export default function CreateScreen() {
 
     return (
         <View style={mainStyles.container_alt}>
-            {step === 'name' && (
-                <BaseSection
-                    head='Escolha um nome para o grupo'
-                    body="Insira um nome que reflita o objetivo do grupo. Isso ajuda as pessoas a encontrar essa comunidade."
-                    button_text='Digite o nome do grupo'
-                    max_length={25}
-                    showCounter={true}
-                    value={form.name}
-                    handle={(text) => handleForm(text, 'name')}
-                />
-            )}
+            {load ?
+                <Loading />
+                :
+                <>
+                    {step === 'name' && (
+                        <BaseSection
+                            head='Escolha um nome para o grupo'
+                            body="Insira um nome que reflita o objetivo do grupo. Isso ajuda as pessoas a encontrar essa comunidade."
+                            button_text='Digite o nome do grupo'
+                            max_length={25}
+                            showCounter={true}
+                            value={form.name}
+                            handle={(text) => handleForm(text, 'name')}
+                        />
+                    )}
 
-            {step === 'description' && (
-                <BaseSection
-                    head='Escreva a descrição do grupo'
-                    body='Escreva uma breve apresentação do grupo. Qual seu foco e motivação em criar-lo. Essa descrição aparecerá quando um usuário estiver explorando novos grupos.'
-                    max_length={200}
-                    showCounter={true}
-                    isTextArea={true}
-                    value={form.description}
-                    handle={(text) => handleForm(text, 'description')}
-                />
-            )}
+                    {step === 'description' && (
+                        <BaseSection
+                            head='Escreva a descrição do grupo'
+                            body='Escreva uma breve apresentação do grupo. Qual seu foco e motivação em criar-lo. Essa descrição aparecerá quando um usuário estiver explorando novos grupos.'
+                            max_length={200}
+                            showCounter={true}
+                            isTextArea={true}
+                            value={form.description}
+                            handle={(text) => handleForm(text, 'description')}
+                        />
+                    )}
 
-            {step === 'icon_image' && (
-                <View style={styles.container}>
-                    <ImageSection
-                        head='Escolha um ícone para o grupo'
-                        body='Escolha um ícone para o grupo. Se preferir, pode escolher o ícone mais tarde.'
-                        value={form.icon_image}
-                        setValue={(value) => {
-                            handleImageForm(value, 'icon_image')
-                        }}
+                    {step === 'icon_image' && (
+                        <View style={styles.container}>
+                            <ImageSection
+                                head='Escolha um ícone para o grupo'
+                                body='Escolha um ícone para o grupo. Se preferir, pode escolher o ícone mais tarde.'
+                                value={form.icon_image}
+                                setValue={(value) => {
+                                    handleImageForm(value, 'icon_image')
+                                }}
+                            />
+                        </View>
+                    )}
+
+                    {step === 'cover_image' && (
+                        <View style={styles.container}>
+                            <ImageSection
+                                head='Escolha uma imagem de capa'
+                                body='Escolha uma imagem de capa. Se preferir, pode escolher a imagem de capa mais tarde.'
+                                value={form.cover_image}
+                                setValue={(value) => {
+                                    handleImageForm(value, 'cover_image')
+                                }}
+                            />
+                        </View>
+                    )}
+
+                    {step === 'confirmation' && (
+                        <View style={styles.container}>
+                            <InfoSection
+                                head='Só mais um passo...'
+                                body='Confirme a criação do seu novo grupo.'
+                            />
+                            <GroupsItem
+                                title={form.name}
+                                description={form.description}
+                                icon_image_url={form.icon_image?.uri || ''}
+                                cover_image_url={form.cover_image?.uri || ''}
+                            />
+                        </View>
+                    )}
+
+                    <CustomPressable
+                        disabled={step === 'confirmation' ? false : (!canProceed)}
+                        text={renderButton.text}
+                        onPress={renderButton.action}
                     />
-                </View>
-            )}
-
-            {step === 'cover_image' && (
-                <View style={styles.container}>
-                    <ImageSection
-                        head='Escolha uma imagem de capa'
-                        body='Escolha uma imagem de capa. Se preferir, pode escolher a imagem de capa mais tarde.'
-                        value={form.cover_image}
-                        setValue={(value) => {
-                            handleImageForm(value, 'cover_image')
-                        }}
-                    />
-                </View>
-            )}
-
-            {step === 'confirmation' && (
-                <View style={styles.container}>
-                    <InfoSection
-                        head='Só mais um passo...'
-                        body='Confirme a criação do seu novo grupo.'
-                    />
-                    <GroupsItem
-                        title={form.name}
-                        description={form.description}
-                        icon_image_url={form.icon_image?.uri || ''}
-                        cover_image_url={form.cover_image?.uri || ''}
-                    />
-                </View>
-            )}
-
-            <CustomPressable
-                disabled={step === 'confirmation' ? false : (!canProceed)}
-                text={renderButton.text}
-                onPress={renderButton.action}
-            />
-            {step !== 'name' && step !== 'confirmation' &&
-                <CustomPressable
-                    isAlt={true}
-                    text='Pular'
-                    onPress={submitStep}
-                />}
+                    {step !== 'name' && step !== 'confirmation' &&
+                        <CustomPressable
+                            isAlt={true}
+                            text='Pular'
+                            onPress={submitStep}
+                        />}
+                </>
+            }
         </View>
     )
 }

@@ -2,7 +2,11 @@ import ChatService from '#services/chat_service'
 import ResponseService from '#services/response_service'
 import { createGroupValidator } from '#validators/chat_validator'
 import { inject } from '@adonisjs/core'
+import { cuid } from '@adonisjs/core/helpers'
 import type { HttpContext } from '@adonisjs/core/http'
+import app from '@adonisjs/core/services/app'
+import path from 'path'
+import sharp from 'sharp'
 
 @inject()
 export default class ChatsController {
@@ -63,10 +67,10 @@ export default class ChatsController {
         }
     }
 
-    public async get({ response, params, auth }: HttpContext) {
+    public async get({ response, request, params, auth }: HttpContext) {
         try {
             const currentUser = await auth.authenticateUsing(['api'])
-            const chatId = params.chatId
+            const chatId = params.chatId || request.input('chatId')
 
             const chat = await this.chatService.get(chatId)
 
@@ -76,12 +80,49 @@ export default class ChatsController {
         }
     }
 
+    public async getGroup({ response, request, params, auth }: HttpContext) {
+        try {
+            const currentUser = await auth.authenticateUsing(['api'])
+            const chatId = params.chatId || request.input('chatId')
+
+            const group = await this.chatService.getGroup(chatId)
+
+            return ResponseService.send(response, 200, 'Grupo.', { group })
+        } catch (err) {
+            ResponseService.error(response, err)
+        }
+    }
+
     public async store({ response, request, auth }: HttpContext) {
         try {
             const payload = await request.validateUsing(createGroupValidator)
             const currentUser = await auth.authenticateUsing(['api'])
+            var iconImageUrl: string | undefined
+            var coverImageUrl: string | undefined
 
-            const group = await this.chatService.createGroupChat(currentUser.id, payload.name, payload.description)
+            if (payload.icon_image) {
+                const fileName = `${cuid()}.webp`
+                const outputPath = path.join(app.makePath('storage/icon_images'), fileName)
+
+                await sharp(payload.icon_image.tmpPath!)
+                    .toFormat('webp', { quality: 80 })
+                    .toFile(outputPath)
+
+                iconImageUrl = `/uploads/icon_images/${fileName}`
+            }
+
+            if (payload.cover_image) {
+                const fileName = `${cuid()}.webp`
+                const outputPath = path.join(app.makePath('storage/cover_images'), fileName)
+
+                await sharp(payload.cover_image.tmpPath!)
+                    .toFormat('webp', { quality: 80 })
+                    .toFile(outputPath)
+
+                coverImageUrl = `/uploads/cover_images/${fileName}`
+            }
+
+            const group = await this.chatService.createGroupChat(currentUser.id, { name: payload.name, description: payload.description, icon_image_url: iconImageUrl, cover_image_url: coverImageUrl})
 
             return ResponseService.send(response, 200, 'Conversa.', { group })
         } catch (err) {

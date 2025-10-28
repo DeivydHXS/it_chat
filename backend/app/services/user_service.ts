@@ -63,7 +63,7 @@ export default class UserService {
             //         .subject('Código de verificação')
             //         .text(`${verification_code}`)
             // })
-            console.log(verification_code)
+            console.log(user.email, ' : ', verification_code)
         }
 
         return UserService.formatUserResponse(user)
@@ -97,7 +97,6 @@ export default class UserService {
 
     public async verifyAccount(email: string, code: number) {
         const user = await User.findBy('email', email)
-        console.log(user)
         if (user?.verification_code !== code) {
             throw new Error('Erro ao verificar e-mail, tente novamente mais tarde.')
         }
@@ -120,7 +119,7 @@ export default class UserService {
             //         .subject('Código de verificação')
             //         .text(`${verification_code}`)
             // })
-            console.log(verification_code)
+            console.log(user.email, ' : ', verification_code)
 
             return
         }

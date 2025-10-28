@@ -4,20 +4,22 @@ import { Colors, mainStyles } from '@/constants/theme';
 import { useApi } from '@/hooks/use-api';
 import { ChatInterface } from '@/interfaces/chat-interfaces';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { navigate } from 'expo-router/build/global-state/routing';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function GroupsScreen() {
   const { get } = useApi()
+  const router = useRouter()
 
   const [search, setSearch] = useState('')
   const [groups, setGroups] = useState<ChatInterface[]>([])
+  const baseURL = process.env.EXPO_PUBLIC_API_URL
 
   const getGroups = useCallback(async () => {
     const res = await get<{ data: { groups: ChatInterface[] } }>('/groups')
     setGroups(res.data.data.groups)
-    // console.log(res.data.data.groups)
   }, [])
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export default function GroupsScreen() {
       <SearchBar value={search} onChange={setSearch} />
 
       <ScrollView
-        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
         style={{
           width: '100%',
         }}>
@@ -38,8 +40,14 @@ export default function GroupsScreen() {
             key={index}
             title={group.name || ''}
             description={group.description || ''}
-            icon_image_url={group.icon_image_url || ''}
-            cover_image_url={group.cover_image_url || ''}
+            icon_image_url={group.icon_image_url ? String(baseURL) + group.icon_image_url : undefined}
+            cover_image_url={group.cover_image_url ? String(baseURL) + group.cover_image_url : undefined}
+            onPress={() => {
+              router.push({
+                pathname: `/(groups)/${group.id}` as any
+              })
+            }
+            }
           />
         ))}
 

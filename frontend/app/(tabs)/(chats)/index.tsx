@@ -21,7 +21,6 @@ export default function ChatsIndex() {
   const getChats = useCallback(async () => {
     const res = await get<{ data: { chats: ChatInterface[] } }>('/chats')
     setChats(res.data.data.chats)
-    console.log(res.data.data.chats)
   }, [])
 
   useEffect(() => {

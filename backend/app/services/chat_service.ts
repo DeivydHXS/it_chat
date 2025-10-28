@@ -1,6 +1,7 @@
 import Chat from '#models/chat'
 import Friendship from '#models/friendship'
 import User from '#models/user'
+import { MultipartFile } from '@adonisjs/core/types/bodyparser'
 import { v4 } from 'uuid'
 
 export default class ChatService {
@@ -37,6 +38,22 @@ export default class ChatService {
     return result
   }
 
+  public async getGroup(id: string) {
+    const chat = await Chat.query()
+      .where('id', id)
+      .preload('users')
+      .preload('messages', (q) => {
+        q.orderBy('created_at', 'asc')
+      })
+      .first()
+
+    if (!chat) {
+      throw new Error('Chat não encontrado')
+    }
+
+    return chat
+  }
+
   public async createPrivateChat(user1Id: string, user2Id: string) {
     const existingChat = await Chat.query()
       .where('type', 'p')
@@ -55,11 +72,12 @@ export default class ChatService {
     return chat
   }
 
-  public async createGroupChat(ownerId: string, name: string, description?: string) {
+  public async createGroupChat(
+    ownerId: string,
+    payload: Partial<Chat>) {
     const group = await Chat.create({
-      name,
+      ...payload,
       type: 'g',
-      description: description || null,
     })
 
     await group.related('users').attach({
@@ -70,7 +88,7 @@ export default class ChatService {
     })
     // await group.load('users')
 
-    return group
+      return group
   }
 
   public async listForUser(userId: string) {
