@@ -2,21 +2,41 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, Pressable } fro
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { Colors } from '@/constants/theme'
 import { UserInterface } from '@/interfaces/user-interfaces'
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'expo-router'
-import { ConfirmationModal } from './confirmation-modal'
+import { Dimensions } from 'react-native';
+
+const windowHeight = Dimensions.get('window').height;
 
 interface FriendItemProps {
     user: UserInterface
     block: (id: string) => void
     unblock: (id: string) => void
     unfriend: (id: string) => void
+    openContext: (id?: string) => void
+    context: boolean
 }
 
-export function FriendItem({ user, block, unfriend, unblock }: FriendItemProps) {
+export function FriendItem({ user, block, unfriend, unblock, openContext, context }: FriendItemProps) {
     const baseURL = process.env.EXPO_PUBLIC_API_URL
-    const [open, setOpen] = useState<boolean>(false)
     const router = useRouter()
+    const [down, setDown] = useState<boolean>(false)
+    const viewRef = useRef<View>(null)
+
+    const getPosition = useCallback(() => {
+        viewRef.current?.measure((fx, fy, width, height, px, py) => {
+            if (py >= (windowHeight / 2)) {
+                setDown(true)
+                return
+            }
+            setDown(false)
+            return
+        })
+    }, [viewRef])
+
+    useEffect(() => {
+        getPosition()
+    }, [])
 
     return (
         <View style={styles.container}>
@@ -47,26 +67,32 @@ export function FriendItem({ user, block, unfriend, unblock }: FriendItemProps) 
                     disabled={user.friendship_status === 'b'} style={[styles.btn, { backgroundColor: user.friendship_status === 'b' ? Colors.gray3 : Colors.red }]}>
                     <Ionicons name={user.friendship_status === 'b' ? "lock-closed" : "chatbubble"} size={20} color={Colors.light} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => setOpen(!open)} style={styles.btn}>
+                <TouchableOpacity onPress={() => {
+                    getPosition()
+                    openContext(context ? undefined : user.id)
+                }} style={styles.btn}>
                     <Ionicons name="ellipsis-vertical" size={18} color={Colors.dark} />
                 </TouchableOpacity>
-                {open &&
+                {context &&
                     <View
-                        onBlur={() => setOpen(false)}
+                        ref={viewRef}
                         style={{
-                            borderRadius: 16,
+                            borderTopLeftRadius: 16,
+                            borderBottomLeftRadius: 16,
+                            borderBottomRightRadius: down ? 2 : 16,
+                            borderTopRightRadius: down ? 16 : 2,
                             backgroundColor: Colors.light,
                             minWidth: 140,
                             alignItems: 'center',
                             justifyContent: 'center',
                             position: 'absolute',
-                            top: 0,
+                            top: down ? -50 : 5,
                             right: 36,
                             borderColor: Colors.dark,
                             borderWidth: 1,
                             zIndex: 10
                         }}>
-                        <View style={{
+                        {/* <View style={{
                             alignItems: 'center',
                             justifyContent: 'center',
                             width: '100%',
@@ -75,9 +101,9 @@ export function FriendItem({ user, block, unfriend, unblock }: FriendItemProps) 
                             borderBottomWidth: 1,
                         }}>
                             <Pressable style={{ width: '100%' }} onPress={() => { }} >
-                                <Text style={{ textAlign: 'center', fontWeight: 'condensed', color: Colors.dark }}>{user.friendship_status === 'b' ? 'Desbloquear' : 'Silenciar amigo'}</Text>
+                                <Text style={{ textAlign: 'center', fontWeight: 'condensed', color: Colors.dark }}>{user.silencied ? 'Dessilenciar' : 'Silenciar amigo'}</Text>
                             </Pressable>
-                        </View>
+                        </View> */}
                         <View style={{
                             alignItems: 'center',
                             justifyContent: 'center',

@@ -13,6 +13,7 @@ import { goBack } from 'expo-router/build/global-state/routing'
 import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { Alert, Animated, Easing, Image, Keyboard, Platform, Pressable, StyleSheet, Text, View } from 'react-native'
 import * as DocumentPicker from 'expo-document-picker'
+import { Loading } from '@/components/loading'
 
 export default function EditScreen() {
   const { post } = useApi()
@@ -151,139 +152,145 @@ export default function EditScreen() {
       }}
     >
       <View style={mainStyles.main_container}>
-        <InfoSection
-          head='Mude suas informações'
-          body='Essa area é voltada para a atualização de suas informações básicas.'
-        />
-
-        <View style={{
-          width: '100%',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-          <View style={{
-            position: 'relative'
-          }}>
-            <View style={styles.profile_image}>
-              {file || profileImageUrlTemp ?
-                <Image
-                  source={{ uri: file ? file.uri : String(baseURL) + profileImageUrlTemp }}
-                  style={{ width: 100, height: 100 }}
-                />
-                :
-                profileImageUrlTemp ?
-                  <Image
-                    source={{ uri: baseURL + profileImageUrlTemp }}
-                    style={{ width: 100, height: 100 }}
-                  /> :
-                  <MaterialIcons name="person" size={120} color={'#B4DBFF'} style={{
-                    right: 9
-                  }} />
-              }
-            </View>
+        {load ?
+          <Loading />
+          :
+          <>
+            <InfoSection
+              head='Mude suas informações'
+              body='Essa area é voltada para a atualização de suas informações básicas.'
+            />
 
             <View style={{
-              position: 'absolute',
-              right: 1,
-              bottom: 1,
-              borderRadius: 50,
-              width: 32,
-              height: 32,
+              width: '100%',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: Colors.red
             }}>
-              <Pressable onPress={pickDocument}><MaterialIcons name="edit" size={16} color={Colors.light} /></Pressable>
+              <View style={{
+                position: 'relative'
+              }}>
+                <View style={styles.profile_image}>
+                  {file || profileImageUrlTemp ?
+                    <Image
+                      source={{ uri: file ? file.uri : String(baseURL) + profileImageUrlTemp }}
+                      style={{ width: 100, height: 100 }}
+                    />
+                    :
+                    profileImageUrlTemp ?
+                      <Image
+                        source={{ uri: baseURL + profileImageUrlTemp }}
+                        style={{ width: 100, height: 100 }}
+                      /> :
+                      <MaterialIcons name="person" size={120} color={'#B4DBFF'} style={{
+                        right: 9
+                      }} />
+                  }
+                </View>
+
+                <View style={{
+                  position: 'absolute',
+                  right: 1,
+                  bottom: 1,
+                  borderRadius: 50,
+                  width: 32,
+                  height: 32,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: Colors.red
+                }}>
+                  <Pressable onPress={pickDocument}><MaterialIcons name="edit" size={16} color={Colors.light} /></Pressable>
+                </View>
+
+                {file || profileImageUrlTemp ?
+                  <View style={{
+                    position: 'absolute',
+                    right: 1,
+                    top: 1,
+                    borderRadius: 50,
+                    width: 32,
+                    height: 32,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: Colors.red
+                  }}>
+                    <Pressable onPress={handleDeleteProfileImage}><MaterialIcons name="delete" size={16} color={Colors.light} /></Pressable>
+                  </View>
+                  : ''
+                }
+
+              </View>
+              <View>
+                <Text style={styles.profile_image_error}>{errors?.profile_image ? errors.profile_image : ''}</Text>
+              </View>
             </View>
 
-            {file || profileImageUrlTemp ?
+            <CustomInputText
+              error={errors?.name}
+              placeholder='Digite um nome'
+              value={form.name}
+              onFocus={() => {
+                setErrors((prev) => ({ ...(prev || {}), name: undefined }))
+              }}
+              onChangeText={(text) => {
+                setErrors((prev) => ({ ...(prev || {}), name: undefined }))
+                handleForm(text, 'name')
+              }}
+              maxLength={25}
+              showCounter={true}
+            />
+
+            <View style={{
+              width: '100%'
+            }}>
+              <CustomInputText
+                error={errors?.nickname}
+                placeholder='Digite um nome de usuário'
+                value={form.nickname}
+                onFocus={() => {
+                  setErrors((prev) => ({ ...(prev || {}), nickname: undefined }))
+                }}
+                onChangeText={(text) => {
+                  setErrors((prev) => ({ ...(prev || {}), nickname: undefined }))
+                  handleForm(text, 'nickname')
+                }}
+                maxLength={10}
+                showCounter={true}
+              />
               <View style={{
+                height: 50,
                 position: 'absolute',
-                right: 1,
-                top: 1,
-                borderRadius: 50,
-                width: 32,
-                height: 32,
-                alignItems: 'center',
+                alignSelf: 'flex-end',
                 justifyContent: 'center',
-                backgroundColor: Colors.red
+                borderLeftWidth: 1,
+                borderColor: Colors.gray3,
+                padding: 16
               }}>
-                <Pressable onPress={handleDeleteProfileImage}><MaterialIcons name="delete" size={16} color={Colors.light} /></Pressable>
+                <Text style={{
+                  color: Colors.gray3,
+                  fontSize: 16
+                }}>#{user?.nickname_hash}</Text>
               </View>
-              : ''
-            }
+            </View>
 
-          </View>
-          <View>
-            <Text style={styles.profile_image_error}>{errors?.profile_image ? errors.profile_image : ''}</Text>
-          </View>
-        </View>
+            <CustomInputLargeText
+              error={errors?.bio}
+              placeholder='Escreva sua bio'
+              value={form.bio}
+              onChangeText={(text) => {
+                setErrors((prev) => ({ ...(prev || {}), bio: undefined }))
+                handleForm(text, 'bio')
+              }}
+              maxLength={200}
+              showCounter={true}
+            />
 
-        <CustomInputText
-          error={errors?.name}
-          placeholder='Digite um nome'
-          value={form.name}
-          onFocus={() => {
-            setErrors((prev) => ({ ...(prev || {}), name: undefined }))
-          }}
-          onChangeText={(text) => {
-            setErrors((prev) => ({ ...(prev || {}), name: undefined }))
-            handleForm(text, 'name')
-          }}
-          maxLength={25}
-          showCounter={true}
-        />
-
-        <View style={{
-          width: '100%'
-        }}>
-          <CustomInputText
-            error={errors?.nickname}
-            placeholder='Digite um nome de usuário'
-            value={form.nickname}
-            onFocus={() => {
-              setErrors((prev) => ({ ...(prev || {}), nickname: undefined }))
-            }}
-            onChangeText={(text) => {
-              setErrors((prev) => ({ ...(prev || {}), nickname: undefined }))
-              handleForm(text, 'nickname')
-            }}
-            maxLength={10}
-            showCounter={true}
-          />
-          <View style={{
-            height: 50,
-            position: 'absolute',
-            alignSelf: 'flex-end',
-            justifyContent: 'center',
-            borderLeftWidth: 1,
-            borderColor: Colors.gray3,
-            padding: 16
-          }}>
-            <Text style={{
-              color: Colors.gray3,
-              fontSize: 16
-            }}>#{user?.nickname_hash}</Text>
-          </View>
-        </View>
-
-        <CustomInputLargeText
-          error={errors?.bio}
-          placeholder='Escreva sua bio'
-          value={form.bio}
-          onChangeText={(text) => {
-            setErrors((prev) => ({ ...(prev || {}), bio: undefined }))
-            handleForm(text, 'bio')
-          }}
-          maxLength={200}
-          showCounter={true}
-        />
-
-        <CustomPressable
-          text='Salvar'
-          disabled={load}
-          onPress={handleUpdate}
-        />
+            <CustomPressable
+              text='Salvar'
+              disabled={load}
+              onPress={handleUpdate}
+            />
+          </>
+        }
       </View>
     </Animated.View>
   )
