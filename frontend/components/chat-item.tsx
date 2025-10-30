@@ -13,6 +13,13 @@ interface ChatItemProps {
 export function ChatItem({ user, onPress, lastMessage }: ChatItemProps) {
     const baseURL = process.env.EXPO_PUBLIC_API_URL
 
+    const formatMessage = (message?: string) => {
+        if (!message)
+            return ''
+
+        return message.replace(/(\r\n|\n|\r)/g, " ").trim().slice(0, 25).concat('...')
+    }
+
     return (
         <Pressable style={{ width: '100%', marginBottom: 8 }} onPress={onPress} >
             <View style={styles.container}>
@@ -26,9 +33,12 @@ export function ChatItem({ user, onPress, lastMessage }: ChatItemProps) {
                             <MaterialIcons name="person" size={50} color={'#B4DBFF'} style={{ right: 5 }} />
                         }
                     </View>
-                    <View>
+                    <View style={{
+                        // maxHeight: 40,
+                        overflow: 'hidden'
+                    }}>
                         <Text style={styles.name}>{user.name}</Text>
-                        <Text style={{ fontSize: 14, color: Colors.gray3 }}>{lastMessage?.content || ''}</Text>
+                        <Text style={{ fontSize: 14, color: Colors.gray3 }}>{formatMessage(lastMessage?.content)}</Text>
                     </View>
                 </View>
 

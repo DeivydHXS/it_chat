@@ -56,12 +56,12 @@ export default class MessagesController {
       const message = await Message.find(messageId)
 
       if (!message) {
-        ResponseService.send(response, 404, 'Mensagem não encontrada.', { })
+        ResponseService.send(response, 404, 'Mensagem não encontrada.', {})
         return
       }
 
       if (message?.user_id !== currentUser.id) {
-        ResponseService.send(response, 403, 'Você não é o dono dessa mensagem.', { })
+        ResponseService.send(response, 403, 'Você não é o dono dessa mensagem.', {})
         return
       }
 

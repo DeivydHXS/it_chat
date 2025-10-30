@@ -57,9 +57,12 @@ export default function LoginScreen() {
     try {
       const response = await post<LoginInterface>('/auth/login', { email, password });
       if (response.status > 299) {
-        Alert.alert(response.data.message)
+        if (response.data.message == 'Conta não verificada.') {
+          Alert.alert(response.data.message)
+          return
+        }
         setErrors(response.data.errors);
-        return;
+        return
       }
 
       // @ts-ignore

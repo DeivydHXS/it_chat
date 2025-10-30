@@ -39,7 +39,7 @@ export default class FriendsController {
         } catch (err) {
             ResponseService.error(response, err)
         }
-    }
+    } 
 
     public async search({ response, request, auth }: HttpContext) {
         try {
@@ -47,32 +47,11 @@ export default class FriendsController {
             const search = request.input('search')
             const tab = request.input('tab')
 
-            const friends = await this.friendService.search(currentUser.id as string, search, tab === 'friends' ? 'a' : 'p')
+            // const friends = await this.friendService.search(currentUser.id as string, search, tab === 'friends' ? 'a' : 'p')
+            const friends = await this.friendService.list(currentUser, { search, status: tab === 'friends' ? 'a' : 'p' })
+            console.log(search)
+            console.log(friends)
             ResponseService.send(response, 200, 'Busca de usuário.', { friends })
-        } catch (err) {
-            ResponseService.error(response, err)
-        }
-    }
-
-    public async accepted({ response, auth }: HttpContext) {
-        try {
-            const currentUser = await auth.authenticateUsing(['api'])
-
-            const friends = await this.friendService.accepted(currentUser)
-
-            ResponseService.send(response, 200, 'Lista de amigos.', { friends })
-        } catch (err) {
-            ResponseService.error(response, err)
-        }
-    }
-
-    public async pending({ response, auth }: HttpContext) {
-        try {
-            const currentUser = await auth.authenticateUsing(['api'])
-
-            const solicitations = await this.friendService.pending(currentUser)
-
-            ResponseService.send(response, 200, 'Lista de solicitações pendentes.', { solicitations })
         } catch (err) {
             ResponseService.error(response, err)
         }

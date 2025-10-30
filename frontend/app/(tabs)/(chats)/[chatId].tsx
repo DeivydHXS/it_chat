@@ -3,7 +3,7 @@ import { MessageItem } from '@/components/message-item'
 import { Colors, mainStyles } from '@/constants/theme'
 import { AuthContext } from '@/context/auth-context'
 import { useApi } from '@/hooks/use-api'
-import { ChatInterface } from '@/interfaces/chat-interfaces'
+import { ChatInterface, MessageInterface } from '@/interfaces/chat-interfaces'
 import { ResponseInterface } from '@/interfaces/common-interfaces'
 import { UserInterface } from '@/interfaces/user-interfaces'
 import SocketService from '@/services/socket'
@@ -97,13 +97,24 @@ export default function ChatScreen() {
     return () => socket.disconnect()
   }, [chatId])
 
-  const handleSend = async () => {
+  const handleSend = useCallback(async () => {
     Keyboard.dismiss()
-    if (!inputValue.trim()) return
-    await post(`/messages/${chatId}`, { type: 'text', content: inputValue })
+    if (!inputValue.trim()) {
+      setInputValue('')
+      return
+    }
+
+    await post(`/messages/${chatId}`, { type: 'text', content: inputValue.trim() })
+
     scrollViewRef.current?.scrollToEnd()
+    // setChat(prev => prev ? { ...prev, messages: [...prev.messages, {
+    //   type: 'text',
+    //   content: inputValue,
+    //   user_id: user?.id
+    // } as MessageInterface] } : prev)
+
     setInputValue('')
-  }
+  }, [inputValue, setInputValue])
 
   const deleteMessage = useCallback(async (id: string, idx: number) => {
     const res = await del<ResponseInterface>(`/messages/${id}`)
@@ -225,7 +236,7 @@ export default function ChatScreen() {
       >
         <View
           style={{
-            height: 108,
+            minHeight: 108,
             backgroundColor: Colors.light2,
             paddingHorizontal: 8,
             flexDirection: 'row',
@@ -250,6 +261,7 @@ export default function ChatScreen() {
           </Pressable> */}
 
           <TextInput
+            maxLength={500}
             value={inputValue}
             onChangeText={setInputValue}
             placeholder={chat?.blocker_id ? 'Esta conversa está bloqueada.' : "Escreva sua mensagem"}
@@ -259,7 +271,7 @@ export default function ChatScreen() {
             style={{
               flex: 1,
               minHeight: 40,
-              maxHeight: 120,
+              maxHeight: 100,
               backgroundColor: Colors.light,
               borderRadius: 12,
               paddingHorizontal: 12,

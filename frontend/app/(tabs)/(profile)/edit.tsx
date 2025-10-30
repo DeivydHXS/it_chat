@@ -148,7 +148,7 @@ export default function EditScreen() {
         left: 0,
         right: 0,
         top: 0,
-        transform: [{ translateY: Animated.multiply(translateY, -0.5) }],
+        transform: [{ translateY: Animated.multiply(translateY, -0.6) }],
       }}
     >
       <View style={mainStyles.main_container}>

@@ -26,12 +26,12 @@ export default function FriendsScreen() {
   const [context, setContext] = useState<string | undefined>(undefined)
 
   const getFriends = useCallback(async () => {
-    const res = await get<ResponseInterfaceAlt<'friends', UserInterface[]>>('/friends/accepted')
+    const res = await get<ResponseInterfaceAlt<'friends', UserInterface[]>>('/friends', { tab: 'friends' })
     setFriends(res.data.data?.friends || [])
   }, [setFriends])
 
   const getRequests = useCallback(async () => {
-    const res = await get<ResponseInterfaceAlt<'solicitations', UserInterface[]>>('/friends/pending')
+    const res = await get<ResponseInterfaceAlt<'solicitations', UserInterface[]>>('/friends', { tab: 'requests' })
     setRequests(res.data.data?.solicitations || [])
   }, [setRequests])
 
@@ -39,7 +39,7 @@ export default function FriendsScreen() {
     getFriends()
     getRequests()
   }, [])
-
+ 
   const doSearch = useCallback(async () => {
     const res = await get<ResponseInterfaceAlt<'friends', UserInterface[]>>('/friends', { search, tab })
 
