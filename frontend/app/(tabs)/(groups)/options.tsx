@@ -3,7 +3,6 @@ import { MemberItem } from '@/components/member-item'
 import { MenuCustomPressable } from '@/components/menu-custom-pressable'
 import { Colors, mainStyles } from '@/constants/theme'
 import { ChatInterface } from '@/interfaces/chat-interfaces'
-import { UserInterface } from '@/interfaces/user-interfaces'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useLocalSearchParams } from 'expo-router'
 import { navigate } from 'expo-router/build/global-state/routing'
@@ -45,7 +44,7 @@ export default function OptionsScreen() {
                     ''
                 }
             </View>
-            
+
             <View style={[mainStyles.main_container, { paddingVertical: 16, alignItems: 'baseline' }]}>
                 <View style={{
                     flexDirection: 'row',
@@ -77,14 +76,14 @@ export default function OptionsScreen() {
 
                 <View style={styles.options}>
                     <MenuCustomPressable onPress={() => { }} text='Editar informações do grupo' />
-                    <MenuCustomPressable onPress={() => { }} text='Denunciar grupo' />
+                    {/* <MenuCustomPressable onPress={() => { }} text='Denunciar grupo' /> */}
                     <MenuCustomPressable onPress={() => { }} text='Sair do grupo' />
                 </View>
 
                 <View style={{
-                    minHeight: 250,
-                    gap: 8,
+                    gap: 16,
                     width: '100%',
+                    paddingBottom: 64
                 }}>
                     <Text style={{
                         fontWeight: 'bold',
@@ -95,7 +94,11 @@ export default function OptionsScreen() {
                         gap: 8
                     }}>
                         <Pressable
-                            onPress={() => navigate('/(groups)/add-member')}
+                            onPress={() => navigate({
+                                pathname: '/(groups)/add-member',
+                                params: { groupId: group?.id },
+                            })
+                            }
                             style={{
                                 width: '100%',
                                 height: 64,
@@ -105,7 +108,9 @@ export default function OptionsScreen() {
                                 borderRadius: 24,
                                 padding: 16
                             }}>
-                            <Text>Adicionar um membro</Text>
+                            <Text style={{
+                                fontWeight: 'bold'
+                            }}>Adicionar um membro</Text>
                         </Pressable>
 
                         {group?.users.map(user => (

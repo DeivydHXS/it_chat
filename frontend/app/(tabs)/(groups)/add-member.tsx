@@ -1,22 +1,23 @@
 import { AddMemberItem } from '@/components/add-member-item';
 import { Colors, mainStyles } from '@/constants/theme';
-import { useApi } from '@/hooks/use-api';
-import { ChatInterface } from '@/interfaces/chat-interfaces';
+import { ApiResponse, useApi } from '@/hooks/use-api';
 import { ResponseInterfaceAlt } from '@/interfaces/common-interfaces';
 import { UserInterface } from '@/interfaces/user-interfaces';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { goBack, navigate } from 'expo-router/build/global-state/routing';
+import { Ionicons } from '@expo/vector-icons';
+import { goBack } from 'expo-router/build/global-state/routing';
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, View } from 'react-native';
+import { useLocalSearchParams } from 'expo-router'
 
 export default function AddMemberScreen() {
-    const { get } = useApi()
+    const { get, post } = useApi()
     const [friends, setFriends] = useState<UserInterface[]>([])
     const [selectedFriends, setSelectedFriends] = useState<UserInterface[]>([])
 
+    const { groupId } = useLocalSearchParams<{ groupId: string }>()
+
     const getFriends = useCallback(async () => {
-        const res = await get<ResponseInterfaceAlt<'friends', UserInterface[]>>('/friends/accepted')
+        const res = await get<ResponseInterfaceAlt<'friends', UserInterface[]>>('/friends', { tab: 'friends' })
         setFriends(res.data.data?.friends || [])
     }, [])
 
@@ -33,10 +34,14 @@ export default function AddMemberScreen() {
         getFriends()
     }, [])
 
-    const addFriends = useCallback(() => {
-        
+    const addFriends = useCallback(async () => {
+        const res = await post<ResponseInterfaceAlt>(`/groups/${groupId}/add-members`, { friendsIds: selectedFriends.map(f => f.id) })
+
+        if (res.status > 299) {
+            Alert.alert('Erro', res.data.message)
+        }
         goBack()
-    }, [])
+    }, [selectedFriends])
 
     return (
         <View style={mainStyles.main_container}>

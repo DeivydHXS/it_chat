@@ -171,7 +171,9 @@ export default function ChatScreen() {
         }}
       />
 
-      <View style={[mainStyles.main_container, { paddingVertical: 0, height: '100%' }]}>
+      <Animated.View style={[mainStyles.main_container, {
+        paddingVertical: 0, height: '100%', transform: chat?.blocker_id ? [] : [{ translateY: Animated.multiply(translateY, -1) }],
+      }]}>
         <ScrollView
           ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
@@ -182,14 +184,10 @@ export default function ChatScreen() {
         >
           {chat && chat.messages.length > 0 ? (
             chat.messages.map((mes, idx) => {
-              const isMine = mes.user_id === user?.id
-
               return (
                 <MessageItem
                   key={mes.id}
-                  isMine={isMine}
-                  user={user}
-                  friend={friend}
+                  isMine={mes.user_id === user?.id}
                   mes={mes}
                   onDeleteMessage={() => {
                     deleteMessage(mes.id, idx)
@@ -223,7 +221,7 @@ export default function ChatScreen() {
             paddingBottom: 56,
           }}
         ></View>
-      </View>
+      </Animated.View>
 
       <Animated.View
         style={{
@@ -264,9 +262,9 @@ export default function ChatScreen() {
             maxLength={500}
             value={inputValue}
             onChangeText={setInputValue}
-            placeholder={chat?.blocker_id ? 'Esta conversa está bloqueada.' : "Escreva sua mensagem"}
+            placeholder={chat?.is_active ? "Escreva sua mensagem" : 'Esta conversa está bloqueada.'}
             multiline
-            editable={chat?.blocker_id ? false : true}
+            editable={chat?.is_active ? true : false}
             textAlignVertical="top"
             style={{
               flex: 1,
@@ -283,9 +281,9 @@ export default function ChatScreen() {
 
           <Pressable
             onPress={handleSend}
-            disabled={chat?.blocker_id ? true : false}
+            disabled={chat?.is_active ? false : true}
             style={{
-              backgroundColor: chat?.blocker_id ? Colors.gray3 : Colors.red,
+              backgroundColor: chat?.is_active ? Colors.red : Colors.gray3,
               alignItems: 'center',
               justifyContent: 'center',
               width: 40,

@@ -1,7 +1,6 @@
 import Chat from '#models/chat'
 import Friendship from '#models/friendship'
 import User from '#models/user'
-import { MultipartFile } from '@adonisjs/core/types/bodyparser'
 import { v4 } from 'uuid'
 
 export default class ChatService {
@@ -10,7 +9,8 @@ export default class ChatService {
       .where('id', id)
       .preload('users')
       .preload('messages', (q) => {
-        q.orderBy('created_at', 'asc')
+        q.preload('user')
+          .orderBy('created_at', 'asc')
       })
       .first()
 
@@ -30,9 +30,20 @@ export default class ChatService {
       })
       .first()
 
+    var is_active: boolean = true
+
+    if (!friendship) {
+      is_active = false
+    }
+
+    if (friendship?.blocker_id) {
+      is_active = false
+    }
+
     const result = {
       ...chat.serialize(),
-      blocker_id: friendship?.blocker_id
+      blocker_id: friendship?.blocker_id,
+      is_active,
     }
 
     return result
@@ -43,7 +54,8 @@ export default class ChatService {
       .where('id', id)
       .preload('users')
       .preload('messages', (q) => {
-        q.orderBy('created_at', 'asc')
+        q.preload('user')
+          .orderBy('created_at', 'asc')
       })
       .first()
 
@@ -51,7 +63,7 @@ export default class ChatService {
       throw new Error('Chat não encontrado')
     }
 
-    return chat
+    return {...chat.serialize(), is_active: true}
   }
 
   public async createPrivateChat(user1Id: string, user2Id: string) {
@@ -88,7 +100,7 @@ export default class ChatService {
     })
     // await group.load('users')
 
-      return group
+    return group
   }
 
   public async listForUser(userId: string) {

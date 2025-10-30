@@ -13,6 +13,7 @@ export interface ChatInterface {
     messages: MessageInterface[]
     last_message?: MessageInterface
     blocker_id?: string
+    is_active?: boolean
 }
 
 export interface MessageInterface {
@@ -20,4 +21,5 @@ export interface MessageInterface {
     type: string
     content: string
     user_id: string
+    user?: UserInterface
 }

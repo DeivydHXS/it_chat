@@ -31,8 +31,8 @@ export default function FriendsScreen() {
   }, [setFriends])
 
   const getRequests = useCallback(async () => {
-    const res = await get<ResponseInterfaceAlt<'solicitations', UserInterface[]>>('/friends', { tab: 'requests' })
-    setRequests(res.data.data?.solicitations || [])
+    const res = await get<ResponseInterfaceAlt<'friends', UserInterface[]>>('/friends', { tab: 'requests' })
+    setRequests(res.data.data?.friends || [])
   }, [setRequests])
 
   useEffect(() => {

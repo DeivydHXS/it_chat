@@ -149,7 +149,7 @@ router
             router
               .delete('', '#controllers/chats_controller.delete')
             router
-              .post('add_member', '#controllers/chats_controller.add_member')
+              .post('add-members', '#controllers/chats_controller.addMembers')
           })
           .prefix(':chatId')
       })

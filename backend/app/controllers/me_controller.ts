@@ -57,7 +57,7 @@ export default class MeController {
                 }
             }
 
-            const res = await this.userService.update(user, { ...payload, profile_image_url: profileImageUrl })
+            const res = await this.userService.update(user, { ...payload, bio: payload.bio ? payload.bio : '', profile_image_url: profileImageUrl })
             ResponseService.send(response, 200, 'Usuário atualizado com sucesso.', { user: { ...res } })
         } catch (error) {
             ResponseService.error(response, error)

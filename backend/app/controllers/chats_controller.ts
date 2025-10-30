@@ -7,6 +7,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import app from '@adonisjs/core/services/app'
 import path from 'path'
 import sharp from 'sharp'
+import { v4 } from 'uuid'
 
 @inject()
 export default class ChatsController {
@@ -122,11 +123,46 @@ export default class ChatsController {
                 coverImageUrl = `/uploads/cover_images/${fileName}`
             }
 
-            const group = await this.chatService.createGroupChat(currentUser.id, { name: payload.name, description: payload.description, icon_image_url: iconImageUrl, cover_image_url: coverImageUrl})
+            const group = await this.chatService.createGroupChat(currentUser.id, { name: payload.name, description: payload.description, icon_image_url: iconImageUrl, cover_image_url: coverImageUrl })
 
             return ResponseService.send(response, 200, 'Conversa.', { group })
         } catch (err) {
             ResponseService.error(response, err)
         }
     }
+
+    public async addMembers({ response, request, params, auth }: HttpContext) {
+        try {
+            const currentUser = await auth.authenticateUsing(['api'])
+            const chatId = params.chatId || request.input('chatId')
+            const ids = request.input('friendsIds') as string[]
+
+            const group = await this.chatService.getGroup(chatId)
+
+            if (!group) {
+                return ResponseService.send(response, 404, 'Grupo não encontrado.')
+            }
+
+            if (group.type !== 'g') {
+                return ResponseService.send(response, 400, 'Esse chat não é um grupo.')
+            }
+
+            const members = await group.related('users').query()
+            const existingIds = members.map(u => u.id)
+            const newIds = ids.filter((id) => !existingIds.includes(id))
+
+            const data = newIds.reduce<Record<string, { id: string, permission_type: string }>>((acc, userId) => {
+                acc[userId] = { id: v4(), permission_type: 'm' }
+                return acc
+            }, {})
+
+            await group.related('users').attach(data)
+
+            return ResponseService.send(response, 200, 'Membro(s) adicionado(s).', { added: newIds })
+        } catch (err) {
+            console.log(err)
+            ResponseService.error(response, err)
+        }
+    }
+
 }

@@ -8,9 +8,8 @@ export default class FriendService {
     public async list(user: User, options?: {
         search?: string
         status?: string
-        pendingOnly?: boolean
     }) {
-        const { search, status, pendingOnly } = options || {}
+        const { search, status } = options || {}
 
         const users = await User.query()
             .select(
@@ -44,11 +43,7 @@ export default class FriendService {
                     .orWhere('friendships.blocker_id', user.id)
             })
             .if(status, (q) => {
-                q.andWhere('friendships.status', status)
-            })
-            .if(pendingOnly, (q) => {
-                q.andWhere('friendships.status', 'p')
-                    .andWhere('friendships.send_to', user.id)
+                q.andWhere('friendships.status', status || 'a')
             })
             .if(search && search.trim() !== '', (q) => {
                 q.where((sub) => {
@@ -60,7 +55,7 @@ export default class FriendService {
             })
             .orderBy('friendships.created_at', 'desc')
 
-        return users.map((u) => ({
+            return users.map((u) => ({
             ...u.serialize(),
             friendship_id: u.$extras.friendship_id,
             friendship_status: u.$extras.friendship_status,

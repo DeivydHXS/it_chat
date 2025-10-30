@@ -131,7 +131,7 @@ export default function GroupScreen() {
                 borderRadius: 50,
                 overflow: 'hidden',
               }}
-            > 
+            >
               <Pressable onPress={() => router.push({
                 pathname: '/options' as any,
                 params: {
@@ -157,7 +157,9 @@ export default function GroupScreen() {
         }}
       />
 
-      <View style={[mainStyles.main_container, { paddingVertical: 0, height: '100%' }]}>
+      <Animated.View style={[mainStyles.main_container, {
+        paddingVertical: 0, height: '100%', transform: group?.blocker_id ? [] : [{ translateY: Animated.multiply(translateY, -1) }],
+      }]}>
         <ScrollView
           ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
@@ -168,14 +170,10 @@ export default function GroupScreen() {
         >
           {group && group.messages.length > 0 ? (
             group.messages.map((mes, idx) => {
-              const isMine = mes.user_id === user?.id
-
               return (
                 <MessageItem
                   key={mes.id}
-                  isMine={isMine}
-                  user={user}
-                  friend={{ id: mes.user_id }}
+                  isMine={mes.user_id === user?.id}
                   mes={mes}
                   onDeleteMessage={() => {
                     deleteMessage(mes.id, idx)
@@ -183,7 +181,6 @@ export default function GroupScreen() {
                 />
               )
             })
-
           ) : (
             <View
               style={{
@@ -209,7 +206,7 @@ export default function GroupScreen() {
             paddingBottom: 56,
           }}
         ></View>
-      </View>
+      </Animated.View>
 
       <Animated.View
         style={{
@@ -268,9 +265,9 @@ export default function GroupScreen() {
 
           <Pressable
             onPress={handleSend}
-            disabled={group?.blocker_id ? true : false}
+            disabled={group?.is_active ? false : true}
             style={{
-              backgroundColor: group?.blocker_id ? Colors.gray3 : Colors.red,
+              backgroundColor: group?.is_active ? Colors.red : Colors.gray3,
               alignItems: 'center',
               justifyContent: 'center',
               width: 40,

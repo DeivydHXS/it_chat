@@ -10,9 +10,10 @@ export default class MessagesController {
       const { chatId } = params
       const messages = await Message.query()
         .where('chat_id', chatId)
+        .preload('user')
         .orderBy('created_at', 'asc')
 
-      ResponseService.send(response, 200, 'Histórico de mensagens', { messages })
+        ResponseService.send(response, 200, 'Histórico de mensagens', { messages })
     } catch (err) {
       ResponseService.error(response, err)
     }
@@ -31,6 +32,8 @@ export default class MessagesController {
         content: content,
       })
 
+      await message.load('user')
+
       Ws.io?.to(`chat:${chatId}`).emit('message', message)
 
       const chat = await Chat.query()
@@ -39,7 +42,7 @@ export default class MessagesController {
         .firstOrFail()
 
       for (const user of chat.users) {
-        Ws.io?.to(`user:${user.id}`).emit('new_message', message)
+        Ws.io?.to(`user:${user.id}`).emit('new_message', { message: { ...message.serialize() } })
       }
 
       ResponseService.send(response, 200, 'Mensagem enviada.', { message })
