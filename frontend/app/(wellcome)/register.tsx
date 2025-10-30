@@ -171,7 +171,10 @@ export default function RegisterScreen() {
                 <BirthdaySection
                     error={birthdayError}
                     value={form.birthday}
-                    handle={(text) => handleForm(text, 'birthday')}
+                    handle={(text) => {
+                        setBirthdayError('')
+                        handleForm(text, 'birthday')
+                    }}
                     canProceed={setCanProceed}
                 />
             )}

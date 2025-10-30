@@ -14,6 +14,7 @@ export interface ChatInterface {
     last_message?: MessageInterface
     blocker_id?: string
     is_active?: boolean
+    admins?: UserInterface[]
 }
 
 export interface MessageInterface {

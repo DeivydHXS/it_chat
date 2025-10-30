@@ -1,6 +1,7 @@
 import Chat from '#models/chat'
 import Friendship from '#models/friendship'
 import User from '#models/user'
+import db from '@adonisjs/lucid/services/db'
 import { v4 } from 'uuid'
 
 export default class ChatService {
@@ -63,7 +64,16 @@ export default class ChatService {
       throw new Error('Chat não encontrado')
     }
 
-    return {...chat.serialize(), is_active: true}
+    const admins = await db
+      .from('user_chats')
+      .where('chat_id', chat.id)
+      .where('permission_type', 'a')
+
+    return {
+      ...chat.serialize(),
+      admins,
+      is_active: true
+    }
   }
 
   public async createPrivateChat(user1Id: string, user2Id: string) {

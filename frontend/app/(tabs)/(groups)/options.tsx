@@ -2,11 +2,12 @@ import { FriendItem } from '@/components/friend-item'
 import { MemberItem } from '@/components/member-item'
 import { MenuCustomPressable } from '@/components/menu-custom-pressable'
 import { Colors, mainStyles } from '@/constants/theme'
+import { AuthContext } from '@/context/auth-context'
 import { ChatInterface } from '@/interfaces/chat-interfaces'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useLocalSearchParams } from 'expo-router'
 import { navigate } from 'expo-router/build/global-state/routing'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import {
     Image,
     Pressable,
@@ -18,6 +19,7 @@ import {
 
 export default function OptionsScreen() {
     const baseURL = process.env.EXPO_PUBLIC_API_URL
+    const { user } = useContext(AuthContext)
 
     const { groupJSON } = useLocalSearchParams()
     const [group, setGroup] = useState<ChatInterface>()
@@ -93,25 +95,27 @@ export default function OptionsScreen() {
                         // backgroundColor: Colors.gray5,
                         gap: 8
                     }}>
-                        <Pressable
-                            onPress={() => navigate({
-                                pathname: '/(groups)/add-member',
-                                params: { groupId: group?.id },
-                            })
-                            }
-                            style={{
-                                width: '100%',
-                                height: 64,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                backgroundColor: Colors.light2,
-                                borderRadius: 24,
-                                padding: 16
-                            }}>
-                            <Text style={{
-                                fontWeight: 'bold'
-                            }}>Adicionar um membro</Text>
-                        </Pressable>
+                        {group?.admins?.map(a => a.id).includes(user?.id) ?
+                            <Pressable
+                                onPress={() => navigate({
+                                    pathname: '/(groups)/add-member',
+                                    params: { groupId: group?.id },
+                                })
+                                }
+                                style={{
+                                    width: '100%',
+                                    height: 64,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: Colors.light2,
+                                    borderRadius: 24,
+                                    padding: 16
+                                }}>
+                                <Text style={{
+                                    fontWeight: 'bold'
+                                }}>Adicionar um membro</Text>
+                            </Pressable>
+                            : ''}
 
                         {group?.users.map(user => (
                             <MemberItem

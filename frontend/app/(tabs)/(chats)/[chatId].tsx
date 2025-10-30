@@ -170,70 +170,60 @@ export default function ChatScreen() {
           ),
         }}
       />
-
-      <Animated.View style={[mainStyles.main_container, {
-        paddingVertical: 0, height: '100%', transform: chat?.blocker_id ? [] : [{ translateY: Animated.multiply(translateY, -1) }],
+      <Animated.View style={[{
+        transform: chat?.blocker_id ? [] : [{ translateY: Animated.multiply(translateY, -1) }],
+        justifyContent: 'flex-start',
+        width: '100%',
+        height: '100%',
       }]}>
-        <ScrollView
-          ref={scrollViewRef}
-          showsVerticalScrollIndicator={false}
+        <View style={[mainStyles.main_container, {
+          paddingTop: 2,
+          paddingBottom: 8,
+          height: 'auto',
+          flex: 1,
+          minHeight: '80%'
+        }]}>
+          <ScrollView
+            ref={scrollViewRef}
+            showsVerticalScrollIndicator={false}
+            style={{
+              width: '100%',
+            }}
+          >
+            {chat && chat.messages.length > 0 ? (
+              chat.messages.map((mes, idx) => {
+                return (
+                  <MessageItem
+                    key={mes.id}
+                    isMine={mes.user_id === user?.id}
+                    mes={mes}
+                    onDeleteMessage={() => {
+                      deleteMessage(mes.id, idx)
+                    }}
+                  />
+                )
+              })
+
+            ) : (
+              <View
+                style={{
+                  width: '100%',
+                  height: 40,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Text>Mande um 'oi' para seu amigo.</Text>
+              </View>
+            )}
+            <View ref={viewRef}></View>
+          </ScrollView>
+        </View>
+
+        <View
           style={{
             width: '100%',
-            height: '80%',
-          }}
-        >
-          {chat && chat.messages.length > 0 ? (
-            chat.messages.map((mes, idx) => {
-              return (
-                <MessageItem
-                  key={mes.id}
-                  isMine={mes.user_id === user?.id}
-                  mes={mes}
-                  onDeleteMessage={() => {
-                    deleteMessage(mes.id, idx)
-                  }}
-                />
-              )
-            })
-
-          ) : (
-            <View
-              style={{
-                width: '100%',
-                height: 40,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Text>Mande um 'oi' para seu amigo.</Text>
-            </View>
-          )}
-          <View ref={viewRef}></View>
-        </ScrollView>
-
-        <View
-          style={{
-            height: 100,
-            backgroundColor: Colors.light2,
-            paddingHorizontal: 8,
-            gap: 8,
-            paddingTop: 8,
-            paddingBottom: 56,
-          }}
-        ></View>
-      </Animated.View>
-
-      <Animated.View
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          bottom: 0,
-          transform: chat?.blocker_id ? [] : [{ translateY: Animated.multiply(translateY, -1) }],
-        }}
-      >
-        <View
-          style={{
+            maxHeight: '20%',
             minHeight: 108,
             backgroundColor: Colors.light2,
             paddingHorizontal: 8,
@@ -241,8 +231,8 @@ export default function ChatScreen() {
             alignItems: 'center',
             justifyContent: 'space-between',
             gap: 8,
-            paddingTop: 16,
-            paddingBottom: 56,
+            paddingTop: 8,
+            paddingBottom: 56
           }}
         >
           {/* <Pressable
@@ -261,19 +251,21 @@ export default function ChatScreen() {
           <TextInput
             maxLength={500}
             value={inputValue}
-            onChangeText={setInputValue}
+            onChangeText={text => {
+              scrollViewRef.current?.scrollToEnd()
+              setInputValue(text)
+            }}
             placeholder={chat?.is_active ? "Escreva sua mensagem" : 'Esta conversa está bloqueada.'}
             multiline
+            numberOfLines={4}
             editable={chat?.is_active ? true : false}
             textAlignVertical="top"
             style={{
               flex: 1,
               minHeight: 40,
-              maxHeight: 100,
               backgroundColor: Colors.light,
               borderRadius: 12,
               paddingHorizontal: 12,
-              paddingVertical: 8,
               marginHorizontal: 8,
               color: Colors.textOnInput,
             }}
@@ -294,7 +286,7 @@ export default function ChatScreen() {
             <Ionicons name="send" color={Colors.light} size={16} />
           </Pressable>
         </View>
-      </Animated.View >
+      </Animated.View>
     </>
   )
 }
