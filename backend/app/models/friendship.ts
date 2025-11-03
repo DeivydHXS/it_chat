@@ -1,4 +1,5 @@
 import { BaseModel, beforeCreate, column } from '@adonisjs/lucid/orm'
+import { DateTime } from 'luxon'
 import { v4 } from 'uuid'
 
 export enum FriendshipStatus {
@@ -30,4 +31,10 @@ export default class Friendship extends BaseModel {
 
   @column()
   declare status: FriendshipStatus
+
+  @column.dateTime({ serializeAs: 'created_at', autoCreate: true })
+  declare createdAt: DateTime
+
+  @column.dateTime({ serializeAs: 'updated_at', autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
 }

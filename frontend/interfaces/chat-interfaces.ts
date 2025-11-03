@@ -13,8 +13,18 @@ export interface ChatInterface {
     messages: MessageInterface[]
     last_message?: MessageInterface
     blocker_id?: string
+    friendship_id?: string
     is_active?: boolean
-    admins?: UserInterface[]
+    admins?: UserChatsInterface[]
+}
+
+export interface UserChatsInterface {
+    id: string,
+    chat_id: string,
+    user_id: string
+    permission_type: string,
+    created_at: string,
+    updated_at: string,
 }
 
 export interface MessageInterface {

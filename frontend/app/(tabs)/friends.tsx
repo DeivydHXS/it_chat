@@ -8,6 +8,7 @@ import { useApi } from '@/hooks/use-api'
 import { ResponseInterface, ResponseInterfaceAlt } from '@/interfaces/common-interfaces'
 import { UserInterface } from '@/interfaces/user-interfaces'
 import { Ionicons } from '@expo/vector-icons'
+import { usePathname } from 'expo-router'
 import { navigate } from 'expo-router/build/global-state/routing'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native'
@@ -24,6 +25,7 @@ export default function FriendsScreen() {
   const [friend, setFriend] = useState<UserInterface | undefined>(undefined)
   const [modal, setModal] = useState<ModalAction>('close')
   const [context, setContext] = useState<string | undefined>(undefined)
+  const pathname = usePathname();
 
   const getFriends = useCallback(async () => {
     const res = await get<ResponseInterfaceAlt<'friends', UserInterface[]>>('/friends', { tab: 'friends' })
@@ -36,10 +38,13 @@ export default function FriendsScreen() {
   }, [setRequests])
 
   useEffect(() => {
-    getFriends()
-    getRequests()
-  }, [])
- 
+    if (pathname === '/friends') {
+      getFriends()
+      getRequests()
+      setSearch('')
+    }
+  }, [pathname])
+
   const doSearch = useCallback(async () => {
     const res = await get<ResponseInterfaceAlt<'friends', UserInterface[]>>('/friends', { search, tab })
 

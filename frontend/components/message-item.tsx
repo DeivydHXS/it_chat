@@ -45,7 +45,7 @@ export function MessageItem({ isMine, mes, onDeleteMessage }: MessageItemProps) 
 
   const translateY = slideAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [300, 0], // sobe de baixo
+    outputRange: [300, 0],
   })
 
   return (

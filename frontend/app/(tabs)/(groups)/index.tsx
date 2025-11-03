@@ -30,7 +30,9 @@ export default function GroupsScreen() {
     <View style={mainStyles.main_container}>
       <SearchBar value={search} onChange={setSearch} />
 
-      <ScrollView
+      {groups.length <= 0 ?
+        <Text>Você não faz parte de nenhum grupo ainda.</Text> :
+        <ScrollView
         showsVerticalScrollIndicator={false}
         style={{
           width: '100%',
@@ -51,7 +53,7 @@ export default function GroupsScreen() {
           />
         ))}
 
-      </ScrollView>
+      </ScrollView>}
 
       <View
         style={{

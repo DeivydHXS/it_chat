@@ -44,6 +44,7 @@ export default class ChatService {
     const result = {
       ...chat.serialize(),
       blocker_id: friendship?.blocker_id,
+      friendship_id: friendship?.id,
       is_active,
     }
 
@@ -73,6 +74,9 @@ export default class ChatService {
       ...chat.serialize(),
       admins,
       is_active: true
+    } as Chat & {
+      admins: User[],
+      is_active: boolean
     }
   }
 

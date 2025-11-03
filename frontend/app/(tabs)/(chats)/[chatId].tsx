@@ -8,7 +8,7 @@ import { ResponseInterface } from '@/interfaces/common-interfaces'
 import { UserInterface } from '@/interfaces/user-interfaces'
 import SocketService from '@/services/socket'
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
+import { Stack, useFocusEffect, useLocalSearchParams, usePathname, useRouter } from 'expo-router'
 import { navigate } from 'expo-router/build/global-state/routing'
 import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import {
@@ -47,11 +47,13 @@ export default function ChatScreen() {
 
   }, [])
 
-  useEffect(() => {
-    const f: UserInterface = JSON.parse(friendJSON as string)
-    setFriend(f)
-    getChat()
-  }, [])
+  useFocusEffect(
+    useCallback(() => {
+      const f: UserInterface = JSON.parse(friendJSON as string)
+      setFriend(f)
+      getChat()
+    }, [friendJSON])
+  )
 
   useEffect(() => {
     const showSub = Keyboard.addListener(
@@ -149,7 +151,9 @@ export default function ChatScreen() {
               <Pressable onPress={() => router.push({
                 pathname: '/options' as any,
                 params: {
-                  friendJSON: friendJSON
+                  friendJSON: friendJSON,
+                  blockerIdParam: chat?.blocker_id,
+                  friendshipId: chat?.friendship_id
                 }
               })}>
                 {friend?.profile_image_url ? (

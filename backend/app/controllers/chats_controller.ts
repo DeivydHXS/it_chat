@@ -1,3 +1,5 @@
+import Chat from '#models/chat'
+import { UserChatsPermissionTypes } from '#models/user_chats'
 import ChatService from '#services/chat_service'
 import ResponseService from '#services/response_service'
 import { createGroupValidator } from '#validators/chat_validator'
@@ -137,7 +139,7 @@ export default class ChatsController {
             const chatId = params.chatId || request.input('chatId')
             const ids = request.input('friendsIds') as string[]
 
-            const group = await this.chatService.getGroup(chatId)
+            const group = await Chat.query().where('id', chatId).first()
 
             if (!group) {
                 return ResponseService.send(response, 404, 'Grupo não encontrado.')
@@ -165,4 +167,155 @@ export default class ChatsController {
         }
     }
 
+    public async removeMember({ response, request, params, auth }: HttpContext) {
+        try {
+            const currentUser = await auth.authenticateUsing(['api'])
+            const chatId = params.chatId || request.input('chatId')
+            const memberId = params.memberId || request.input('memberId')
+
+            const group = await Chat.query().where('id', chatId).first()
+
+            if (!group) {
+                return ResponseService.send(response, 404, 'Grupo não encontrado.')
+            }
+
+            if (group.type !== 'g') {
+                return ResponseService.send(response, 400, 'Esse chat não é um grupo.')
+            }
+
+            const admin = await group
+                .related('users')
+                .query()
+                .where('users.id', currentUser.id)
+                .andWhere(q => {
+                    q.where('user_chats.permission_type', 'a')
+                        .orWhere('user_chats.permission_type', 'c')
+                })
+                .first()
+
+            if (!admin) {
+                return ResponseService.send(response, 403, 'Apenas administradores podem remover membros.')
+            }
+
+            const member = await group.related('users').query().where('users.id', memberId).first()
+            if (!member) {
+                return ResponseService.send(response, 404, 'Membro não encontrado no grupo.')
+            }
+
+            await group.related('users').detach([memberId])
+
+            return ResponseService.send(response, 200, 'Membro(s) adicionado(s).')
+        } catch (err) {
+            console.log(err)
+            ResponseService.error(response, err)
+        }
+    }
+
+    public async exit({ response, request, params, auth }: HttpContext) {
+        try {
+            const currentUser = await auth.authenticateUsing(['api'])
+            const chatId = params.chatId || request.input('chatId')
+
+            const group = await Chat.query().where('id', chatId).first()
+
+            if (!group) {
+                return ResponseService.send(response, 404, 'Grupo não encontrado.')
+            }
+
+            if (group.type !== 'g') {
+                return ResponseService.send(response, 400, 'Esse chat não é um grupo.')
+            }
+
+            const admin = await group
+                .related('users')
+                .query()
+                .where('user_chats.permission_type', 'a')
+                .first()
+
+            if (admin?.id === currentUser.id) {
+                const olderCoAdmin = await group
+                    .related('users')
+                    .query()
+                    .where('user_chats.permission_type', 'c')
+                    .orderBy('user_chats.created_at', 'asc')
+                    .first()
+
+                if (olderCoAdmin) {
+                    await group.related('users').pivotQuery()
+                        .where('user_id', olderCoAdmin.id)
+                        .update({ permission_type: 'a' })
+                } else {
+                    const olderMember = await group
+                        .related('users')
+                        .query()
+                        .where('user_chats.permission_type', 'm')
+                        .orderBy('user_chats.created_at', 'asc')
+                        .first()
+
+                    if (olderMember) {
+                        await group.related('users').pivotQuery()
+                            .where('user_id', olderMember.id)
+                            .update({ permission_type: 'a' })
+                    }
+                }
+            }
+
+            const member = await group.related('users').query().where('users.id', currentUser.id).first()
+            if (!member) {
+                return ResponseService.send(response, 404, 'Membro não encontrado no grupo.')
+            }
+
+            await group.related('users').detach([currentUser.id])
+
+            return ResponseService.send(response, 200, 'Saiu do grupo.')
+        } catch (err) {
+            console.log(err)
+            ResponseService.error(response, err)
+        }
+    }
+
+    public async changePermission({ response, request, params, auth }: HttpContext) {
+        try {
+            const currentUser = await auth.authenticateUsing(['api'])
+            const chatId = params.chatId || request.input('chatId')
+            const memberId = params.memberId || request.input('memberId')
+            const permissionType = params.permissionType || request.input('permissionType')
+
+            const group = await Chat.query().where('id', chatId).first()
+            if (!group) {
+                return ResponseService.send(response, 404, 'Grupo não encontrado.')
+            }
+
+            if (group.type !== 'g') {
+                return ResponseService.send(response, 400, 'Esse chat não é um grupo.')
+            }
+
+            const admin = await group
+                .related('users')
+                .query()
+                .where('users.id', currentUser.id)
+                .andWhere(q => {
+                    q.where('user_chats.permission_type', 'a')
+                        .orWhere('user_chats.permission_type', 'c')
+                })
+                .first()
+
+            if (!admin) {
+                return ResponseService.send(response, 403, 'Apenas administradores podem alterar permissões.')
+            }
+
+            if (!Object.values(UserChatsPermissionTypes).includes(permissionType)) {
+                return ResponseService.send(response, 400, 'Tipo de permissão inválido.')
+            }
+
+            await group.related('users').pivotQuery()
+                .where('user_id', memberId)
+                .update({ permission_type: permissionType })
+
+            return ResponseService.send(response, 200, 'Permissão atualizada com sucesso.')
+        } catch (err) {
+            console.error(err)
+            return ResponseService.error(response, err)
+        }
+    }
 }

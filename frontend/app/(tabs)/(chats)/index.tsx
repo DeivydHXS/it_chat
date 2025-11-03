@@ -4,7 +4,7 @@ import { mainStyles } from '@/constants/theme'
 import { useApi } from '@/hooks/use-api'
 import { ChatInterface } from '@/interfaces/chat-interfaces'
 import { useCallback, useContext, useEffect, useState } from 'react'
-import { ScrollView, View } from 'react-native'
+import { ScrollView, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import { UserInterface } from '@/interfaces/user-interfaces'
 import { AuthContext } from '@/context/auth-context'
@@ -67,23 +67,26 @@ export default function ChatsIndex() {
   return (
     <View style={mainStyles.main_container}>
       <SearchBar value={search} onChange={setSearch} />
-      <ScrollView style={{ height: '100%', width: '100%' }}>
-        {chats.map((chat, index) => (
-          <ChatItem
-            key={index}
-            user={excludeUser(chat.users)}
-            lastMessage={chat.last_message}
-            onPress={() =>
-              router.push({
-                pathname: `/(chats)/${chat.id}` as any,
-                params: {
-                  friendJSON: JSON.stringify(excludeUser(chat.users)),
-                },
-              })
-            }
-          />
-        ))}
-      </ScrollView>
+      { chats.length <= 0 ?
+          <Text>Você não tem nenhuma conversa ainda.</Text> :
+          <ScrollView style={{ height: '100%', width: '100%' }}>
+            {chats.map((chat, index) => (
+              <ChatItem
+                key={index}
+                user={excludeUser(chat.users)}
+                lastMessage={chat.last_message}
+                onPress={() =>
+                  router.push({
+                    pathname: `/(chats)/${chat.id}` as any,
+                    params: {
+                      friendJSON: JSON.stringify(excludeUser(chat.users)),
+                    },
+                  })
+                }
+              />
+            ))}
+          </ScrollView>
+      }
     </View>
   )
 }

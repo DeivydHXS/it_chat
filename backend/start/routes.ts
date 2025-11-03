@@ -150,6 +150,12 @@ router
               .delete('', '#controllers/chats_controller.delete')
             router
               .post('add-members', '#controllers/chats_controller.addMembers')
+            router
+              .post('change-permission', '#controllers/chats_controller.changePermission')
+            router
+              .post('remove-member', '#controllers/chats_controller.removeMember')
+            router
+              .post('exit', '#controllers/chats_controller.exit')
           })
           .prefix(':chatId')
       })

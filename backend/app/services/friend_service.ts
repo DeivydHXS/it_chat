@@ -10,7 +10,6 @@ export default class FriendService {
         status?: string
     }) {
         const { search, status } = options || {}
-
         const users = await User.query()
             .select(
                 'users.*',
@@ -43,7 +42,7 @@ export default class FriendService {
                     .orWhere('friendships.blocker_id', user.id)
             })
             .if(status, (q) => {
-                q.andWhere('friendships.status', status || 'a')
+                q.andWhere('friendships.status', status || '')
             })
             .if(search && search.trim() !== '', (q) => {
                 q.where((sub) => {

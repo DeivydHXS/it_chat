@@ -49,23 +49,29 @@ export default class FriendsController {
 
             var options = {}
 
-            if (tab === 'friends') {
-                options = {
-                    search,
-                    status: 'a'
-                }
-            }
-
             if (tab === 'requests') {
                 options = {
                     search,
                     status: 'p'
                 }
+                const friends = await this.friendService.list(currentUser, options)
+
+                ResponseService.send(response, 200, 'Busca de usuário.', { friends })
+                return
             }
 
+            options = {
+                search,
+                status: 'a'
+            }
             const friends = await this.friendService.list(currentUser, options)
-            console.log(tab, friends)
-            ResponseService.send(response, 200, 'Busca de usuário.', { friends })
+            options = {
+                search,
+                status: 'b'
+            }
+            const blockeds = await this.friendService.list(currentUser, options)
+
+            ResponseService.send(response, 200, 'Busca de usuário.', { friends: [...friends, ...blockeds] })
         } catch (err) {
             ResponseService.error(response, err)
         }

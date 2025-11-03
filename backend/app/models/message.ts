@@ -36,10 +36,10 @@ export default class Message extends BaseModel {
   @column({ serializeAs: null })
   declare deleted: boolean
 
-  @column.dateTime({ autoCreate: true })
+  @column.dateTime({ serializeAs: 'created_at', autoCreate: true })
   declare createdAt: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @column.dateTime({ serializeAs: 'updated_at', autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 
   @belongsTo(() => Chat, { foreignKey: 'chat_id' })

@@ -17,6 +17,7 @@ export function SearchBar({ value, onChange, placeholder }: SearchBarProps) {
       <View style={styles.container}>
         <Ionicons name="search" size={16} color={Colors.dark} />
         <TextInput
+        maxLength={42}
           autoCapitalize='none'
           placeholder={placeholder || 'Digite sua pesquisa'}
           value={value}
