@@ -32,6 +32,7 @@ export interface UserUpdateForm {
   name: string
   nickname: string
   bio?: string
+  remove_image?: string
 }
 
 export interface UserUpdateErrors {

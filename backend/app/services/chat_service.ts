@@ -3,6 +3,7 @@ import Friendship from '#models/friendship'
 import User from '#models/user'
 import UserChats from '#models/user_chats'
 import db from '@adonisjs/lucid/services/db'
+import { Group } from '@japa/runner/core'
 import { v4 } from 'uuid'
 
 export default class ChatService {
@@ -114,6 +115,23 @@ export default class ChatService {
       }
     })
     // await group.load('users')
+
+    return group
+  }
+
+  public async updateGroupChat(group: Chat, payload: Partial<Chat>) {
+    if (!payload) {
+      return group
+    }
+    console.log(payload)
+    group.merge({
+      icon_image_url: payload.icon_image_url ?? group.icon_image_url,
+      cover_image_url: payload.cover_image_url ?? group.cover_image_url,
+      name: payload.name ?? group.name,
+      description: payload.description ?? group.description,
+    })
+
+    await group.save()
 
     return group
   }

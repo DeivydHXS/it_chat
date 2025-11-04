@@ -12,7 +12,8 @@ export const updateUserValidator = vine.compile(
     profile_image: vine.file({
       size: '20mb',
       extnames: ['jpg', 'png', 'jpeg']
-    }).optional()
+    }).optional(),
+    remove_image: vine.boolean().optional()
   })
 )
 

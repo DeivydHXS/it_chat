@@ -122,7 +122,7 @@ export default function OptionsScreen() {
                     {group?.cover_image_url ?
                         <Image
                             source={{ uri: baseURL + group?.cover_image_url }}
-                            style={{ width: '100%', height: 100 }}
+                            style={{ width: '100%', height: 200 }}
                         /> :
                         ''
                     }
@@ -162,7 +162,12 @@ export default function OptionsScreen() {
                         {/* <MenuCustomPressable onPress={() => { }} text='Denunciar grupo' /> */}
                         {isAdmin ?
                             <>
-                                <MenuCustomPressable onPress={() => { }} text='Editar informações do grupo' />
+                                <MenuCustomPressable onPress={() => navigate({
+                                    pathname: '/edit',
+                                    params: {
+                                        groupId: group?.id
+                                    }
+                                })} text='Editar informações do grupo' />
                                 <MenuCustomPressable onPress={() => handleOpenModal('exit')} text='Sair do grupo' />
                                 <MenuCustomPressable onPress={() => handleOpenModal('delete')} text='Excluir grupo' />
                             </>

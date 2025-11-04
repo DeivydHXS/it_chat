@@ -2,7 +2,7 @@ import Chat from '#models/chat'
 import { UserChatsPermissionTypes } from '#models/user_chats'
 import ChatService from '#services/chat_service'
 import ResponseService from '#services/response_service'
-import { createGroupValidator } from '#validators/chat_validator'
+import { createGroupValidator, updateGroupValidator } from '#validators/chat_validator'
 import { inject } from '@adonisjs/core'
 import { cuid } from '@adonisjs/core/helpers'
 import type { HttpContext } from '@adonisjs/core/http'
@@ -10,6 +10,8 @@ import app from '@adonisjs/core/services/app'
 import path from 'path'
 import sharp from 'sharp'
 import { v4 } from 'uuid'
+import fs from 'fs'
+import { group } from 'console'
 
 @inject()
 export default class ChatsController {
@@ -126,6 +128,80 @@ export default class ChatsController {
             }
 
             const group = await this.chatService.createGroupChat(currentUser.id, { name: payload.name, description: payload.description, icon_image_url: iconImageUrl, cover_image_url: coverImageUrl })
+
+            return ResponseService.send(response, 200, 'Conversa.', { group })
+        } catch (err) {
+            ResponseService.error(response, err)
+        }
+    }
+
+    public async update({ response, request, params, auth }: HttpContext) {
+        try {
+            const payload = await request.validateUsing(updateGroupValidator)
+            const currentUser = await auth.authenticateUsing(['api'])
+            const groupId = params.chatId || request.input('chatId')
+            var iconImageUrl: string | undefined
+            var coverImageUrl: string | undefined
+
+            const oldGroup = await Chat.query().where('id', groupId).first()
+
+            if (!oldGroup) {
+                return ResponseService.send(response, 404, 'Grupo não encontrado.')
+            }
+
+            if (payload.icon_image) {
+                if (oldGroup?.icon_image_url) {
+                    const oldPath = path.join(app.makePath('storage/icon_images'), path.basename(oldGroup?.icon_image_url))
+                    if (fs.existsSync(oldPath)) {
+                        fs.unlinkSync(oldPath)
+                    }
+                }
+                const fileName = `${cuid()}.webp`
+                const outputPath = path.join(app.makePath('storage/icon_images'), fileName)
+
+                await sharp(payload.icon_image.tmpPath!)
+                    .toFormat('webp', { quality: 80 })
+                    .toFile(outputPath)
+
+                iconImageUrl = `/uploads/icon_images/${fileName}`
+            } else if (payload.remove_icon) {
+                if (oldGroup?.icon_image_url) {
+                    const oldPath = path.join(app.makePath('storage/icon_images'), path.basename(oldGroup?.icon_image_url))
+                    if (fs.existsSync(oldPath)) {
+                        fs.unlinkSync(oldPath)
+                    }
+                    oldGroup.icon_image_url = null
+                    await oldGroup.save()
+                }
+            }
+
+            if (payload.cover_image) {
+                if (oldGroup?.cover_image_url) {
+                    const oldPath = path.join(app.makePath('storage/cover_images'), path.basename(oldGroup?.cover_image_url))
+                    if (fs.existsSync(oldPath)) {
+                        fs.unlinkSync(oldPath)
+                    }
+                }
+                const fileName = `${cuid()}.webp`
+                const outputPath = path.join(app.makePath('storage/cover_images'), fileName)
+
+                await sharp(payload.cover_image.tmpPath!)
+                    .toFormat('webp', { quality: 80 })
+                    .toFile(outputPath)
+
+                coverImageUrl = `/uploads/cover_images/${fileName}`
+            } else if (payload.remove_cover) {
+                if (oldGroup?.cover_image_url) {
+                    const oldPath = path.join(app.makePath('storage/cover_images'), path.basename(oldGroup?.cover_image_url))
+                    if (fs.existsSync(oldPath)) {
+                        fs.unlinkSync(oldPath)
+                    }
+                    oldGroup.cover_image_url = null
+                    await oldGroup.save()
+                }
+            }
+
+            const group = await this.chatService.updateGroupChat(oldGroup, { name: payload.name, description: payload.description, icon_image_url: iconImageUrl, cover_image_url: coverImageUrl })
 
             return ResponseService.send(response, 200, 'Conversa.', { group })
         } catch (err) {

@@ -69,7 +69,7 @@ export default class UserService {
         return UserService.formatUserResponse(user)
     }
 
-    public async update(user: User, { profile_image, ...payload }: { name?: string, nickname?: string, bio?: string, profile_image_url?: string, profile_image?: any, }, trx?: TransactionClientContract) {
+    public async update(user: User, payload: Partial<User>, trx?: TransactionClientContract) {
         if (payload) {
             if (!payload.profile_image_url) {
                 user.merge({

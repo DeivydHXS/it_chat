@@ -46,7 +46,7 @@ export default class MeController {
                     .toFile(outputPath)
 
                 profileImageUrl = `/uploads/profile_images/${fileName}`
-            } else {
+            } else if (payload.remove_image) {
                 if (user.profile_image_url) {
                     const oldPath = path.join(app.makePath('storage/profile_images'), path.basename(user.profile_image_url))
                     if (fs.existsSync(oldPath)) {
@@ -57,7 +57,12 @@ export default class MeController {
                 }
             }
 
-            const res = await this.userService.update(user, { ...payload, bio: payload.bio ? payload.bio : '', profile_image_url: profileImageUrl })
+            const res = await this.userService.update(user, {
+                name: payload.name,
+                nickname: payload.nickname,
+                bio: payload.bio ? payload.bio : '',
+                profile_image_url: profileImageUrl
+            })
             ResponseService.send(response, 200, 'Usuário atualizado com sucesso.', { user: { ...res } })
         } catch (error) {
             ResponseService.error(response, error)

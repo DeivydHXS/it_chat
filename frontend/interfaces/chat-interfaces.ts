@@ -34,3 +34,12 @@ export interface MessageInterface {
     user_id: string
     user?: UserInterface
 }
+
+export interface ChatUpdateErrors {
+    name?: string
+    description?: string
+    cover_image_url?: string
+    icon_image_url?: string
+    remove_icon?: string
+    remove_cover?: string
+}

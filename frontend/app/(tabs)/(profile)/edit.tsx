@@ -59,6 +59,12 @@ export default function EditScreen() {
   const handleDeleteProfileImage = useCallback(async () => {
     setProfileImageUrlTemp(null)
     setFile(null)
+    setForm(prev => {
+      return {
+        ...prev,
+        remove_image: 'true'
+      }
+    })
   }, [])
 
   const handleForm = useCallback((newValue: string, field: keyof UserUpdateForm) => {
@@ -85,6 +91,8 @@ export default function EditScreen() {
           name: file.name || "profile.jpg",
           type: file.mimeType || "image/jpeg",
         } as any)
+      } else if (form.remove_image) {
+        data.append("remove_image", "true")
       }
 
       const response = await post<UserUpdateResponse>('/me', data, true)
