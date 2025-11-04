@@ -1,25 +1,25 @@
-import { Alert, Animated, Easing, Image, Keyboard, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Link, LinkTrigger, router, usePathname } from 'expo-router';
-import icon_img from '../../assets/images/logo-it.png';
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { CustomInputText } from '@/components/custom-input-text';
-import { CustomLink } from '@/components/custom-link';
-import { InfoSection } from '@/components/info-section';
-import { Colors, mainStyles } from '@/constants/theme';
-import { CustomPressable } from '@/components/custom-pressable';
-import { AuthContext } from '@/context/auth-context';
-import { LoginInterface } from '@/interfaces/common-interfaces';
-import { useApi } from '@/hooks/use-api';
-import { StorageService } from '../../services/storageService';
-import { MaterialIcons } from '@expo/vector-icons';
+import { Alert, Animated, Easing, Image, Keyboard, Platform, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Link, LinkTrigger, router, usePathname } from 'expo-router'
+import icon_img from '../../assets/images/logo-it.png'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { CustomInputText } from '@/components/custom-input-text'
+import { CustomLink } from '@/components/custom-link'
+import { InfoSection } from '@/components/info-section'
+import { Colors, mainStyles } from '@/constants/theme'
+import { CustomPressable } from '@/components/custom-pressable'
+import { AuthContext } from '@/context/auth-context'
+import { LoginInterface } from '@/interfaces/common-interfaces'
+import { useApi } from '@/hooks/use-api'
+import { StorageService } from '../../services/storageService'
+import { MaterialIcons } from '@expo/vector-icons'
 
 export default function LoginScreen() {
-  const { post } = useApi();
-  const { login } = useContext(AuthContext);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<{ email: string; password: string }>();
-  const [modal, setModal] = useState<boolean>(false);
+  const { post } = useApi()
+  const { login } = useContext(AuthContext)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [errors, setErrors] = useState<{ email: string, password: string }>()
+  const [modal, setModal] = useState<boolean>(false)
   const translateY = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
@@ -55,31 +55,31 @@ export default function LoginScreen() {
 
   const handleLogin = useCallback(async () => {
     try {
-      const response = await post<LoginInterface>('/auth/login', { email, password });
+      const response = await post<LoginInterface>('/auth/login', { email, password })
       if (response.status > 299) {
         if (response.data.message == 'Conta não verificada.') {
           Alert.alert(response.data.message)
           return
         }
-        setErrors(response.data.errors);
+        setErrors(response.data.errors)
         return
       }
 
       // @ts-ignore
-      await login(response.data.data?.user, response.data.data?.token);
-      router.replace('/(tabs)');
+      await login(response.data.data?.user, response.data.data?.token)
+      router.replace('/(tabs)')
     } catch (err) {
-      Alert.alert('Erro', JSON.stringify(err));
+      Alert.alert('Erro', JSON.stringify(err))
     }
-  }, [email, password]);
+  }, [email, password])
 
   const setFirst = useCallback(async () => {
-    await StorageService.setFirst(true);
-  }, []);
+    await StorageService.setFirst(true)
+  }, [])
 
   useEffect(() => {
-    setFirst();
-  }, []);
+    setFirst()
+  }, [])
 
   const emails = [
     'davi@email.com',
@@ -88,26 +88,26 @@ export default function LoginScreen() {
     'edu@email.com',
     'maikon@email.com',
     'pam@email.com'
-  ];
+  ]
 
   const handleQuickLogin = useCallback(async (email: string, password: string) => {
     try {
-      const response = await post<LoginInterface>('/auth/login', { email, password });
+      const response = await post<LoginInterface>('/auth/login', { email, password })
       // @ts-ignore
-      await login(response.data.data?.user, response.data.data?.token);
-      router.replace('/(tabs)');
+      await login(response.data.data?.user, response.data.data?.token)
+      router.replace('/(tabs)')
     } catch (err) {
-      Alert.alert('Erro', JSON.stringify(err));
+      Alert.alert('Erro', JSON.stringify(err))
     }
-  }, []);
+  }, [])
 
-  const pathname = usePathname();
+  const pathname = usePathname()
 
   useEffect(() => {
     if (pathname === '/login') {
-      setErrors({ email: '', password: '' });
+      setErrors({ email: '', password: '' })
     }
-  }, [pathname]);
+  }, [pathname])
 
   return (
     <Animated.View
@@ -127,11 +127,11 @@ export default function LoginScreen() {
           placeholder="Digite seu email"
           value={email}
           onFocus={() => {
-            setErrors((prev) => ({ password: prev?.password || '', email: '' }));
+            setErrors((prev) => ({ password: prev?.password || '', email: '' }))
           }}
           onChangeText={(text) => {
-            setErrors((prev) => ({ password: prev?.password || '', email: '' }));
-            setEmail(text);
+            setErrors((prev) => ({ password: prev?.password || '', email: '' }))
+            setEmail(text)
           }}
           error={errors?.email}
           maxLength={100}
@@ -142,11 +142,11 @@ export default function LoginScreen() {
           value={password}
           secureTextEntry
           onFocus={() => {
-            setErrors((prev) => ({ password: '', email: prev?.email || '' }));
+            setErrors((prev) => ({ password: '', email: prev?.email || '' }))
           }}
           onChangeText={(text) => {
-            setErrors((prev) => ({ password: '', email: prev?.email || '' }));
-            setPassword(text);
+            setErrors((prev) => ({ password: '', email: prev?.email || '' }))
+            setPassword(text)
           }}
           error={errors?.password}
           maxLength={30}
@@ -218,7 +218,7 @@ export default function LoginScreen() {
         </View>
       </View>
     </Animated.View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -227,4 +227,4 @@ const styles = StyleSheet.create({
     height: 200,
     marginBottom: 16,
   },
-});
+})

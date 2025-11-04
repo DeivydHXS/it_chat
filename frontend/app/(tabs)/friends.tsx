@@ -25,7 +25,7 @@ export default function FriendsScreen() {
   const [friend, setFriend] = useState<UserInterface | undefined>(undefined)
   const [modal, setModal] = useState<ModalAction>('close')
   const [context, setContext] = useState<string | undefined>(undefined)
-  const pathname = usePathname();
+  const pathname = usePathname()
 
   const getFriends = useCallback(async () => {
     const res = await get<ResponseInterfaceAlt<'friends', UserInterface[]>>('/friends', { tab: 'friends' })

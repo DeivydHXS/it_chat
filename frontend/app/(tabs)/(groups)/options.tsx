@@ -1,5 +1,4 @@
 import { ConfirmationModal } from '@/components/confirmation-modal'
-import { FriendItem } from '@/components/friend-item'
 import { MemberItem } from '@/components/member-item'
 import { MenuCustomPressable } from '@/components/menu-custom-pressable'
 import { Colors, mainStyles } from '@/constants/theme'
@@ -8,19 +7,17 @@ import { useApi } from '@/hooks/use-api'
 import { ChatInterface } from '@/interfaces/chat-interfaces'
 import { ResponseInterface } from '@/interfaces/common-interfaces'
 import { MaterialIcons } from '@expo/vector-icons'
-import { useLocalSearchParams } from 'expo-router'
+import { useLocalSearchParams, usePathname } from 'expo-router'
 import { navigate } from 'expo-router/build/global-state/routing'
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import {
     Alert,
-    Animated,
     Image,
     Modal,
     Pressable,
     ScrollView,
     StyleSheet,
     Text,
-    TouchableOpacity,
     View,
 } from 'react-native'
 
@@ -29,22 +26,35 @@ type ModalAction = 'close' | 'exit' | 'delete'
 export default function OptionsScreen() {
     const baseURL = process.env.EXPO_PUBLIC_API_URL
     const { user } = useContext(AuthContext)
-    const { post } = useApi()
+    const { get, post } = useApi()
+    const pathname = usePathname()
 
     const { groupJSON } = useLocalSearchParams()
     const [group, setGroup] = useState<ChatInterface>()
     const [isAdmin, setIsAdmin] = useState<boolean>(false)
     const [modal, setModal] = useState<ModalAction>('close')
 
-    useEffect(() => {
-        const g: ChatInterface = JSON.parse(groupJSON as string)
-        setGroup(g)
-    }, [setGroup])
+    const isAdminFunction = useCallback((user_id?: string) => {
+        if (!group?.admins) {
+            return false
+        }
+
+        return group.admins.some(a => a.user_id === user_id)
+    }, [group])
+
+    const getGroup = useCallback(async () => {
+        const res = await get<{ data: { group: ChatInterface } }>(`/groups/${groupJSON}`)
+        setGroup(res.data.data.group)
+    }, [])
 
     useEffect(() => {
-        if (group?.admins?.map(a => a.user_id).includes(user?.id || '')) {
-            setIsAdmin(true)
+        if (pathname === '/options') {
+            getGroup()
         }
+    }, [pathname])
+
+    useEffect(() => {
+        setIsAdmin(isAdminFunction(user?.id))
     }, [group, user, setIsAdmin])
 
     const handleOpenModal = useCallback((action: ModalAction = 'close') => {
@@ -73,7 +83,7 @@ export default function OptionsScreen() {
                         }
 
                         navigate('/(groups)')
-                        
+
                         handleOpenModal()
                     },
                 }
@@ -98,31 +108,6 @@ export default function OptionsScreen() {
                 return null
         }
     }, [modal, post, handleOpenModal, group, user])
-
-    const [modalVisible, setModalVisible] = useState(false)
-    const slideAnim = useRef(new Animated.Value(0)).current
-
-    const openModal = () => {
-        setModalVisible(true)
-        Animated.timing(slideAnim, {
-            toValue: 1,
-            duration: 200,
-            useNativeDriver: true,
-        }).start()
-    }
-
-    const closeModal = () => {
-        Animated.timing(slideAnim, {
-            toValue: 0,
-            duration: 200,
-            useNativeDriver: true,
-        }).start(() => setModalVisible(false))
-    }
-
-    const translateY = slideAnim.interpolate({
-        inputRange: [0, 1],
-        outputRange: [300, 0],
-    })
 
     return (
         <>
@@ -177,7 +162,7 @@ export default function OptionsScreen() {
                         {/* <MenuCustomPressable onPress={() => { }} text='Denunciar grupo' /> */}
                         {isAdmin ?
                             <>
-                                <MenuCustomPressable onPress={openModal} text='Editar informações do grupo' />
+                                <MenuCustomPressable onPress={() => { }} text='Editar informações do grupo' />
                                 <MenuCustomPressable onPress={() => handleOpenModal('exit')} text='Sair do grupo' />
                                 <MenuCustomPressable onPress={() => handleOpenModal('delete')} text='Excluir grupo' />
                             </>
@@ -220,12 +205,15 @@ export default function OptionsScreen() {
                                 </Pressable>
                                 : ''}
 
-                            {group?.users.map(user => (
+                            {group?.users.map(u => (
                                 <MemberItem
-                                    key={user.id}
-                                    user={user}
-                                    context={false}
-                                    openContext={() => { }} />
+                                    key={u.id}
+                                    user={u}
+                                    memberIsAdmin={isAdminFunction(u.id)}
+                                    isAdmin={isAdmin}
+                                    group={group}
+                                    setGroup={setGroup}
+                                />
                             ))}
                         </View>
                     </View >
@@ -246,28 +234,6 @@ export default function OptionsScreen() {
                             onCancel={modalInfo.onCancel}
                         />
                     )}
-                </Pressable>
-            </Modal>
-            <Modal
-                transparent
-                visible={modalVisible}
-                animationType="none"
-                onRequestClose={closeModal}
-            >
-                <Pressable style={styles.overlay} onPress={closeModal}>
-                    <Animated.View
-                        style={[
-                            styles.bottomSheet,
-                            { transform: [{ translateY }] },
-                        ]}
-                    >
-                        <View style={styles.handle} />
-
-                        <TouchableOpacity style={styles.option} onPress={() => { }}>
-                            <MaterialIcons name="content-copy" size={22} color={Colors.dark} />
-                            <Text style={styles.optionText}>Copiar mensagem</Text>
-                        </TouchableOpacity>
-                    </Animated.View>
                 </Pressable>
             </Modal>
         </>
@@ -313,31 +279,5 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.2)',
         justifyContent: 'flex-end',
-    },
-    bottomSheet: {
-        backgroundColor: Colors.light2,
-        borderTopLeftRadius: 16,
-        borderTopRightRadius: 16,
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        elevation: 8,
-    },
-    handle: {
-        alignSelf: 'center',
-        width: 40,
-        height: 4,
-        borderRadius: 2,
-        backgroundColor: Colors.gray4,
-        marginBottom: 12,
-    },
-    option: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 14,
-    },
-    optionText: {
-        marginLeft: 10,
-        fontSize: 16,
-        color: Colors.dark,
     },
 })

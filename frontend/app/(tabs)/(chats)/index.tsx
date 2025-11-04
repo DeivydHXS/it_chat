@@ -5,7 +5,7 @@ import { useApi } from '@/hooks/use-api'
 import { ChatInterface } from '@/interfaces/chat-interfaces'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
-import { useRouter } from 'expo-router'
+import { usePathname, useRouter } from 'expo-router'
 import { UserInterface } from '@/interfaces/user-interfaces'
 import { AuthContext } from '@/context/auth-context'
 import SocketService from '@/services/socket'
@@ -17,6 +17,7 @@ export default function ChatsIndex() {
 
   const [search, setSearch] = useState('')
   const [chats, setChats] = useState<ChatInterface[]>([])
+  const pathname = usePathname()
 
   const getChats = useCallback(async () => {
     const res = await get<{ data: { chats: ChatInterface[] } }>('/chats')
@@ -24,8 +25,10 @@ export default function ChatsIndex() {
   }, [])
 
   useEffect(() => {
-    getChats()
-  }, [])
+    if (pathname === '/') {
+      getChats()
+    }
+  }, [pathname])
 
   useEffect(() => {
     if (!user?.id) return

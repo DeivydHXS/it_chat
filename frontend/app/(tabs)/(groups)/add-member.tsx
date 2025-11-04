@@ -1,12 +1,12 @@
-import { AddMemberItem } from '@/components/add-member-item';
-import { Colors, mainStyles } from '@/constants/theme';
-import { ApiResponse, useApi } from '@/hooks/use-api';
-import { ResponseInterfaceAlt } from '@/interfaces/common-interfaces';
-import { UserInterface } from '@/interfaces/user-interfaces';
-import { Ionicons } from '@expo/vector-icons';
-import { goBack } from 'expo-router/build/global-state/routing';
-import { useCallback, useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, View } from 'react-native';
+import { AddMemberItem } from '@/components/add-member-item'
+import { Colors, mainStyles } from '@/constants/theme'
+import { ApiResponse, useApi } from '@/hooks/use-api'
+import { ResponseInterfaceAlt } from '@/interfaces/common-interfaces'
+import { UserInterface } from '@/interfaces/user-interfaces'
+import { Ionicons } from '@expo/vector-icons'
+import { goBack } from 'expo-router/build/global-state/routing'
+import { useCallback, useEffect, useState } from 'react'
+import { Alert, Pressable, ScrollView, View } from 'react-native'
 import { useLocalSearchParams } from 'expo-router'
 
 export default function AddMemberScreen() {
@@ -86,5 +86,5 @@ export default function AddMemberScreen() {
                 </Pressable>
             </View>
         </View>
-    );
+    )
 }

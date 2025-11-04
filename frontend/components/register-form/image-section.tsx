@@ -1,10 +1,10 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native"
 
-import { InfoSection } from "../info-section";
-import { useCallback, useState } from "react";
+import { InfoSection } from "../info-section"
+import { useCallback, useState } from "react"
 import * as DocumentPicker from 'expo-document-picker'
-import { MaterialIcons } from "@expo/vector-icons";
-import { Colors } from "@/constants/theme";
+import { MaterialIcons } from "@expo/vector-icons"
+import { Colors } from "@/constants/theme"
 
 interface ImageSectionProps {
     value: DocumentPicker.DocumentPickerAsset | null

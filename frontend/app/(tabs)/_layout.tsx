@@ -1,14 +1,14 @@
-import { Tabs, useSegments } from 'expo-router';
+import { Tabs, useSegments } from 'expo-router'
 
-import { Colors } from '@/constants/theme';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Ionicons } from '@expo/vector-icons';
+import { Colors } from '@/constants/theme'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import { Ionicons } from '@expo/vector-icons'
 
 export default function TabLayout() {
-  const segments = useSegments();
+  const segments = useSegments()
 
   // @ts-ignore
-  const hideTabs = segments.includes("[chatId]") || segments.includes("[groupId]") || segments.includes("add-member") || segments.includes("options") || segments.includes("edit");
+  const hideTabs = segments.includes("[chatId]") || segments.includes("[groupId]") || segments.includes("add-member") || segments.includes("options") || segments.includes("edit")
 
   return (
     <Tabs
@@ -76,5 +76,5 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
-  );
+  )
 }

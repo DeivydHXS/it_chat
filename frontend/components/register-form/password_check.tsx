@@ -1,6 +1,6 @@
-import { Colors } from "@/constants/theme";
-import { StyleSheet, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Colors } from "@/constants/theme"
+import { StyleSheet, Text, View } from "react-native"
+import { Ionicons } from "@expo/vector-icons"
 
 interface PasswordCheckSectionProps {
     text: string | undefined

@@ -1,19 +1,19 @@
-import { Colors } from "@/constants/theme";
-import { useState } from "react";
-import { StyleSheet, Text, TextInput, TextInputProps, View } from "react-native";
+import { Colors } from "@/constants/theme"
+import { useState } from "react"
+import { StyleSheet, Text, TextInput, TextInputProps, View } from "react-native"
 
 interface CustomInputTextProps extends TextInputProps {
-  error?: string;
-  showCounter?: boolean;
+  error?: string
+  showCounter?: boolean
 }
 
 export function CustomInputText(props: CustomInputTextProps) {
-  const [length, setLength] = useState(props.value?.length || 0);
+  const [length, setLength] = useState(props.value?.length || 0)
 
   const handleChangeText = (text: string) => {
-    setLength(text.length);
-    props.onChangeText && props.onChangeText(text);
-  };
+    setLength(text.length)
+    props.onChangeText && props.onChangeText(text)
+  }
 
   return (
     <View style={styles.container}>
@@ -37,7 +37,7 @@ export function CustomInputText(props: CustomInputTextProps) {
 
       {props.error && <Text style={styles.error}>{props.error}</Text>}
     </View>
-  );
+  )
 }
 
 export const styles = StyleSheet.create({
@@ -87,4 +87,4 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.light,
     paddingHorizontal: 3,
   },
-});
+})

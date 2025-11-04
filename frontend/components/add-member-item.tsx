@@ -4,9 +4,9 @@ import { Colors } from '@/constants/theme'
 import { UserInterface } from '@/interfaces/user-interfaces'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'expo-router'
-import { Dimensions } from 'react-native';
+import { Dimensions } from 'react-native'
 
-const windowHeight = Dimensions.get('window').height;
+const windowHeight = Dimensions.get('window').height
 
 interface AddMemberItemProps {
     user: UserInterface,

@@ -1,6 +1,7 @@
 import Chat from '#models/chat'
 import Friendship from '#models/friendship'
 import User from '#models/user'
+import UserChats from '#models/user_chats'
 import db from '@adonisjs/lucid/services/db'
 import { v4 } from 'uuid'
 
@@ -75,7 +76,7 @@ export default class ChatService {
       admins,
       is_active: true
     } as Chat & {
-      admins: User[],
+      admins: UserChats[],
       is_active: boolean
     }
   }

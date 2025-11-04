@@ -135,7 +135,7 @@ export default function GroupScreen() {
               <Pressable onPress={() => router.push({
                 pathname: '/options' as any,
                 params: {
-                  groupJSON: JSON.stringify(group)
+                  groupJSON: groupId
                 }
               })}>
                 {group?.icon_image_url ? (

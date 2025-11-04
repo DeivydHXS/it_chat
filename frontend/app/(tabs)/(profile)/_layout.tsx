@@ -1,8 +1,8 @@
-import { Colors } from '@/constants/theme';
-import { Ionicons } from '@expo/vector-icons';
-import { Stack, } from 'expo-router';
-import { goBack } from 'expo-router/build/global-state/routing';
-import { Text, View } from 'react-native';
+import { Colors } from '@/constants/theme'
+import { Ionicons } from '@expo/vector-icons'
+import { Stack, } from 'expo-router'
+import { goBack } from 'expo-router/build/global-state/routing'
+import { Text, View } from 'react-native'
 
 export default function ProfileLayout() {
   return (
@@ -34,5 +34,5 @@ export default function ProfileLayout() {
         title: 'Alterar senha',
       }} />
     </Stack>
-  );
+  )
 }

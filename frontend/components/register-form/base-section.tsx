@@ -1,10 +1,10 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native"
 
-import { InfoSection } from "../info-section";
-import { CustomInputText } from "../custom-input-text";
-import { useEffect, useState } from "react";
-import { CustomInputNumber } from "../custom-input-number";
-import { CustomInputLargeText } from "../custom-input-large-text";
+import { InfoSection } from "../info-section"
+import { CustomInputText } from "../custom-input-text"
+import { useEffect, useState } from "react"
+import { CustomInputNumber } from "../custom-input-number"
+import { CustomInputLargeText } from "../custom-input-large-text"
 
 
 interface BaseSectionProps {

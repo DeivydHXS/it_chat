@@ -1,6 +1,6 @@
-import { Colors } from "@/constants/theme";
-import { MaterialIcons } from "@expo/vector-icons";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Colors } from "@/constants/theme"
+import { MaterialIcons } from "@expo/vector-icons"
+import { Image, Pressable, StyleSheet, Text, View } from "react-native"
 
 interface GroupsItemProps {
     title: string

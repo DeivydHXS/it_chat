@@ -1,11 +1,11 @@
-import { SearchBar } from '@/components/search-bar';
-import { SearchUserItem } from '@/components/search-user-item';
-import { mainStyles } from '@/constants/theme';
-import { useApi } from '@/hooks/use-api';
-import { ResponseInterfaceAlt } from '@/interfaces/common-interfaces';
-import { UserInterface } from '@/interfaces/user-interfaces';
-import { useCallback, useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SearchBar } from '@/components/search-bar'
+import { SearchUserItem } from '@/components/search-user-item'
+import { mainStyles } from '@/constants/theme'
+import { useApi } from '@/hooks/use-api'
+import { ResponseInterfaceAlt } from '@/interfaces/common-interfaces'
+import { UserInterface } from '@/interfaces/user-interfaces'
+import { useCallback, useEffect, useState } from 'react'
+import { ScrollView, StyleSheet, Text, View } from 'react-native'
 
 export default function SearchScreen() {
   const { get } = useApi()

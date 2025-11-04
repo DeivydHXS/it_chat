@@ -1,5 +1,5 @@
-import { Link } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import { Link } from 'expo-router'
+import React, { useRef, useState } from 'react'
 import {
   View,
   Text,
@@ -9,10 +9,10 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   Pressable,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+} from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get('window')
 
 const DATA = [
   {
@@ -30,23 +30,23 @@ Faça novos amigos.
 
 Se divirta.` },
   { key: '3', text: 'Faça login ou crie uma conta grátis.' },
-];
+]
 
 const WellcomeCarousel: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const flatListRef = useRef<FlatList>(null);
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const flatListRef = useRef<FlatList>(null)
 
   const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const index = Math.round(event.nativeEvent.contentOffset.x / width);
-    setCurrentIndex(index);
-  };
+    const index = Math.round(event.nativeEvent.contentOffset.x / width)
+    setCurrentIndex(index)
+  }
 
   const goToSlide = (index: number) => {
     if (index >= 0 && index < DATA.length) {
-      flatListRef.current?.scrollToIndex({ index, animated: true });
-      // setCurrentIndex(index);
+      flatListRef.current?.scrollToIndex({ index, animated: true })
+      // setCurrentIndex(index)
     }
-  };
+  }
 
   return (
     <View style={styles.container}>
@@ -125,8 +125,8 @@ const WellcomeCarousel: React.FC = () => {
         ))}
       </View>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -173,6 +173,6 @@ const styles = StyleSheet.create({
     padding: 10,
     zIndex: 1,
   },
-});
+})
 
-export default WellcomeCarousel;
+export default WellcomeCarousel
