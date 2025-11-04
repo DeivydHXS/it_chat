@@ -24,10 +24,12 @@ export default function SearchScreen() {
         onChange={text => {
           setSearch(text)
           doSearch()
-        }} />
+        }}
+        cleanFunction={() => {}}
+      />
 
       <ScrollView showsVerticalScrollIndicator={false}>
-          {users.map((f, i) => <SearchUserItem key={i} user={f} />)}
+        {users.map((f, i) => <SearchUserItem key={i} user={f} />)}
       </ScrollView>
     </View>
   )

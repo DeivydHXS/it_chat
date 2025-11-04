@@ -29,9 +29,21 @@ export default function GroupsScreen() {
     }
   }, [pathname])
 
+  const doSearch = useCallback(async () => {
+    const res = await get<{ data: { groups: ChatInterface[] } }>('/groups', { search })
+    setGroups(res.data.data.groups)
+  }, [setGroups, search])
+
+
   return (
     <View style={mainStyles.main_container}>
-      <SearchBar value={search} onChange={setSearch} />
+      <SearchBar value={search}
+        onChange={(text) => {
+          setSearch(text)
+          doSearch()
+        }}
+        cleanFunction={getGroups}
+      />
 
       {groups.length <= 0 ?
         <Text>Você não faz parte de nenhum grupo ainda.</Text> :

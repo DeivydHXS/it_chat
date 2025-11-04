@@ -44,7 +44,7 @@ export default class FriendService {
             .if(status, (q) => {
                 q.andWhere('friendships.status', status || '')
             })
-            .if(search && search.trim() !== '', (q) => {
+            .if(search, (q) => {
                 q.where((sub) => {
                     sub
                         .whereILike('users.name', `%${search}%`)

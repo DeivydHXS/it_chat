@@ -43,7 +43,6 @@ export default class Chat extends BaseModel {
   })
   declare users: ManyToMany<typeof User>
 
-
   @hasMany(() => Message, {
     foreignKey: 'chat_id',
   })

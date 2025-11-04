@@ -147,19 +147,26 @@ export default function FriendsScreen() {
   return (
     <>
       <View style={mainStyles.main_container}>
-        <SearchBar
-          value={search}
-          onChange={text => {
+        <SearchBar value={search}
+          onChange={(text) => {
             setSearch(text)
             doSearch()
+          }}
+          cleanFunction={() => {
+            if (tab === 'friends')
+              getFriends()
+            else if (tab === 'requests')
+              getRequests()
           }}
         />
 
         <TabSelector
           active={tab}
           onChange={tab => {
-            getFriends()
-            getRequests()
+            if (tab === 'friends')
+              getFriends()
+            else if (tab === 'requests')
+              getRequests()
             setTab(tab)
           }}
           requestsCount={0}

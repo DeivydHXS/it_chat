@@ -1,4 +1,4 @@
-import { View, TextInput, StyleSheet, Text, ScrollView } from 'react-native'
+import { View, TextInput, StyleSheet, Text, ScrollView, Pressable } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { Colors } from '@/constants/theme'
 
@@ -6,9 +6,10 @@ interface SearchBarProps {
   value: string
   onChange: (text: string) => void
   placeholder?: string
+  cleanFunction: () => void
 }
 
-export function SearchBar({ value, onChange, placeholder }: SearchBarProps) {
+export function SearchBar({ value, onChange, placeholder, cleanFunction }: SearchBarProps) {
   return (
     <View style={{
       width: '100%',
@@ -17,13 +18,21 @@ export function SearchBar({ value, onChange, placeholder }: SearchBarProps) {
       <View style={styles.container}>
         <Ionicons name="search" size={16} color={Colors.dark} />
         <TextInput
-        maxLength={42}
+          maxLength={42}
           autoCapitalize='none'
           placeholder={placeholder || 'Digite sua pesquisa'}
           value={value}
           onChangeText={onChange}
           style={styles.input}
         />
+
+        {value.length <= 0 ? "" :
+          <Pressable onPress={() => {
+            onChange('')
+            cleanFunction()
+          }}>
+            <Ionicons name="close" size={16} color={Colors.dark} />
+          </Pressable>}
       </View>
     </View>
   )

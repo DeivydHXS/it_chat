@@ -11,7 +11,6 @@ import path from 'path'
 import sharp from 'sharp'
 import { v4 } from 'uuid'
 import fs from 'fs'
-import { group } from 'console'
 
 @inject()
 export default class ChatsController {
@@ -19,15 +18,33 @@ export default class ChatsController {
         private chatService: ChatService
     ) { }
 
-    public async all({ response, auth }: HttpContext) {
+    public async all({ response, request, auth }: HttpContext) {
         try {
             const currentUser = await auth.authenticateUsing(['api'])
+            const search = request.input('search')
 
             const chats = await currentUser
                 .related('chats')
                 .query()
-                .preload('users')
                 .where('type', 'p')
+                .whereExists((subQuery) => {
+                    subQuery
+                        .from('friendships')
+                        .join('user_chats as uc1', 'uc1.user_id', 'friendships.send_by')
+                        .join('user_chats as uc2', 'uc2.user_id', 'friendships.send_to')
+                        .whereColumn('uc1.chat_id', 'chats.id')
+                        .whereColumn('uc2.chat_id', 'chats.id')
+                        .where('friendships.status', 'a')
+                })
+                .if(search, (q) => {
+                    q.whereHas('users', (sub) => {
+                        sub
+                            .whereILike('users.name', `%${search}%`)
+                            .orWhereILike('users.nickname', `%${search}%`)
+                            .orWhereILike('users.nickname_hash', `%${search}%`)
+                    })
+                })
+                .preload('users')
 
             for (const chat of chats) {
                 const lastMessage = await chat
@@ -57,14 +74,23 @@ export default class ChatsController {
         }
     }
 
-    public async allGroups({ response, params, auth }: HttpContext) {
+    public async allGroups({ response, request, auth }: HttpContext) {
         try {
             const currentUser = await auth.authenticateUsing(['api'])
+            const search = request.input('search')
+
             const groups = await currentUser
                 .related('chats')
                 .query()
                 .preload('users')
                 .where('type', 'g')
+                .if(search && search.trim() !== '', (q) => {
+                    q.where((sub) => {
+                        sub
+                            .whereILike('chats.name', `%${search}%`)
+                            .orWhereILike('chats.description', `%${search}%`)
+                    })
+                })
 
             return ResponseService.send(response, 200, 'Conversa.', { groups })
         } catch (err) {

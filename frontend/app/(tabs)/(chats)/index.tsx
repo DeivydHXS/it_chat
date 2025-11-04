@@ -67,28 +67,40 @@ export default function ChatsIndex() {
     return users.filter((u) => u.id !== user?.id)[0]
   }
 
+  const doSearch = useCallback(async () => {
+    const res = await get<{ data: { chats: ChatInterface[] } }>('/chats', { search: search })
+    setChats(res.data.data.chats)
+  }, [setChats, search])
+
   return (
     <View style={mainStyles.main_container}>
-      <SearchBar value={search} onChange={setSearch} />
-      { chats.length <= 0 ?
-          <Text>Você não tem nenhuma conversa ainda.</Text> :
-          <ScrollView style={{ height: '100%', width: '100%' }}>
-            {chats.map((chat, index) => (
-              <ChatItem
-                key={index}
-                user={excludeUser(chat.users)}
-                lastMessage={chat.last_message}
-                onPress={() =>
-                  router.push({
-                    pathname: `/(chats)/${chat.id}` as any,
-                    params: {
-                      friendJSON: JSON.stringify(excludeUser(chat.users)),
-                    },
-                  })
-                }
-              />
-            ))}
-          </ScrollView>
+      <SearchBar value={search}
+        onChange={(text) => {
+          setSearch(text)
+          doSearch()
+        }}
+        cleanFunction={getChats}
+      />
+
+      {chats.length <= 0 ?
+        <Text>Você não tem nenhuma conversa ainda.</Text> :
+        <ScrollView style={{ height: '100%', width: '100%' }}>
+          {chats.map((chat, index) => (
+            <ChatItem
+              key={index}
+              user={excludeUser(chat.users)}
+              lastMessage={chat.last_message}
+              onPress={() =>
+                router.push({
+                  pathname: `/(chats)/${chat.id}` as any,
+                  params: {
+                    friendJSON: JSON.stringify(excludeUser(chat.users)),
+                  },
+                })
+              }
+            />
+          ))}
+        </ScrollView>
       }
     </View>
   )
