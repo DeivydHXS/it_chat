@@ -54,7 +54,7 @@ export default class FriendService {
             })
             .orderBy('friendships.created_at', 'desc')
 
-            return users.map((u) => ({
+        return users.map((u) => ({
             ...u.serialize(),
             friendship_id: u.$extras.friendship_id,
             friendship_status: u.$extras.friendship_status,
@@ -78,8 +78,7 @@ export default class FriendService {
     }
 
     public async refuse(friendship: Friendship) {
-        friendship.status = FriendshipStatus.Refused
-        await friendship.save()
+        await friendship.delete()
     }
 
     public async block(friendship: Friendship, blocker_id: string) {

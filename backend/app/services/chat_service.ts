@@ -3,7 +3,6 @@ import Friendship from '#models/friendship'
 import User from '#models/user'
 import UserChats from '#models/user_chats'
 import db from '@adonisjs/lucid/services/db'
-import { Group } from '@japa/runner/core'
 import { v4 } from 'uuid'
 
 export default class ChatService {
@@ -11,10 +10,6 @@ export default class ChatService {
     const chat = await Chat.query()
       .where('id', id)
       .preload('users')
-      .preload('messages', (q) => {
-        q.preload('user')
-          .orderBy('created_at', 'asc')
-      })
       .first()
 
     if (!chat) {
@@ -57,10 +52,6 @@ export default class ChatService {
     const chat = await Chat.query()
       .where('id', id)
       .preload('users')
-      .preload('messages', (q) => {
-        q.preload('user')
-          .orderBy('created_at', 'asc')
-      })
       .first()
 
     if (!chat) {

@@ -6,7 +6,7 @@ import { useCallback, useContext, useRef, useState } from 'react'
 import { AuthContext } from '@/context/auth-context'
 import { ResponseInterface } from '@/interfaces/common-interfaces'
 import { ChatInterface } from '@/interfaces/chat-interfaces'
-import { ApiResponse, useApi } from '@/hooks/use-api'
+import { useApi } from '@/hooks/use-api'
 
 interface MemberItemProps {
     user: UserInterface
@@ -18,7 +18,6 @@ interface MemberItemProps {
 
 export function MemberItem(props: MemberItemProps) {
     const baseURL = process.env.EXPO_PUBLIC_API_URL
-    const { user } = useContext(AuthContext)
     const { post } = useApi()
 
     const [modalVisible, setModalVisible] = useState(false)

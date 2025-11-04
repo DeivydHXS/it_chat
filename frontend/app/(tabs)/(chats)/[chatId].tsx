@@ -23,6 +23,7 @@ import {
   Easing,
   Platform,
   Alert,
+  FlatList,
 } from 'react-native'
 
 export default function ChatScreen() {
@@ -30,30 +31,84 @@ export default function ChatScreen() {
   const baseURL = process.env.EXPO_PUBLIC_API_URL
   const { get, post, del } = useApi()
   const { chatId, friendJSON } = useLocalSearchParams()
-  const [friend, setFriend] = useState<UserInterface>()
-  const [chat, setChat] = useState<ChatInterface>()
   const translateY = useRef(new Animated.Value(0)).current
   const [inputValue, setInputValue] = useState('')
   const scrollViewRef = useRef<ScrollView>(null)
-  const viewRef = useRef<View>(null)
   const router = useRouter()
+  const flatListRef = useRef<FlatList>(null)
+
+  const [friend, setFriend] = useState<UserInterface>()
+  const [chat, setChat] = useState<ChatInterface>()
+  const [messages, setMessages] = useState<MessageInterface[]>()
+  const [page, setPage] = useState<number>(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [loading, setLoading] = useState(false)
+
+  const socket = SocketService.getInstance(user?.id || '')
 
   const getChat = useCallback(async () => {
     const res = await get<{ data: { chat: ChatInterface } }>(`/chats/${chatId}`)
     setChat(res.data.data.chat)
-    setTimeout(() => {
-      scrollViewRef.current?.scrollToEnd({ animated: true })
-    }, 300)
-
   }, [])
+
+  const loadMessages = useCallback(async () => {
+    if (loading || !hasMore) return
+    setLoading(true)
+
+    try {
+      const res = await get<{
+        data: {
+          data: MessageInterface[],
+          meta: {
+            total: number,
+            per_page: number,
+            current_page: number,
+            last_page: number
+          }
+        }
+      }>(`/messages/${chatId}?page=${page}&limit=10`)
+
+      if (!res || !res.data || !res.data.data) {
+        console.warn('Resposta inesperada da API:', res)
+        return
+      }
+
+      const data = res.data.data.data
+      const meta = res.data.data.meta
+
+      if (data.length === 0 || meta.current_page >= meta.last_page) {
+        setHasMore(false)
+        return
+      }
+
+      setMessages(prev => {
+        const existingIds = new Set(prev?.map(m => m.id))
+        const unique = data.filter(m => !existingIds.has(m.id))
+        return prev ? [...prev, ...unique] : unique
+      })
+      setPage(prev => prev + 1)
+
+    } catch (err: any) {
+      console.error('Erro ao carregar mensagens', err?.response?.data || err)
+    } finally {
+      setLoading(false)
+    }
+  }, [chatId, page, hasMore, loading])
 
   useFocusEffect(
     useCallback(() => {
       const f: UserInterface = JSON.parse(friendJSON as string)
       setFriend(f)
       getChat()
+      setPage(1)
+      setHasMore(true)
+      setMessages([])
+      setTimeout(() => {
+        loadMessages()
+      }, 100)
     }, [friendJSON])
   )
+
 
   useEffect(() => {
     const showSub = Keyboard.addListener(
@@ -86,14 +141,13 @@ export default function ChatScreen() {
     }
   }, [translateY])
 
-  const socket = SocketService.getInstance(user?.id || '')
 
   useEffect(() => {
     socket.connect()
     socket.joinChat(String(chatId))
 
     socket.onMessage((msg) => {
-      setChat(prev => prev ? { ...prev, messages: [...prev.messages, msg] } : prev)
+      setMessages(prev => prev ? [msg, ...prev] : prev)
     })
 
     return () => socket.disconnect()
@@ -109,16 +163,11 @@ export default function ChatScreen() {
     await post(`/messages/${chatId}`, { type: 'text', content: inputValue.trim() })
 
     scrollViewRef.current?.scrollToEnd()
-    // setChat(prev => prev ? { ...prev, messages: [...prev.messages, {
-    //   type: 'text',
-    //   content: inputValue,
-    //   user_id: user?.id
-    // } as MessageInterface] } : prev)
 
     setInputValue('')
   }, [inputValue, setInputValue])
 
-  const deleteMessage = useCallback(async (id: string, idx: number) => {
+  const deleteMessage = useCallback(async (id: string) => {
     const res = await del<ResponseInterface>(`/messages/${id}`)
     if (res.status > 299) {
       Alert.alert('Erro', res.data.message)
@@ -185,43 +234,34 @@ export default function ChatScreen() {
           paddingBottom: 8,
           height: 'auto',
           flex: 1,
-          minHeight: '80%'
+          minHeight: '80%',
         }]}>
-          <ScrollView
-            ref={scrollViewRef}
-            showsVerticalScrollIndicator={false}
+          <FlatList
             style={{
               width: '100%',
-            }}
-          >
-            {chat && chat.messages.length > 0 ? (
-              chat.messages.map((mes, idx) => {
-                return (
-                  <MessageItem
-                    key={mes.id}
-                    isMine={mes.user_id === user?.id}
-                    mes={mes}
-                    onDeleteMessage={() => {
-                      deleteMessage(mes.id, idx)
-                    }}
-                  />
-                )
-              })
 
-            ) : (
-              <View
-                style={{
-                  width: '100%',
-                  height: 40,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Text>Mande um 'oi' para seu amigo.</Text>
-              </View>
+            }}
+            showsVerticalScrollIndicator={false}
+            ref={flatListRef}
+            data={messages}
+            keyExtractor={(item) => item.id}
+            inverted
+            renderItem={({ item }) => (
+              <MessageItem
+                mes={item}
+                isMine={item.user_id === user?.id}
+                onDeleteMessage={() => deleteMessage(item.id)}
+              />
             )}
-            <View ref={viewRef}></View>
-          </ScrollView>
+            onEndReached={() => {
+              if (hasMore && !loading) loadMessages()
+            }}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={
+              loading ? <Text style={{ textAlign: 'center' }}>Carregando...</Text> : null
+            }
+          />
+
         </View>
 
         <View

@@ -24,7 +24,6 @@ export default function FriendsScreen() {
   const [requests, setRequests] = useState<UserInterface[]>([])
   const [friend, setFriend] = useState<UserInterface | undefined>(undefined)
   const [modal, setModal] = useState<ModalAction>('close')
-  const [context, setContext] = useState<string | undefined>(undefined)
   const pathname = usePathname()
 
   const getFriends = useCallback(async () => {
@@ -71,10 +70,6 @@ export default function FriendsScreen() {
   const handleOpenModal = useCallback((action: ModalAction = 'close', friend?: UserInterface) => {
     setFriend(friend)
     setModal(action)
-  }, [])
-
-  const handleOpenContext = useCallback((id?: string) => {
-    setContext(id)
   }, [])
 
   const modalInfo = useMemo(() => {
@@ -181,8 +176,6 @@ export default function FriendsScreen() {
                 block={() => handleOpenModal('block', f)}
                 unfriend={() => handleOpenModal('unfriend', f)}
                 unblock={() => handleOpenModal('unblock', f)}
-                context={context === f.id}
-                openContext={handleOpenContext}
               />
             ))
             : requests.map((r, i) => (

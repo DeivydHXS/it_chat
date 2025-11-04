@@ -5,19 +5,31 @@ import Ws from '#services/ws_service'
 import Chat from '#models/chat'
 
 export default class MessagesController {
-  public async index({ response, params }: HttpContext) {
+  public async index({ request, response, params }: HttpContext) {
     try {
       const { chatId } = params
+
+      const page = Number(request.input('page', 1))
+      const limit = Number(request.input('limit', 10))
+
+      if (isNaN(page) || isNaN(limit) || page < 1 || limit < 1) {
+        return ResponseService.send(response, 400, 'Parâmetros de paginação inválidos.', { errors: 'Parâmetros de paginação inválidos.'})
+      }
+      
       const messages = await Message.query()
         .where('chat_id', chatId)
         .preload('user')
-        .orderBy('created_at', 'asc')
+        .orderBy('created_at', 'desc')
+        .paginate(page, limit)
 
-        ResponseService.send(response, 200, 'Histórico de mensagens', { messages })
+      const result = messages.toJSON()
+
+      return ResponseService.send(response, 200, 'Histórico de mensagens', result)
     } catch (err) {
       ResponseService.error(response, err)
     }
   }
+
 
   public async store({ request, response, params, auth }: HttpContext) {
     try {

@@ -124,7 +124,7 @@ router
 
     router
       .group(() => {
-        router.get('', '#controllers/messages_controller.index')
+        router.get(':chatId', '#controllers/messages_controller.index')
         router.post(':chatId', '#controllers/messages_controller.store')
         router.delete(':messageId', '#controllers/messages_controller.delete')
       }).prefix('messages')
