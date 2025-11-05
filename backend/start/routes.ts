@@ -114,6 +114,8 @@ router
           .get('', '#controllers/chats_controller.all')
         router
           .get(':chatId', '#controllers/chats_controller.get')
+        router
+          .post(':chatId/read', '#controllers/chats_controller.markAsRead')
       })
       .prefix('chats')
       .use(

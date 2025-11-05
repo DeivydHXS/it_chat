@@ -12,6 +12,7 @@ export interface ChatInterface {
     users: UserInterface[]
     messages: MessageInterface[]
     last_message?: MessageInterface
+    unread_count?: number
     blocker_id?: string
     friendship_id?: string
     is_active?: boolean

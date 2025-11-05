@@ -3,6 +3,7 @@ import ResponseService from '#services/response_service'
 import Message from '#models/message'
 import Ws from '#services/ws_service'
 import Chat from '#models/chat'
+import db from '@adonisjs/lucid/services/db'
 
 export default class MessagesController {
   public async index({ request, response, params }: HttpContext) {
@@ -13,9 +14,9 @@ export default class MessagesController {
       const limit = Number(request.input('limit', 10))
 
       if (isNaN(page) || isNaN(limit) || page < 1 || limit < 1) {
-        return ResponseService.send(response, 400, 'Parâmetros de paginação inválidos.', { errors: 'Parâmetros de paginação inválidos.'})
+        return ResponseService.send(response, 400, 'Parâmetros de paginação inválidos.', { errors: 'Parâmetros de paginação inválidos.' })
       }
-      
+
       const messages = await Message.query()
         .where('chat_id', chatId)
         .preload('user')
@@ -29,7 +30,6 @@ export default class MessagesController {
       ResponseService.error(response, err)
     }
   }
-
 
   public async store({ request, response, params, auth }: HttpContext) {
     try {
@@ -56,6 +56,31 @@ export default class MessagesController {
       for (const user of chat.users) {
         Ws.io?.to(`user:${user.id}`).emit('new_message', { message: { ...message.serialize() } })
       }
+
+      const userChats = await db.from('user_chats').where('chat_id', chatId)
+      for (const uc of userChats) {
+        if (uc.user_id !== currentUser.id) {
+          const unreadCount = await db
+            .from('messages')
+            .where('chat_id', chatId)
+            .andWhere('user_id', '!=', uc.user_id)
+            .andWhere('created_at', '>', db.raw(`
+        COALESCE(
+          (SELECT created_at FROM messages WHERE id = ? LIMIT 1),
+          FROM_UNIXTIME(0)
+        )
+      `, [uc.last_read_message_id]))
+            .count('* as total')
+            .first()
+
+          Ws.io?.to(`user:${uc.user_id}`).emit('chat_unread_update', {
+            chat_id: chatId,
+            unread_count: unreadCount.total,
+          })
+        }
+      }
+
+
 
       ResponseService.send(response, 200, 'Mensagem enviada.', { message })
     } catch (err) {

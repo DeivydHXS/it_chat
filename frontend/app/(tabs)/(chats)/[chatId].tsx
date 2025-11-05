@@ -1,4 +1,3 @@
-import { CustomPressable } from '@/components/custom-pressable'
 import { MessageItem } from '@/components/message-item'
 import { Colors, mainStyles } from '@/constants/theme'
 import { AuthContext } from '@/context/auth-context'
@@ -8,8 +7,7 @@ import { ResponseInterface } from '@/interfaces/common-interfaces'
 import { UserInterface } from '@/interfaces/user-interfaces'
 import SocketService from '@/services/socket'
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
-import { Stack, useFocusEffect, useLocalSearchParams, usePathname, useRouter } from 'expo-router'
-import { navigate } from 'expo-router/build/global-state/routing'
+import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router'
 import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import {
   View,
@@ -95,6 +93,15 @@ export default function ChatScreen() {
     }
   }, [chatId, page, hasMore, loading])
 
+  const markAsRead = useCallback(async () => {
+    try {
+      if (!chatId) return
+      await post(`/chats/${chatId}/read`)
+    } catch (err) {
+      console.warn('Erro ao marcar mensagens como lidas', err)
+    }
+  }, [chatId])
+
   useFocusEffect(
     useCallback(() => {
       const f: UserInterface = JSON.parse(friendJSON as string)
@@ -103,12 +110,12 @@ export default function ChatScreen() {
       setPage(1)
       setHasMore(true)
       setMessages([])
+      markAsRead()
       setTimeout(() => {
         loadMessages()
       }, 100)
     }, [friendJSON])
   )
-
 
   useEffect(() => {
     const showSub = Keyboard.addListener(

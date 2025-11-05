@@ -1,5 +1,5 @@
 import Chat from '#models/chat'
-import { UserChatsPermissionTypes } from '#models/user_chats'
+import UserChats, { UserChatsPermissionTypes } from '#models/user_chats'
 import ChatService from '#services/chat_service'
 import ResponseService from '#services/response_service'
 import { createGroupValidator, updateGroupValidator } from '#validators/chat_validator'
@@ -11,6 +11,9 @@ import path from 'path'
 import sharp from 'sharp'
 import { v4 } from 'uuid'
 import fs from 'fs'
+import Message from '#models/message'
+import Ws from '#services/ws_service'
+import db from '@adonisjs/lucid/services/db'
 
 @inject()
 export default class ChatsController {
@@ -44,7 +47,32 @@ export default class ChatsController {
                             .orWhereILike('users.nickname_hash', `%${search}%`)
                     })
                 })
-                .preload('users')
+                .preload('users', (u) =>
+                    u.select(['id', 'name', 'nickname', 'nickname_hash', 'profile_image_url'])
+                )
+                .select('chats.*')
+                .select(
+                    db.raw(
+                        `
+                            (
+                            SELECT COUNT(*)
+                            FROM messages m
+                            WHERE m.chat_id = chats.id
+                                AND m.user_id != ?
+                                AND m.created_at > COALESCE(
+                                (
+                                    SELECT created_at
+                                    FROM messages
+                                    WHERE id = user_chats.last_read_message_id
+                                    LIMIT 1
+                                ),
+                                FROM_UNIXTIME(0)
+                                )
+                            ) AS unread_count
+                            `,
+                        [currentUser.id]
+                    )
+                )
 
             for (const chat of chats) {
                 const lastMessage = await chat
@@ -58,19 +86,38 @@ export default class ChatsController {
             const serializedChats = chats
                 .map((chat) => {
                     const s = chat.serialize()
+
                     const lastMessage = s.messages?.[0] || null
                     delete s.messages
-                    return { ...s, last_message: lastMessage }
+
+                    return {
+                        ...s,
+                        unread_count: chat.$extras?.unread_count || 0,
+                        last_message: lastMessage,
+                    }
                 })
                 .sort((a, b) => {
                     if (!a.last_message) return 1
                     if (!b.last_message) return -1
-                    return new Date(b.last_message.createdAt).getTime() - new Date(a.last_message.createdAt).getTime()
+                    return (
+                        new Date(b.last_message.created_at).getTime() -
+                        new Date(a.last_message.created_at).getTime()
+                    )
                 })
 
-            return ResponseService.send(response, 200, 'Lista de conversas.', { chats: serializedChats })
+            // 🔢 Soma total de não lidas
+            const unreadTotal = serializedChats.reduce(
+                (acc, chat) => acc + chat.unread_count,
+                0
+            )
+
+            return ResponseService.send(response, 200, 'Lista de conversas.', {
+                chats: serializedChats,
+                unread_total: unreadTotal,
+            })
         } catch (err) {
-            ResponseService.error(response, err)
+            console.error(err)
+            return ResponseService.error(response, err)
         }
     }
 
@@ -419,5 +466,64 @@ export default class ChatsController {
             console.error(err)
             return ResponseService.error(response, err)
         }
+    }
+
+    public async markAsRead({ auth, params, request, response }: HttpContext) {
+        try {
+            const currentUser = await auth.authenticateUsing(['api'])
+            const chatId = params.chatId || request.input('chatId')
+
+            const userChat = await UserChats.query()
+                .where('user_id', currentUser.id)
+                .andWhere('chat_id', chatId)
+                .first()
+
+            if (!userChat) {
+                return ResponseService.send(response, 404, 'Usuário não pertence a este chat.')
+            }
+
+            const lastMessage = await Message.query()
+                .where('chat_id', chatId)
+                .orderBy('created_at', 'desc')
+                .first()
+
+            if (lastMessage) {
+                userChat.lastReadMessageId = lastMessage.id
+                await userChat.save()
+            }
+
+            return ResponseService.send(response, 200, 'Mensagens marcadas como lidas.')
+        } catch (err) {
+            console.error(err)
+            return ResponseService.error(response, err)
+        }
+    }
+
+    public async countUnread({ auth }: HttpContext) {
+        const user = await auth.authenticate()
+
+        const result = await Chat.query()
+            .select('chats.id')
+            .join('user_chats', 'user_chats.chat_id', 'chats.id')
+            .where('user_chats.user_id', user.id)
+            .select(
+                db.raw(`
+          (
+            select count(*)
+            from messages m
+            where m.chat_id = chats.id
+            and m.created_at >
+              (
+                select created_at
+                from messages
+                where id = user_chats.last_read_message_id
+              )
+          ) as unread_count
+        `)
+            )
+
+        const unreadTotal = result.reduce((acc, chat) => acc + (chat.$extras.unread_count || 0), 0)
+
+        return { unread: unreadTotal }
     }
 }

@@ -6,12 +6,15 @@ const SOCKET_URL = process.env.EXPO_PUBLIC_API_URL
 interface ServerToClientEvents {
   message: (data: MessageInterface) => void
   new_message: (data: MessageInterface) => void
+  friend_requests_update: (data: { total: number }) => void
+  messages_unread_update: (data: { total: number; chatId: string }) => void
 }
 
 interface ClientToServerEvents {
   join_chat: (chatId: string) => void
   join_user: (userId: string) => void
   send_message: (data: { chatId: string; text: string }) => void
+  mark_messages_as_read: (data: { chatId: string }) => void
 }
 
 class SocketService {
@@ -29,7 +32,10 @@ class SocketService {
   }
 
   public static getInstance(userId: string): SocketService {
-    if (!SocketService.instance) {
+    if (!SocketService.instance || SocketService.instance.userId !== userId) {
+      if (SocketService.instance) {
+        SocketService.instance.disconnect()
+      }
       SocketService.instance = new SocketService(userId)
     }
     return SocketService.instance
@@ -40,7 +46,6 @@ class SocketService {
       this.socket.connect()
 
       this.socket.on('connect', () => {
-        // console.log('[Socket] Conectado ao servidor')
         this.joinUser(this.userId)
       })
     }
@@ -49,18 +54,15 @@ class SocketService {
   disconnect() {
     if (this.socket.connected) {
       this.socket.disconnect()
-      // console.log('[Socket] Desconectado do servidor')
     }
   }
 
   joinChat(chatId: string) {
     this.socket.emit('join_chat', chatId)
-    // console.log(`[Socket] Entrou na sala chat:${chatId}`)
   }
 
   joinUser(userId: string) {
     this.socket.emit('join_user', userId)
-    // console.log(`[Socket] Entrou na sala user:${userId}`)
   }
 
   async sendMessage(chatId: string, text: string) {
@@ -68,6 +70,10 @@ class SocketService {
       this.socket.emit('send_message', { chatId, text })
       resolve(true)
     })
+  }
+
+  markMessagesAsRead(chatId: string) {
+    this.socket.emit('mark_messages_as_read', { chatId })
   }
 
   onMessage(callback: (...args: Parameters<ServerToClientEvents['message']>) => void) {
@@ -84,6 +90,26 @@ class SocketService {
 
   offNewMessage(callback: (...args: Parameters<ServerToClientEvents['new_message']>) => void) {
     this.socket.off('new_message', callback)
+  }
+
+  onFriendRequestsUpdate(
+    callback: (...args: Parameters<ServerToClientEvents['friend_requests_update']>) => void
+  ) {
+    this.socket.on('friend_requests_update', callback)
+  }
+
+  offFriendRequestsUpdate(
+    callback: (...args: Parameters<ServerToClientEvents['friend_requests_update']>) => void
+  ) {
+    this.socket.off('friend_requests_update', callback)
+  }
+
+  onMessagesUnreadUpdate(callback: (data: { chatId: string; total: number }) => void) {
+    this.socket?.on('messages_unread_update', callback)
+  }
+
+  offMessagesUnreadUpdate(callback: (data: any) => void) {
+    this.socket?.off('messages_unread_update', callback)
   }
 
   getSocket() {

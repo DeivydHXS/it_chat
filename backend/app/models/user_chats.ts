@@ -23,6 +23,9 @@ export default class UserChats extends BaseModel {
   declare userId: string
 
   @column()
+  declare lastReadMessageId: string
+
+  @column()
   declare chatId: string
 
   @column()

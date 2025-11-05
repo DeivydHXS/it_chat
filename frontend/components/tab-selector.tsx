@@ -27,7 +27,9 @@ export function TabSelector({ active, onChange, requestsCount }: TabSelectorProp
           </Text>
           {requestsCount ?
             <View style={styles.badge}>
-              <Text>{requestsCount}</Text>
+              <Text style={{
+                color: Colors.light,
+              }}>{requestsCount}</Text>
             </View> : ''}
         </View>
       </TouchableOpacity>
@@ -59,9 +61,12 @@ const styles = StyleSheet.create({
   },
   badge: {
     backgroundColor: Colors.red,
-    color: Colors.light,
     fontWeight: 'condensedBold',
     borderRadius: 100,
-    padding: 2
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 16
   },
 })

@@ -4,13 +4,14 @@ import { FriendRequestItem } from '@/components/friend-item-request'
 import { SearchBar } from '@/components/search-bar'
 import { TabSelector } from '@/components/tab-selector'
 import { Colors, mainStyles } from '@/constants/theme'
+import { AuthContext } from '@/context/auth-context'
 import { useApi } from '@/hooks/use-api'
 import { ResponseInterface, ResponseInterfaceAlt } from '@/interfaces/common-interfaces'
 import { UserInterface } from '@/interfaces/user-interfaces'
 import { Ionicons } from '@expo/vector-icons'
 import { usePathname } from 'expo-router'
 import { navigate } from 'expo-router/build/global-state/routing'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 
 type ModalAction = 'close' | 'block' | 'unfriend' | 'unblock'
@@ -164,7 +165,7 @@ export default function FriendsScreen() {
               getRequests()
             setTab(tab)
           }}
-          requestsCount={0}
+          requestsCount={requests.length}
         />
 
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -178,14 +179,16 @@ export default function FriendsScreen() {
                 unblock={() => handleOpenModal('unblock', f)}
               />
             ))
-            : requests.map((r, i) => (
-              <FriendRequestItem
-                key={i}
-                user={r}
-                onAccept={() => accept(r.friendship_id as string)}
-                onReject={() => refuse(r.friendship_id as string)}
-              />
-            ))}
+            : requests.map((r, i) => {
+              return (
+                <FriendRequestItem
+                  key={i}
+                  user={r}
+                  onAccept={() => accept(r.friendship_id as string)}
+                  onReject={() => refuse(r.friendship_id as string)}
+                />
+              )
+            })}
         </ScrollView>
 
         <View

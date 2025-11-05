@@ -43,6 +43,9 @@ export default class FriendService {
             })
             .if(status, (q) => {
                 q.andWhere('friendships.status', status || '')
+                if (status === 'p') {
+                    q.andWhere('friendships.send_to', user.id)
+                }
             })
             .if(search, (q) => {
                 q.where((sub) => {
@@ -60,7 +63,12 @@ export default class FriendService {
             friendship_status: u.$extras.friendship_status,
             friendship_blocker_id: u.$extras.friendship_blocker_id,
             chat_id: u.$extras.chat_id,
-        }))
+        })) as (User & {
+            friendship_id: string,
+            friendship_status: string,
+            friendship_blocker_id: string,
+            chat_id: string,
+        })[]
     }
 
     public async send_solicitation(currentUser: User, friendId: string) {

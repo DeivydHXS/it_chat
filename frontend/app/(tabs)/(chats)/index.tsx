@@ -20,15 +20,26 @@ export default function ChatsIndex() {
   const pathname = usePathname()
 
   const getChats = useCallback(async () => {
-    const res = await get<{ data: { chats: ChatInterface[] } }>('/chats')
-    setChats(res.data.data.chats)
-  }, [])
+    try {
+      const res = await get<{ data: { chats: ChatInterface[] } }>('/chats')
+      if (!res?.data?.data?.chats) {
+        console.warn('Resposta inesperada de /chats:', res)
+        setChats([])
+        return
+      }
+      setChats(res.data.data.chats)
+    } catch (err: any) {
+      console.error('Erro ao buscar chats:', err?.response?.data || err)
+      setChats([])
+    }
+  }, [get])
 
   useEffect(() => {
+    if (!user?.id) return
     if (pathname === '/') {
       getChats()
     }
-  }, [pathname])
+  }, [pathname, getChats])
 
   useEffect(() => {
     if (!user?.id) return
@@ -36,29 +47,48 @@ export default function ChatsIndex() {
     const socket = SocketService.getInstance(user.id)
     socket.connect()
 
+    // ⚡ Atualizar última mensagem recebida
     const handleNewMessage = (message: any) => {
       setChats((prevChats) => {
         const updated = [...prevChats]
         const chatIndex = updated.findIndex((c) => c.id === message.chat_id)
 
         if (chatIndex !== -1) {
+          const chat = updated[chatIndex]
           updated[chatIndex] = {
-            ...updated[chatIndex],
+            ...chat,
             last_message: message,
+            unread_count:
+              message.user_id !== user.id
+                ? (chat.unread_count || 0) + 1
+                : chat.unread_count,
           }
 
-          const [chat] = updated.splice(chatIndex, 1)
-          return [chat, ...updated]
+          // mover o chat pro topo
+          const [newTop] = updated.splice(chatIndex, 1)
+          return [newTop, ...updated]
         }
 
         return prevChats
       })
     }
 
+    // 🟡 Atualizar contador de mensagens não lidas
+    const handleUnreadUpdate = ({ chatId, total }: { chatId: string; total: number }) => {
+      setChats((prevChats) =>
+        prevChats.map((chat) =>
+          chat.id === chatId ? { ...chat, unread_count: total } : chat
+        )
+      )
+    }
+
+    // Registrar listeners
     socket.onMessage(handleNewMessage)
+    socket.onMessagesUnreadUpdate(handleUnreadUpdate)
 
     return () => {
       socket.offMessage(handleNewMessage)
+      socket.offMessagesUnreadUpdate(handleUnreadUpdate)
       socket.disconnect()
     }
   }, [user?.id])
@@ -68,13 +98,14 @@ export default function ChatsIndex() {
   }
 
   const doSearch = useCallback(async () => {
-    const res = await get<{ data: { chats: ChatInterface[] } }>('/chats', { search: search })
+    const res = await get<{ data: { chats: ChatInterface[] } }>('/chats', { search })
     setChats(res.data.data.chats)
-  }, [setChats, search])
+  }, [search, get])
 
   return (
     <View style={mainStyles.main_container}>
-      <SearchBar value={search}
+      <SearchBar
+        value={search}
         onChange={(text) => {
           setSearch(text)
           doSearch()
@@ -82,12 +113,15 @@ export default function ChatsIndex() {
         cleanFunction={getChats}
       />
 
-      {chats.length <= 0 ?
-        <Text>Você não tem nenhuma conversa ainda.</Text> :
+      {chats.length <= 0 ? (
+        <Text>Você não tem nenhuma conversa ainda.</Text>
+      ) : (
         <ScrollView style={{ height: '100%', width: '100%' }}>
           {chats.map((chat, index) => (
             <ChatItem
               key={index}
+              chatId={chat.id}
+              unread_count={chat.unread_count}
               user={excludeUser(chat.users)}
               lastMessage={chat.last_message}
               onPress={() =>
@@ -101,7 +135,7 @@ export default function ChatsIndex() {
             />
           ))}
         </ScrollView>
-      }
+      )}
     </View>
   )
 }
