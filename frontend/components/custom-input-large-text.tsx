@@ -15,6 +15,10 @@ export function CustomInputLargeText(props: CustomInputLargeTextProps) {
     props.onChangeText && props.onChangeText(text)
   }
 
+  useEffect(() => {
+    handleChangeText(props.value || '')
+  }, [props.value])
+
   return (
     <View style={styles.container}>
       <TextInput
@@ -80,7 +84,7 @@ export const styles = StyleSheet.create({
     bottom: -6,
     fontSize: 12,
     color: Colors.gray3,
-    backgroundColor: Colors.light, 
+    backgroundColor: Colors.light,
     paddingHorizontal: 3,
   },
 })

@@ -183,6 +183,7 @@ export default class ChatsController {
                 const outputPath = path.join(app.makePath('storage/icon_images'), fileName)
 
                 await sharp(payload.icon_image.tmpPath!)
+                    .rotate()
                     .toFormat('webp', { quality: 80 })
                     .toFile(outputPath)
 
@@ -194,6 +195,7 @@ export default class ChatsController {
                 const outputPath = path.join(app.makePath('storage/cover_images'), fileName)
 
                 await sharp(payload.cover_image.tmpPath!)
+                    .rotate()
                     .toFormat('webp', { quality: 80 })
                     .toFile(outputPath)
 
@@ -233,6 +235,7 @@ export default class ChatsController {
                 const outputPath = path.join(app.makePath('storage/icon_images'), fileName)
 
                 await sharp(payload.icon_image.tmpPath!)
+                    .rotate()
                     .toFormat('webp', { quality: 80 })
                     .toFile(outputPath)
 
@@ -259,6 +262,7 @@ export default class ChatsController {
                 const outputPath = path.join(app.makePath('storage/cover_images'), fileName)
 
                 await sharp(payload.cover_image.tmpPath!)
+                    .rotate()
                     .toFormat('webp', { quality: 80 })
                     .toFile(outputPath)
 

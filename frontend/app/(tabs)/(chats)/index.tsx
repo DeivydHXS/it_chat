@@ -47,7 +47,6 @@ export default function ChatsIndex() {
     const socket = SocketService.getInstance(user.id)
     socket.connect()
 
-    // ⚡ Atualizar última mensagem recebida
     const handleNewMessage = (message: any) => {
       setChats((prevChats) => {
         const updated = [...prevChats]
@@ -64,7 +63,6 @@ export default function ChatsIndex() {
                 : chat.unread_count,
           }
 
-          // mover o chat pro topo
           const [newTop] = updated.splice(chatIndex, 1)
           return [newTop, ...updated]
         }
@@ -73,7 +71,6 @@ export default function ChatsIndex() {
       })
     }
 
-    // 🟡 Atualizar contador de mensagens não lidas
     const handleUnreadUpdate = ({ chatId, total }: { chatId: string; total: number }) => {
       setChats((prevChats) =>
         prevChats.map((chat) =>
@@ -82,7 +79,6 @@ export default function ChatsIndex() {
       )
     }
 
-    // Registrar listeners
     socket.onMessage(handleNewMessage)
     socket.onMessagesUnreadUpdate(handleUnreadUpdate)
 

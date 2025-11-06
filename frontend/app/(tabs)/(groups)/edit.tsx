@@ -38,6 +38,20 @@ export default function EditScreen() {
     getGroup()
   }, [])
 
+  const [form, setForm] = useState<ChatUpdateErrors>({
+    name: group?.name || '',
+    description: group?.description || '',
+  })
+
+  useEffect(() => {
+    setForm({
+      name: group?.name,
+      description: group?.description
+    })
+    setIconImageUrl(group?.icon_image_url || null)
+    setCoverImageUrl(group?.cover_image_url || null)
+  }, [group])
+
   const pickIconImage = async () => {
     setLoad(true)
     try {
@@ -77,20 +91,6 @@ export default function EditScreen() {
       }, 500)
     }
   }
-
-  const [form, setForm] = useState<ChatUpdateErrors>({
-    name: group?.name || '',
-    description: group?.description || '',
-  })
-
-  useEffect(() => {
-    setForm({
-      name: group?.name,
-      description: group?.description
-    })
-    setIconImageUrl(group?.icon_image_url || null)
-    setCoverImageUrl(group?.cover_image_url || null)
-  }, [group])
 
   const handleDeleteIconImage = useCallback(async () => {
     setIconImageUrl(null)
@@ -351,7 +351,6 @@ export default function EditScreen() {
                 </View>
               </View>
 
-
               <CustomInputText
                 error={errors?.name}
                 placeholder='Digite um nome'
@@ -387,7 +386,7 @@ export default function EditScreen() {
 
               <View style={{
                 height: 64
-              }}/>
+              }} />
             </>
           }
         </View>

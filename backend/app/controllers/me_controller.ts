@@ -42,7 +42,8 @@ export default class MeController {
                 const outputPath = path.join(app.makePath('storage/profile_images'), fileName)
 
                 await sharp(payload.profile_image.tmpPath!)
-                    .toFormat('webp', { quality: 80 })
+                    .rotate()
+                    .toFormat('webp', { quality: 80, })
                     .toFile(outputPath)
 
                 profileImageUrl = `/uploads/profile_images/${fileName}`

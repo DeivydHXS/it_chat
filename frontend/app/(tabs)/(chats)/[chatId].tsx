@@ -179,12 +179,12 @@ export default function ChatScreen() {
     if (res.status > 299) {
       Alert.alert('Erro', res.data.message)
     }
-    setChat(prev =>
+    setMessages(prev =>
       prev
-        ? { ...prev, messages: prev.messages.filter(m => m.id !== id) }
+        ? prev.filter(m => m.id !== id)
         : prev
     )
-  }, [setChat])
+  }, [setMessages])
 
   return (
     <>
@@ -268,7 +268,6 @@ export default function ChatScreen() {
               loading ? <Text style={{ textAlign: 'center' }}>Carregando...</Text> : null
             }
           />
-
         </View>
 
         <View

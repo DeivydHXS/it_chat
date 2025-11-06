@@ -21,7 +21,10 @@ export function ChatItem({ chatId, user, onPress, lastMessage, unread_count = 0 
 
     const formatMessage = (message?: string) => {
         if (!message) return ''
-        return message.replace(/(\r\n|\n|\r)/g, ' ').trim().slice(0, 25).concat('...')
+        if (message.length > 25)
+            return message.replace(/(\r\n|\n|\r)/g, ' ').trim().slice(0, 25).concat('...')
+
+        return message.replace(/(\r\n|\n|\r)/g, ' ').trim()
     }
 
     useEffect(() => {

@@ -1,5 +1,5 @@
 import { Colors } from "@/constants/theme"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { StyleSheet, Text, TextInput, TextInputProps, View } from "react-native"
 
 interface CustomInputTextProps extends TextInputProps {
@@ -14,6 +14,10 @@ export function CustomInputText(props: CustomInputTextProps) {
     setLength(text.length)
     props.onChangeText && props.onChangeText(text)
   }
+
+  useEffect(() => {
+    handleChangeText(props.value || '')
+  }, [props.value])
 
   return (
     <View style={styles.container}>

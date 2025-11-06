@@ -3,12 +3,12 @@ import { MessageItem } from '@/components/message-item'
 import { Colors, mainStyles } from '@/constants/theme'
 import { AuthContext } from '@/context/auth-context'
 import { useApi } from '@/hooks/use-api'
-import { ChatInterface } from '@/interfaces/chat-interfaces'
+import { ChatInterface, MessageInterface } from '@/interfaces/chat-interfaces'
 import { ResponseInterface } from '@/interfaces/common-interfaces'
 import { UserInterface } from '@/interfaces/user-interfaces'
 import SocketService from '@/services/socket'
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
+import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router'
 import { navigate } from 'expo-router/build/global-state/routing'
 import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import {
@@ -23,6 +23,7 @@ import {
   Easing,
   Platform,
   Alert,
+  FlatList,
 } from 'react-native'
 
 export default function GroupScreen() {
@@ -31,6 +32,12 @@ export default function GroupScreen() {
   const { get, post, del } = useApi()
   const { groupId } = useLocalSearchParams()
   const [group, setGroup] = useState<ChatInterface>()
+  const [messages, setMessages] = useState<MessageInterface[]>()
+  const [page, setPage] = useState<number>(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const flatListRef = useRef<FlatList>(null)
+
   const translateY = useRef(new Animated.Value(0)).current
   const [inputValue, setInputValue] = useState('')
   const scrollViewRef = useRef<ScrollView>(null)
@@ -40,15 +47,73 @@ export default function GroupScreen() {
   const getGroup = useCallback(async () => {
     const res = await get<{ data: { group: ChatInterface } }>(`/groups/${groupId}`)
     setGroup(res.data.data.group)
-    setTimeout(() => {
-      scrollViewRef.current?.scrollToEnd({ animated: true })
-    }, 300)
-
   }, [])
 
-  useEffect(() => {
-    getGroup()
-  }, [])
+  const loadMessages = useCallback(async () => {
+    if (loading || !hasMore) return
+    setLoading(true)
+
+    try {
+      const res = await get<{
+        data: {
+          data: MessageInterface[],
+          meta: {
+            total: number,
+            per_page: number,
+            current_page: number,
+            last_page: number
+          }
+        }
+      }>(`/messages/${groupId}?page=${page}&limit=10`)
+
+      if (!res || !res.data || !res.data.data) {
+        console.warn('Resposta inesperada da API:', res)
+        return
+      }
+
+      const data = res.data.data.data
+      const meta = res.data.data.meta
+
+      if (data.length === 0 || meta.current_page >= meta.last_page) {
+        setHasMore(false)
+        return
+      }
+
+      setMessages(prev => {
+        const existingIds = new Set(prev?.map(m => m.id))
+        const unique = data.filter(m => !existingIds.has(m.id))
+        return prev ? [...prev, ...unique] : unique
+      })
+      setPage(prev => prev + 1)
+
+    } catch (err: any) {
+      console.error('Erro ao carregar mensagens', err?.response?.data || err)
+    } finally {
+      setLoading(false)
+    }
+  }, [groupId, page, hasMore, loading])
+
+  const markAsRead = useCallback(async () => {
+    try {
+      if (!groupId) return
+      await post(`/chats/${groupId}/read`)
+    } catch (err) {
+      console.warn('Erro ao marcar mensagens como lidas', err)
+    }
+  }, [groupId])
+
+  useFocusEffect(
+    useCallback(() => {
+      getGroup()
+      setPage(1)
+      setHasMore(true)
+      setMessages([])
+      markAsRead()
+      setTimeout(() => {
+        loadMessages()
+      }, 100)
+    }, [])
+  )
 
   useEffect(() => {
     const showSub = Keyboard.addListener(
@@ -88,7 +153,7 @@ export default function GroupScreen() {
     socket.joinChat(String(groupId))
 
     socket.onMessage((msg) => {
-      setGroup(prev => prev ? { ...prev, messages: [...prev.messages, msg] } : prev)
+      setMessages(prev => prev ? [msg, ...prev] : prev)
     })
 
     return () => socket.disconnect()
@@ -96,23 +161,28 @@ export default function GroupScreen() {
 
   const handleSend = async () => {
     Keyboard.dismiss()
-    if (!inputValue.trim()) return
+    if (!inputValue.trim()) {
+      setInputValue('')
+      return
+    }
+
     await post(`/messages/${groupId}`, { type: 'text', content: inputValue })
     scrollViewRef.current?.scrollToEnd()
+
     setInputValue('')
   }
 
-  const deleteMessage = useCallback(async (id: string, idx: number) => {
+  const deleteMessage = useCallback(async (id: string) => {
     const res = await del<ResponseInterface>(`/messages/${id}`)
     if (res.status > 299) {
       Alert.alert('Erro', res.data.message)
     }
-    setGroup(prev =>
+    setMessages(prev =>
       prev
-        ? { ...prev, messages: prev.messages.filter(m => m.id !== id) }
+        ? prev.filter(m => m.id !== id)
         : prev
     )
-  }, [setGroup])
+  }, [setMessages])
 
   return (
     <>
@@ -168,43 +238,33 @@ export default function GroupScreen() {
           paddingBottom: 8,
           height: 'auto',
           flex: 1,
-          minHeight: '80%'
+          minHeight: '80%',
         }]}>
-          <ScrollView
-            ref={scrollViewRef}
-            showsVerticalScrollIndicator={false}
+          <FlatList
             style={{
               width: '100%',
-            }}
-          >
-            {group && group.messages.length > 0 ? (
-              group.messages.map((mes, idx) => {
-                return (
-                  <MessageItem
-                    key={mes.id}
-                    isMine={mes.user_id === user?.id}
-                    mes={mes}
-                    onDeleteMessage={() => {
-                      deleteMessage(mes.id, idx)
-                    }}
-                  />
-                )
-              })
 
-            ) : (
-              <View
-                style={{
-                  width: '100%',
-                  height: 40,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Text>Mande um 'oi' para seu amigo.</Text>
-              </View>
+            }}
+            showsVerticalScrollIndicator={false}
+            ref={flatListRef}
+            data={messages}
+            keyExtractor={(item) => item.id}
+            inverted
+            renderItem={({ item }) => (
+              <MessageItem
+                mes={item}
+                isMine={item.user_id === user?.id}
+                onDeleteMessage={() => deleteMessage(item.id)}
+              />
             )}
-            <View ref={viewRef}></View>
-          </ScrollView>
+            onEndReached={() => {
+              if (hasMore && !loading) loadMessages()
+            }}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={
+              loading ? <Text style={{ textAlign: 'center' }}>Carregando...</Text> : null
+            }
+          />
         </View>
 
         <View
