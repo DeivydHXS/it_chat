@@ -105,7 +105,6 @@ export default class ChatsController {
                     )
                 })
 
-            // 🔢 Soma total de não lidas
             const unreadTotal = serializedChats.reduce(
                 (acc, chat) => acc + chat.unread_count,
                 0
@@ -147,7 +146,6 @@ export default class ChatsController {
 
     public async get({ response, request, params, auth }: HttpContext) {
         try {
-            const currentUser = await auth.authenticateUsing(['api'])
             const chatId = params.chatId || request.input('chatId')
 
             const chat = await this.chatService.get(chatId)
@@ -164,6 +162,11 @@ export default class ChatsController {
             const chatId = params.chatId || request.input('chatId')
 
             const group = await this.chatService.getGroup(chatId)
+
+            if (!group.users.some(u => u.id === currentUser.id)) {
+                return ResponseService.send(response, 403, 'Requisição inválida.', { group: "Você não tem permissão para visualizar este grupo privado." })
+            }
+
 
             return ResponseService.send(response, 200, 'Grupo.', { group })
         } catch (err) {
@@ -204,7 +207,7 @@ export default class ChatsController {
 
             const group = await this.chatService.createGroupChat(currentUser.id, { name: payload.name, description: payload.description, icon_image_url: iconImageUrl, cover_image_url: coverImageUrl })
 
-            return ResponseService.send(response, 200, 'Conversa.', { group })
+            return ResponseService.send(response, 200, 'Grupo criado com sucesso!', { group })
         } catch (err) {
             ResponseService.error(response, err)
         }
@@ -218,10 +221,14 @@ export default class ChatsController {
             var iconImageUrl: string | undefined
             var coverImageUrl: string | undefined
 
-            const oldGroup = await Chat.query().where('id', groupId).first()
+            const oldGroup = await Chat.query().where('id', groupId).preload('users').first()
 
             if (!oldGroup) {
                 return ResponseService.send(response, 404, 'Grupo não encontrado.')
+            }
+
+            if (!oldGroup.users.some(u => u.id === currentUser.id)) {
+                return ResponseService.send(response, 403, 'Requisição inválida.', { group: "Você não tem permissão para atualizar o grupo." })
             }
 
             if (payload.icon_image) {
@@ -280,7 +287,7 @@ export default class ChatsController {
 
             const group = await this.chatService.updateGroupChat(oldGroup, { name: payload.name, description: payload.description, icon_image_url: iconImageUrl, cover_image_url: coverImageUrl })
 
-            return ResponseService.send(response, 200, 'Conversa.', { group })
+            return ResponseService.send(response, 200, 'Grupo atualizado com sucesso!', { group })
         } catch (err) {
             ResponseService.error(response, err)
         }
@@ -302,6 +309,24 @@ export default class ChatsController {
                 return ResponseService.send(response, 400, 'Esse chat não é um grupo.')
             }
 
+            const friendships = await currentUser.getFriends()
+
+            const friendsIds = friendships
+                .filter(f => f.status === 'a')
+                .map(f => (f.send_by === currentUser.id ? f.send_to : f.send_by))
+
+            const allAreFriends = ids.every(id => friendsIds.includes(id))
+
+            if (!allAreFriends) {
+                return ResponseService.send(
+                    response,
+                    403,
+                    'Requisição inválida.',
+                    { group: 'Apenas amigos podem ser adicionados ao grupo.' }
+                )
+            }
+
+
             const members = await group.related('users').query()
             const existingIds = members.map(u => u.id)
             const newIds = ids.filter((id) => !existingIds.includes(id))
@@ -315,7 +340,7 @@ export default class ChatsController {
 
             return ResponseService.send(response, 200, 'Membro(s) adicionado(s).', { added: newIds })
         } catch (err) {
-            console.log(err)
+            // console.log(err)
             ResponseService.error(response, err)
         }
     }
@@ -336,7 +361,7 @@ export default class ChatsController {
                 return ResponseService.send(response, 400, 'Esse chat não é um grupo.')
             }
 
-            const admin = await group
+            const isAdmin = await group
                 .related('users')
                 .query()
                 .where('users.id', currentUser.id)
@@ -346,8 +371,18 @@ export default class ChatsController {
                 })
                 .first()
 
-            if (!admin) {
-                return ResponseService.send(response, 403, 'Apenas administradores podem remover membros.')
+            if (!isAdmin) {
+                return ResponseService.send(response, 403, 'Apenas administradores podem remover membros.', {})
+            }
+
+            const creator = await group
+                .related('users')
+                .query()
+                .where('user_chats.permission_type', 'a')
+                .first()
+
+            if (memberId === creator!.id) {
+                return ResponseService.send(response, 403, 'Requisição inválida.', { group: "Co-administradores não têm permissão para remover administradores do grupo." })
             }
 
             const member = await group.related('users').query().where('users.id', memberId).first()
@@ -357,9 +392,8 @@ export default class ChatsController {
 
             await group.related('users').detach([memberId])
 
-            return ResponseService.send(response, 200, 'Membro(s) adicionado(s).')
+            return ResponseService.send(response, 200, 'Membro removido do grupo com sucesso!')
         } catch (err) {
-            console.log(err)
             ResponseService.error(response, err)
         }
     }
@@ -422,7 +456,7 @@ export default class ChatsController {
 
             return ResponseService.send(response, 200, 'Saiu do grupo.')
         } catch (err) {
-            console.log(err)
+            // console.log(err)
             ResponseService.error(response, err)
         }
     }
@@ -454,7 +488,17 @@ export default class ChatsController {
                 .first()
 
             if (!admin) {
-                return ResponseService.send(response, 403, 'Apenas administradores podem alterar permissões.')
+                return ResponseService.send(response, 403, 'Apenas administradores podem alterar permissões.', {})
+            }
+
+            const creator = await group
+                .related('users')
+                .query()
+                .where('user_chats.permission_type', 'a')
+                .first()
+
+            if (memberId === creator!.id) {
+                return ResponseService.send(response, 403, 'Requisição inválida.', { group: "Você não tem permissão para efetuar essa ação." })
             }
 
             if (!Object.values(UserChatsPermissionTypes).includes(permissionType)) {
@@ -498,7 +542,7 @@ export default class ChatsController {
 
             return ResponseService.send(response, 200, 'Mensagens marcadas como lidas.')
         } catch (err) {
-            console.error(err)
+            // console.error(err)
             return ResponseService.error(response, err)
         }
     }

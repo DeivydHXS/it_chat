@@ -9,11 +9,11 @@ export const createGroupValidator = vine.compile(
     description: vine.string().trim().maxLength(200).optional(),
     icon_image: vine.file({
       size: '20mb',
-      extnames: ['jpg', 'png', 'jpeg']
+      extnames: ['jpg', 'png', 'jpeg', 'webp']
     }).optional(),
     cover_image: vine.file({
       size: '20mb',
-      extnames: ['jpg', 'png', 'jpeg']
+      extnames: ['jpg', 'png', 'jpeg', 'webp']
     }).optional()
   })
 )
@@ -27,11 +27,11 @@ export const updateGroupValidator = vine.compile(
     description: vine.string().trim().maxLength(200).optional(),
     icon_image: vine.file({
       size: '20mb',
-      extnames: ['jpg', 'png', 'jpeg']
+      extnames: ['jpg', 'png', 'jpeg', 'webp']
     }).optional(),
     cover_image: vine.file({
       size: '20mb',
-      extnames: ['jpg', 'png', 'jpeg']
+      extnames: ['jpg', 'png', 'jpeg', 'webp']
     }).optional(),
     remove_icon: vine.boolean().optional(),
     remove_cover: vine.boolean().optional()
