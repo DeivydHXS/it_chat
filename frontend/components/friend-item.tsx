@@ -1,10 +1,12 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, Pressable } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, Pressable, Modal, Animated } from 'react-native'
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { Colors } from '@/constants/theme'
 import { UserInterface } from '@/interfaces/user-interfaces'
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'expo-router'
-import { ConfirmationModal } from './confirmation-modal'
+import { Dimensions } from 'react-native'
+
+const windowHeight = Dimensions.get('window').height
 
 interface FriendItemProps {
     user: UserInterface
@@ -15,95 +17,94 @@ interface FriendItemProps {
 
 export function FriendItem({ user, block, unfriend, unblock }: FriendItemProps) {
     const baseURL = process.env.EXPO_PUBLIC_API_URL
-    const [open, setOpen] = useState<boolean>(false)
     const router = useRouter()
 
-    return (
-        <View style={styles.container}>
-            <View style={styles.left}>
-                <View style={styles.profile_image}>
-                    {user?.profile_image_url ?
-                        <Image
-                            source={{ uri: baseURL + user?.profile_image_url }}
-                            style={{ width: 40, height: 40 }}
-                        /> :
-                        <MaterialIcons name="person" size={50} color={'#B4DBFF'} style={{ right: 5 }} />
-                    }
-                </View>
-                <Text style={styles.name}>{user.name}</Text>
-            </View>
+    const [modalVisible, setModalVisible] = useState(false)
+    const slideAnim = useRef(new Animated.Value(0)).current
 
-            <View style={[styles.right, { position: 'relative' }]}>
-                <TouchableOpacity
-                    onPress={() =>
-                        user.friendship_status === 'b' ?
-                            {} :
-                            router.push({
-                                pathname: `/(chats)/${user?.chat_id}` as any,
-                                params: {
-                                    friendJSON: JSON.stringify(user)
-                                }
-                            })}
-                    disabled={user.friendship_status === 'b'} style={[styles.btn, { backgroundColor: user.friendship_status === 'b' ? Colors.gray3 : Colors.red }]}>
-                    <Ionicons name={user.friendship_status === 'b' ? "lock-closed" : "chatbubble"} size={20} color={Colors.light} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setOpen(!open)} style={styles.btn}>
-                    <Ionicons name="ellipsis-vertical" size={18} color={Colors.dark} />
-                </TouchableOpacity>
-                {open &&
-                    <View
-                        onBlur={() => setOpen(false)}
-                        style={{
-                            borderRadius: 16,
-                            backgroundColor: Colors.light,
-                            minWidth: 140,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            position: 'absolute',
-                            top: 0,
-                            right: 36,
-                            borderColor: Colors.dark,
-                            borderWidth: 1,
-                            zIndex: 10
-                        }}>
-                        <View style={{
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: '100%',
-                            padding: 8,
-                            borderColor: Colors.dark,
-                            borderBottomWidth: 1,
-                        }}>
-                            <Pressable style={{ width: '100%' }} onPress={() => { }} >
-                                <Text style={{ textAlign: 'center', fontWeight: 'condensed', color: Colors.dark }}>{user.friendship_status === 'b' ? 'Desbloquear' : 'Silenciar amigo'}</Text>
-                            </Pressable>
-                        </View>
-                        <View style={{
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: '100%',
-                            padding: 8,
-                            borderColor: Colors.dark,
-                            borderBottomWidth: 1,
-                        }}>
-                            <Pressable style={{ width: '100%' }} onPress={() => user.friendship_status === 'b' ? unblock(user.friendship_id as string) : block(user.friendship_id as string)} >
-                                <Text style={{ textAlign: 'center', fontWeight: 'condensed', color: Colors.dark }}>{user.friendship_status === 'b' ? 'Desbloquear' : 'Bloquear amigo'}</Text>
-                            </Pressable>
-                        </View>
-                        <View style={{
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: '100%',
-                            padding: 8
-                        }}>
-                            <Pressable style={{ width: '100%' }} onPress={() => unfriend(user.friendship_id as string)} >
-                                <Text style={{ textAlign: 'center', fontWeight: 'condensed', color: Colors.dark }}>Excluir amigo</Text>
-                            </Pressable>
-                        </View>
+    const openModal = useCallback(() => {
+        setModalVisible(true)
+        Animated.timing(slideAnim, {
+            toValue: 1,
+            duration: 200,
+            useNativeDriver: true,
+        }).start()
+    }, [])
+
+    const closeModal = () => {
+        Animated.timing(slideAnim, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+        }).start(() => setModalVisible(false))
+    }
+
+    const translateY = slideAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: [300, 0],
+    })
+
+    return (
+        <>
+            <View style={styles.container}>
+                <View style={styles.left}>
+                    <View style={styles.profile_image}>
+                        {user?.profile_image_url ?
+                            <Image
+                                source={{ uri: baseURL + user?.profile_image_url }}
+                                style={{ width: 40, height: 40 }}
+                            /> :
+                            <MaterialIcons name="person" size={50} color={'#B4DBFF'} style={{ right: 5 }} />
+                        }
                     </View>
-                }
-            </View>
-        </View >
+                    <Text style={styles.name}>{user.name}</Text>
+                </View>
+
+                <View style={[styles.right, { position: 'relative' }]}>
+                    <TouchableOpacity
+                        onPress={() =>
+                            user.friendship_status === 'b' ?
+                                {} :
+                                router.push({
+                                    pathname: `/(chats)/${user?.chat_id}` as any,
+                                    params: {
+                                        friendJSON: JSON.stringify(user)
+                                    }
+                                })}
+                        disabled={user.friendship_status === 'b'} style={[styles.btn, { backgroundColor: user.friendship_status === 'b' ? Colors.gray3 : Colors.red }]}>
+                        <Ionicons name={user.friendship_status === 'b' ? "lock-closed" : "chatbubble"} size={20} color={Colors.light} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={openModal} style={styles.btn}>
+                        <Ionicons name="ellipsis-vertical" size={18} color={Colors.dark} />
+                    </TouchableOpacity>
+                </View>
+            </View >
+            <Modal
+                transparent
+                visible={modalVisible}
+                animationType="none"
+                onRequestClose={closeModal}
+            >
+                <Pressable style={styles.overlay} onPress={closeModal}>
+                    <Animated.View
+                        style={[
+                            styles.bottomSheet,
+                            { transform: [{ translateY }] },
+                        ]}
+                    >
+                        <View style={styles.handle} />
+                        <TouchableOpacity style={styles.option} onPress={() => user.friendship_status === 'b' ? unblock(user.friendship_id as string) : block(user.friendship_id as string)}>
+                            <MaterialIcons name={user.friendship_status === 'b' ? 'remove-moderator' : 'add-moderator'} size={22} color={Colors.dark} />
+                            <Text style={styles.optionText}>{user.friendship_status === 'b' ? 'Desbloquear' : 'Bloquear amigo'}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.option} onPress={() => unfriend(user.friendship_id as string)}>
+                            <MaterialIcons name="person-remove-alt-1" size={22} color={Colors.dark} />
+                            <Text style={styles.optionText}>Excluir amigo</Text>
+                        </TouchableOpacity>
+                    </Animated.View>
+                </Pressable>
+            </Modal>
+        </>
     )
 }
 
@@ -157,5 +158,36 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         overflow: 'hidden',
         marginRight: 16
+    },
+    bottomSheet: {
+        backgroundColor: Colors.light2,
+        borderTopLeftRadius: 16,
+        borderTopRightRadius: 16,
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        elevation: 8,
+    },
+    handle: {
+        alignSelf: 'center',
+        width: 40,
+        height: 4,
+        borderRadius: 2,
+        backgroundColor: Colors.gray4,
+        marginBottom: 12,
+    },
+    option: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 14,
+    },
+    optionText: {
+        marginLeft: 10,
+        fontSize: 16,
+        color: Colors.dark,
+    },
+    overlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.2)',
+        justifyContent: 'flex-end',
     },
 })

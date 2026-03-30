@@ -114,6 +114,8 @@ router
           .get('', '#controllers/chats_controller.all')
         router
           .get(':chatId', '#controllers/chats_controller.get')
+        router
+          .post(':chatId/read', '#controllers/chats_controller.markAsRead')
       })
       .prefix('chats')
       .use(
@@ -124,7 +126,7 @@ router
 
     router
       .group(() => {
-        router.get('', '#controllers/messages_controller.index')
+        router.get(':chatId', '#controllers/messages_controller.index')
         router.post(':chatId', '#controllers/messages_controller.store')
         router.delete(':messageId', '#controllers/messages_controller.delete')
       }).prefix('messages')
@@ -137,21 +139,27 @@ router
     router
       .group(() => {
         router
-          .get('', '#controllers/chats_controller.all')
+          .get('', '#controllers/chats_controller.allGroups')
         router
           .post('', '#controllers/chats_controller.store')
         router
           .group(() => {
             router
-              .get('', '#controllers/chats_controller.get')
+              .get('', '#controllers/chats_controller.getGroup')
             router
               .post('', '#controllers/chats_controller.update')
             router
               .delete('', '#controllers/chats_controller.delete')
             router
-              .post('add_member', '#controllers/chats_controller.add_member')
+              .post('add-members', '#controllers/chats_controller.addMembers')
+            router
+              .post('change-permission', '#controllers/chats_controller.changePermission')
+            router
+              .post('remove-member', '#controllers/chats_controller.removeMember')
+            router
+              .post('exit', '#controllers/chats_controller.exit')
           })
-          .prefix(':id')
+          .prefix(':chatId')
       })
       .prefix('groups')
       .use(

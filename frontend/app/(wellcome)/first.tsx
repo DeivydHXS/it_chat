@@ -1,20 +1,14 @@
-import { StyleSheet, Text, View, Image, Animated, Pressable, Alert } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { StyleSheet, Text, View, Image, Animated, Pressable, Alert } from 'react-native'
+import { LinearGradient } from 'expo-linear-gradient'
 
-import icon_img from '../../assets/images/logo-it.png';
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import SlideUpCarousel from '@/components/slide-up-carousel';
-import { LoginInterface } from '@/interfaces/common-interfaces';
-import { useApi } from '@/hooks/use-api';
-import { AuthContext } from '@/context/auth-context';
-import { router } from 'expo-router';
-import { StorageService } from '@/services/storageService';
-import { navigate } from 'expo-router/build/global-state/routing';
+import icon_img from '../../assets/images/logo-it.png'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import SlideUpCarousel from '@/components/slide-up-carousel'
+import { StorageService } from '@/services/storageService'
+import { navigate } from 'expo-router/build/global-state/routing'
 
 export default function WellcomeScreen() {
-  const [ative, setAtive] = useState<boolean>(false)
-  const translateY = useRef(new Animated.Value(0)).current;
-
+  const translateY = useRef(new Animated.Value(0)).current
   const [first, setFirst] = useState<boolean | null>(null)
 
   const setStorageFirst = useCallback(async () => {
@@ -41,17 +35,13 @@ export default function WellcomeScreen() {
     }
   }, [first, setStorageFirst, navigate])
 
-
   const active = () => {
-    setAtive(true)
     Animated.timing(translateY, {
       toValue: -100,
       duration: 500,
       useNativeDriver: true,
-    }).start();
-  };
-
-
+    }).start()
+  }
 
   return (
     <View>
@@ -84,7 +74,7 @@ export default function WellcomeScreen() {
         <SlideUpCarousel handleAtive={active} />
       </View>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -122,4 +112,4 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200
   }
-});
+})

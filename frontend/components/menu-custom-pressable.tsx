@@ -1,7 +1,6 @@
-import { Colors } from "@/constants/theme";
-import { Ionicons } from "@expo/vector-icons";
-import { Link, RelativePathString } from "expo-router";
-import { Pressable, PressableProps, StyleSheet, Text, View } from "react-native";
+import { Colors } from "@/constants/theme"
+import { Ionicons } from "@expo/vector-icons"
+import { Pressable, PressableProps, StyleSheet, Text, View } from "react-native"
 
 
 interface MenuCustomPressableProps extends PressableProps {

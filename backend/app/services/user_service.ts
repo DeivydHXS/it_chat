@@ -17,7 +17,12 @@ export default class UserService {
     }
 
     public async search(search: string, user_id: string) {
+        if (!search) {
+            return []
+        }
+        
         const users = await User.query()
+            .preload('friendships')
             .if(search, (query) => {
                 query.where((q) => {
                     q.whereILike('name', `%${search}%`)
@@ -26,6 +31,15 @@ export default class UserService {
                 })
             })
             .whereNot('id', user_id)
+            .andWhere('status', 'a')
+            .whereNotIn('id', (subquery) => {
+                subquery
+                    .from('friendships')
+                    .where('send_by', user_id)
+                    .orWhere('send_to', user_id)
+                    .select('send_by')
+                    .unionAll((q) => q.select('send_to').from('friendships').where('send_by', user_id))
+            })
             .orderBy('created_at', 'desc')
 
         return users
@@ -49,13 +63,13 @@ export default class UserService {
             //         .subject('Código de verificação')
             //         .text(`${verification_code}`)
             // })
-            console.log(verification_code)
+            console.log(user.email, ' : ', verification_code)
         }
 
         return UserService.formatUserResponse(user)
     }
 
-    public async update(user: User, { profile_image, ...payload }: { name?: string, nickname?: string, bio?: string, profile_image_url?: string, profile_image?: any, }, trx?: TransactionClientContract) {
+    public async update(user: User, payload: Partial<User>, trx?: TransactionClientContract) {
         if (payload) {
             if (!payload.profile_image_url) {
                 user.merge({
@@ -83,16 +97,13 @@ export default class UserService {
 
     public async verifyAccount(email: string, code: number) {
         const user = await User.findBy('email', email)
-
         if (user?.verification_code !== code) {
-            throw { errors: { error: 'Erro ao verificar e-mail, tente novamente mais tarde.' } }
+            throw new Error('Erro ao verificar e-mail, tente novamente mais tarde.')
         }
 
         user.status = 'a'
         user.verification_code = null
         user.save()
-
-        return true
     }
 
     public async sendPasswordRecoverCode(email: string) {
@@ -108,7 +119,7 @@ export default class UserService {
             //         .subject('Código de verificação')
             //         .text(`${verification_code}`)
             // })
-            console.log(verification_code)
+            console.log(user.email, ' : ', verification_code)
 
             return
         }

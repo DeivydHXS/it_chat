@@ -1,6 +1,6 @@
-import { Colors } from "@/constants/theme";
-import { Link, RelativePathString } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import { Colors } from "@/constants/theme"
+import { Link, RelativePathString } from "expo-router"
+import { StyleSheet, Text, View } from "react-native"
 
 
 interface CustomLinkProps {

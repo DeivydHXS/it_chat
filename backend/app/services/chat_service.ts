@@ -1,15 +1,15 @@
 import Chat from '#models/chat'
 import Friendship from '#models/friendship'
 import User from '#models/user'
+import UserChats from '#models/user_chats'
+import db from '@adonisjs/lucid/services/db'
+import { v4 } from 'uuid'
 
 export default class ChatService {
   public async get(id: string) {
     const chat = await Chat.query()
       .where('id', id)
       .preload('users')
-      .preload('messages', (q) => {
-        q.orderBy('created_at', 'asc')
-      })
       .first()
 
     if (!chat) {
@@ -28,12 +28,49 @@ export default class ChatService {
       })
       .first()
 
+    var is_active: boolean = true
+
+    if (!friendship) {
+      is_active = false
+    }
+
+    if (friendship?.blocker_id) {
+      is_active = false
+    }
+
     const result = {
       ...chat.serialize(),
-      blocker_id: friendship?.blocker_id
+      blocker_id: friendship?.blocker_id,
+      friendship_id: friendship?.id,
+      is_active,
     }
 
     return result
+  }
+
+  public async getGroup(id: string) {
+    const chat = await Chat.query()
+      .where('id', id)
+      .preload('users')
+      .first()
+
+    if (!chat) {
+      throw new Error('Chat não encontrado')
+    }
+
+    const admins = await db
+      .from('user_chats')
+      .where('chat_id', chat.id)
+      .where('permission_type', 'a')
+
+    return {
+      ...chat.serialize(),
+      admins,
+      is_active: true
+    } as Chat & {
+      admins: UserChats[],
+      is_active: boolean
+    }
   }
 
   public async createPrivateChat(user1Id: string, user2Id: string) {
@@ -54,17 +91,40 @@ export default class ChatService {
     return chat
   }
 
-  public async createGroupChat(userIds: string[], name: string, description?: string) {
-    const chat = await Chat.create({
+  public async createGroupChat(
+    ownerId: string,
+    payload: Partial<Chat>) {
+    const group = await Chat.create({
+      ...payload,
       type: 'g',
-      name,
-      description: description || null,
     })
 
-    await chat.related('users').attach(userIds)
-    await chat.load('users')
+    await group.related('users').attach({
+      [ownerId]: {
+        id: v4(),
+        permission_type: 'a'
+      }
+    })
+    // await group.load('users')
 
-    return chat
+    return group
+  }
+
+  public async updateGroupChat(group: Chat, payload: Partial<Chat>) {
+    if (!payload) {
+      return group
+    }
+    console.log(payload)
+    group.merge({
+      icon_image_url: payload.icon_image_url ?? group.icon_image_url,
+      cover_image_url: payload.cover_image_url ?? group.cover_image_url,
+      name: payload.name ?? group.name,
+      description: payload.description ?? group.description,
+    })
+
+    await group.save()
+
+    return group
   }
 
   public async listForUser(userId: string) {

@@ -1,5 +1,5 @@
-import { Colors } from "@/constants/theme";
-import { StyleSheet, Text, View } from "react-native";
+import { Colors } from "@/constants/theme"
+import { StyleSheet, Text, View } from "react-native"
 
 
 interface InfoSectionProps {

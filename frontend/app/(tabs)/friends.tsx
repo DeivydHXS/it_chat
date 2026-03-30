@@ -4,12 +4,14 @@ import { FriendRequestItem } from '@/components/friend-item-request'
 import { SearchBar } from '@/components/search-bar'
 import { TabSelector } from '@/components/tab-selector'
 import { Colors, mainStyles } from '@/constants/theme'
+import { AuthContext } from '@/context/auth-context'
 import { useApi } from '@/hooks/use-api'
 import { ResponseInterface, ResponseInterfaceAlt } from '@/interfaces/common-interfaces'
 import { UserInterface } from '@/interfaces/user-interfaces'
 import { Ionicons } from '@expo/vector-icons'
+import { usePathname } from 'expo-router'
 import { navigate } from 'expo-router/build/global-state/routing'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 
 type ModalAction = 'close' | 'block' | 'unfriend' | 'unblock'
@@ -23,21 +25,25 @@ export default function FriendsScreen() {
   const [requests, setRequests] = useState<UserInterface[]>([])
   const [friend, setFriend] = useState<UserInterface | undefined>(undefined)
   const [modal, setModal] = useState<ModalAction>('close')
+  const pathname = usePathname()
 
   const getFriends = useCallback(async () => {
-    const res = await get<ResponseInterfaceAlt<'friends', UserInterface[]>>('/friends/accepted')
+    const res = await get<ResponseInterfaceAlt<'friends', UserInterface[]>>('/friends', { tab: 'friends' })
     setFriends(res.data.data?.friends || [])
   }, [setFriends])
 
   const getRequests = useCallback(async () => {
-    const res = await get<ResponseInterfaceAlt<'solicitations', UserInterface[]>>('/friends/pending')
-    setRequests(res.data.data?.solicitations || [])
+    const res = await get<ResponseInterfaceAlt<'friends', UserInterface[]>>('/friends', { tab: 'requests' })
+    setRequests(res.data.data?.friends || [])
   }, [setRequests])
 
   useEffect(() => {
-    getFriends()
-    getRequests()
-  }, [])
+    if (pathname === '/friends') {
+      getFriends()
+      getRequests()
+      setSearch('')
+    }
+  }, [pathname])
 
   const doSearch = useCallback(async () => {
     const res = await get<ResponseInterfaceAlt<'friends', UserInterface[]>>('/friends', { search, tab })
@@ -137,22 +143,29 @@ export default function FriendsScreen() {
   return (
     <>
       <View style={mainStyles.main_container}>
-        <SearchBar
-          value={search}
-          onChange={text => {
+        <SearchBar value={search}
+          onChange={(text) => {
             setSearch(text)
             doSearch()
+          }}
+          cleanFunction={() => {
+            if (tab === 'friends')
+              getFriends()
+            else if (tab === 'requests')
+              getRequests()
           }}
         />
 
         <TabSelector
           active={tab}
           onChange={tab => {
-            getFriends()
-            getRequests()
+            if (tab === 'friends')
+              getFriends()
+            else if (tab === 'requests')
+              getRequests()
             setTab(tab)
           }}
-          requestsCount={0}
+          requestsCount={requests.length}
         />
 
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -166,14 +179,16 @@ export default function FriendsScreen() {
                 unblock={() => handleOpenModal('unblock', f)}
               />
             ))
-            : requests.map((r, i) => (
-              <FriendRequestItem
-                key={i}
-                user={r}
-                onAccept={() => accept(r.friendship_id as string)}
-                onReject={() => refuse(r.friendship_id as string)}
-              />
-            ))}
+            : requests.map((r, i) => {
+              return (
+                <FriendRequestItem
+                  key={i}
+                  user={r}
+                  onAccept={() => accept(r.friendship_id as string)}
+                  onReject={() => refuse(r.friendship_id as string)}
+                />
+              )
+            })}
         </ScrollView>
 
         <View

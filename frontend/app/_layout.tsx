@@ -1,12 +1,12 @@
-import { AuthProvider } from '@/context/auth-context';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { AuthProvider } from '@/context/auth-context'
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native'
+import { Stack } from 'expo-router'
+import { StatusBar } from 'expo-status-bar'
+import 'react-native-reanimated'
 
 export const unstable_settings = {
   anchor: '(wellcome)',
-};
+}
 
 export default function RootLayout() {
   return (
@@ -19,5 +19,5 @@ export default function RootLayout() {
         <StatusBar style="auto" />
       </AuthProvider>
     </ThemeProvider>
-  );
+  )
 }

@@ -1,6 +1,6 @@
-import { Colors } from "@/constants/theme";
-import { useCallback, useEffect, useState } from "react";
-import { StyleSheet, Text, TextInput, TextInputProps, View } from "react-native";
+import { Colors } from "@/constants/theme"
+import { useCallback, useEffect, useState } from "react"
+import { StyleSheet, Text, TextInput, TextInputProps, View } from "react-native"
 
 interface CustomInputNumberProps extends TextInputProps {
   error?: string
@@ -27,7 +27,7 @@ export function CustomInputNumber(props: CustomInputNumberProps) {
       />
       {props.error && <Text style={styles.error}>{props.error}</Text>}
     </View>
-  );
+  )
 }
 
 export const styles = StyleSheet.create({
@@ -62,4 +62,4 @@ export const styles = StyleSheet.create({
     color: 'red',
     fontSize: 12
   }
-});
+})

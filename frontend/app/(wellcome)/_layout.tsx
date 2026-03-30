@@ -1,10 +1,10 @@
-import { Colors } from '@/constants/theme';
-import { TokenInterface } from '@/interfaces/user-interfaces';
-import { StorageService } from '@/services/storageService';
-import { Ionicons } from '@expo/vector-icons';
-import { Stack } from 'expo-router';
-import { goBack, navigate } from 'expo-router/build/global-state/routing';
-import { useCallback, useEffect, useState } from 'react';
+import { Colors } from '@/constants/theme'
+import { TokenInterface } from '@/interfaces/user-interfaces'
+import { StorageService } from '@/services/storageService'
+import { Ionicons } from '@expo/vector-icons'
+import { Stack } from 'expo-router'
+import { goBack, navigate } from 'expo-router/build/global-state/routing'
+import { useCallback, useEffect, useState } from 'react'
 
 export default function WellcomeLayout() {
   const [alreadyVisit, setAlreadyVisit] = useState<TokenInterface | null>()
@@ -61,5 +61,5 @@ export default function WellcomeLayout() {
         ),
       }} />
     </Stack>
-  );
+  )
 }

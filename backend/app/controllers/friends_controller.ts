@@ -1,6 +1,7 @@
 import Chat from '#models/chat'
 import Friendship, { FriendshipStatus } from '#models/friendship'
 import User from '#models/user'
+import UserChats from '#models/user_chats'
 import ChatService from '#services/chat_service'
 import FriendService from '#services/friend_service'
 import ResponseService from '#services/response_service'
@@ -47,32 +48,31 @@ export default class FriendsController {
             const search = request.input('search')
             const tab = request.input('tab')
 
-            const friends = await this.friendService.search(currentUser.id as string, search, tab === 'friends' ? 'a' : 'p')
-            ResponseService.send(response, 200, 'Busca de usuário.', { friends })
-        } catch (err) {
-            ResponseService.error(response, err)
-        }
-    }
+            var options = {}
 
-    public async accepted({ response, auth }: HttpContext) {
-        try {
-            const currentUser = await auth.authenticateUsing(['api'])
+            if (tab === 'requests') {
+                options = {
+                    search,
+                    status: 'p'
+                }
+                const friends = await this.friendService.list(currentUser, options)
 
-            const friends = await this.friendService.accepted(currentUser)
+                ResponseService.send(response, 200, 'Busca de usuário.', { friends })
+                return
+            }
 
-            ResponseService.send(response, 200, 'Lista de amigos.', { friends })
-        } catch (err) {
-            ResponseService.error(response, err)
-        }
-    }
+            options = {
+                search,
+                status: 'a'
+            }
+            const friends = await this.friendService.list(currentUser, options)
+            options = {
+                search,
+                status: 'b'
+            }
+            const blockeds = await this.friendService.list(currentUser, options)
 
-    public async pending({ response, auth }: HttpContext) {
-        try {
-            const currentUser = await auth.authenticateUsing(['api'])
-
-            const solicitations = await this.friendService.pending(currentUser)
-
-            ResponseService.send(response, 200, 'Lista de solicitações pendentes.', { solicitations })
+            ResponseService.send(response, 200, 'Busca de usuário.', { friends: [...friends, ...blockeds] })
         } catch (err) {
             ResponseService.error(response, err)
         }
@@ -130,15 +130,15 @@ export default class FriendsController {
         try {
             const currentUser = await auth.authenticate()
             const friendshipId = params.friendship_id
-
+            
             const friendship = await Friendship.find(friendshipId)
-
+            
             if (!friendship) {
                 return ResponseService.send(response, 404, 'Requisição inválida.', {
                     friendship: 'Não existe solicitação de amizade pendente para este usuário.'
                 })
             }
-
+            
             if (friendship.send_to !== currentUser.id as string) {
                 return ResponseService.send(response, 403, 'Requisição inválida.', {
                     friendship: 'Você não é o destinatário desta solicitação de amizade.'
@@ -153,18 +153,35 @@ export default class FriendsController {
 
             await this.friendService.accept(friendship)
 
-            const friendshipChat = await Chat.create({ type: 'p' })
-
-            const friend = await User.find(friendship.send_by)
-
-            if (friend) {
-                await currentUser.related('chats').attach({
-                    [friendshipChat.id]: { id: v4(), permission_type: 'm' }
+            const existingChat = await Chat.query()
+                .where('type', 'p')
+                .whereExists((subQuery) => {
+                    subQuery
+                        .from('user_chats as uc1')
+                        .join('user_chats as uc2', 'uc1.chat_id', 'uc2.chat_id')
+                        .whereRaw('uc1.user_id = ?', [currentUser.id])
+                        .whereRaw('uc2.user_id = ?', [friendship.send_by])
                 })
+                .first()
 
-                await friend.related('chats').attach({
-                    [friendshipChat.id]: { id: v4(), permission_type: 'm' }
-                })
+            let chat: Chat
+
+            if (existingChat) {
+                chat = existingChat
+            } else {
+                const friendshipChat = await Chat.create({ type: 'p' })
+
+                const friend = await User.find(friendship.send_by)
+
+                if (friend) {
+                    await currentUser.related('chats').attach({
+                        [friendshipChat.id]: { id: v4(), permission_type: 'm' }
+                    })
+
+                    await friend.related('chats').attach({
+                        [friendshipChat.id]: { id: v4(), permission_type: 'm' }
+                    })
+                }
             }
 
             return ResponseService.send(response, 200, 'Solicitação de amizade aceita com sucesso!', {

@@ -66,11 +66,11 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column({ serializeAs: null })
   declare status: string
 
-  @column.dateTime({ autoCreate: true, serializeAs: 'created_at' })
+  @column.dateTime({ serializeAs: 'created_at', autoCreate: true })
   declare createdAt: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true, serializeAs: 'updated_at' })
-  declare updatedAt: DateTime | null
+  @column.dateTime({ serializeAs: 'updated_at', autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
 
   static accessTokens = DbAccessTokensProvider.forModel(User, {
     expiresIn: '30d',
@@ -91,6 +91,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @manyToMany(() => Chat, {
     pivotTable: 'user_chats',
+    pivotColumns: ['permission_type', 'created_at', 'updated_at'],
   })
   declare chats: ManyToMany<typeof Chat>
 

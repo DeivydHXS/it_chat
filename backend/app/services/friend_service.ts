@@ -4,13 +4,27 @@ import db from "@adonisjs/lucid/services/db";
 import { v4 } from "uuid";
 
 export default class FriendService {
-    public async search(userId: string, search?: string, status?: string) {
+
+    public async list(user: User, options?: {
+        search?: string
+        status?: string
+    }) {
+        const { search, status } = options || {}
         const users = await User.query()
             .select(
                 'users.*',
                 'friendships.id as friendship_id',
                 'friendships.status as friendship_status',
-                'friendships.blocker_id as friendship_blocker_id'
+                'friendships.blocker_id as friendship_blocker_id',
+                db.raw(`
+          (
+            select uc1.chat_id
+            from user_chats uc1
+            join user_chats uc2 on uc1.chat_id = uc2.chat_id
+            where uc1.user_id = ? and uc2.user_id = users.id
+            limit 1
+          ) as chat_id
+        `, [user.id])
             )
             .innerJoin('friendships', (join) => {
                 join.on((q) => {
@@ -19,17 +33,21 @@ export default class FriendService {
                 })
             })
             .where((q) => {
-                q.where('friendships.send_by', userId).orWhere('friendships.send_to', userId)
+                q.where('friendships.send_by', user.id)
+                    .orWhere('friendships.send_to', user.id)
             })
-            .andWhereNot('users.id', userId)
+            .andWhereNot('users.id', user.id)
             .andWhere((q) => {
                 q.whereNull('friendships.blocker_id')
-                    .orWhere('friendships.blocker_id', userId)
+                    .orWhere('friendships.blocker_id', user.id)
             })
             .if(status, (q) => {
-                q.andWhere('friendships.status', status as string)
+                q.andWhere('friendships.status', status || '')
+                if (status === 'p') {
+                    q.andWhere('friendships.send_to', user.id)
+                }
             })
-            .if(search && search.trim() !== '', (q) => {
+            .if(search, (q) => {
                 q.where((sub) => {
                     sub
                         .whereILike('users.name', `%${search}%`)
@@ -44,75 +62,13 @@ export default class FriendService {
             friendship_id: u.$extras.friendship_id,
             friendship_status: u.$extras.friendship_status,
             friendship_blocker_id: u.$extras.friendship_blocker_id,
-        }))
-    }
- 
-    public async accepted(user: User) {
-        const users = await User.query()
-            .select(
-                'users.*',
-                'friendships.id as friendship_id',
-                'friendships.status as friendship_status',
-                'friendships.blocker_id as friendship_blocker_id',
-                db.raw(`
-                        (
-                            select uc1.chat_id
-                            from user_chats uc1
-                            join user_chats uc2 on uc1.chat_id = uc2.chat_id
-                            where uc1.user_id = ? and uc2.user_id = users.id
-                            limit 1
-                        ) as chat_id
-                        `, [user.id])
-            )
-            .innerJoin('friendships', (join) => {
-                join.on((q) => {
-                    q.on('users.id', '=', 'friendships.send_to')
-                        .orOn('users.id', '=', 'friendships.send_by')
-                })
-            })
-            .where((q) => {
-                q.where('friendships.send_by', user.id as string)
-                    .orWhere('friendships.send_to', user.id as string)
-            })
-            .andWhereNot('users.id', user.id as string)
-            .andWhere((q) => {
-                q.whereNull('friendships.blocker_id')
-                    .orWhere('friendships.blocker_id', user.id as string)
-            })
-            .andWhere((q) => {
-                q.where('friendships.status', 'a')
-                    .orWhere('friendships.status', 'b')
-            })
-            .orderBy('friendships.created_at', 'desc')
-
-        return users.map((u) => ({
-            ...u.serialize(),
-            friendship_id: u.$extras.friendship_id,
-            friendship_status: u.$extras.friendship_status,
-            friendship_blocker_id: u.$extras.friendship_blocker_id,
             chat_id: u.$extras.chat_id,
-        }))
-    }
-
-    public async pending(user: User) {
-        const users = await User.query()
-            .select('users.*', 'friendships.id as friendship_id')
-            .innerJoin('friendships', (join) => {
-                join
-                    .on((q) => {
-                        q.on('users.id', '=', 'friendships.send_by')
-                            .orOn('users.id', '=', 'friendships.send_to')
-                    })
-            })
-            .where('friendships.send_to', user.id as string)
-            .andWhere('friendships.status', 'p')
-            .andWhereNot('users.id', user.id as string)
-            .orderBy('friendships.created_at', 'desc')
-
-        return users.map((u) => ({
-            ...u.serialize(),
-            friendship_id: u.$extras.friendship_id,
-        }))
+        })) as (User & {
+            friendship_id: string,
+            friendship_status: string,
+            friendship_blocker_id: string,
+            chat_id: string,
+        })[]
     }
 
     public async send_solicitation(currentUser: User, friendId: string) {
@@ -130,8 +86,7 @@ export default class FriendService {
     }
 
     public async refuse(friendship: Friendship) {
-        friendship.status = FriendshipStatus.Refused
-        await friendship.save()
+        await friendship.delete()
     }
 
     public async block(friendship: Friendship, blocker_id: string) {

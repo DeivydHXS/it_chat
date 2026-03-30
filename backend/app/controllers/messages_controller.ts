@@ -3,16 +3,29 @@ import ResponseService from '#services/response_service'
 import Message from '#models/message'
 import Ws from '#services/ws_service'
 import Chat from '#models/chat'
+import db from '@adonisjs/lucid/services/db'
 
 export default class MessagesController {
-  public async index({ response, params }: HttpContext) {
+  public async index({ request, response, params }: HttpContext) {
     try {
       const { chatId } = params
+
+      const page = Number(request.input('page', 1))
+      const limit = Number(request.input('limit', 10))
+
+      if (isNaN(page) || isNaN(limit) || page < 1 || limit < 1) {
+        return ResponseService.send(response, 400, 'Parâmetros de paginação inválidos.', { errors: 'Parâmetros de paginação inválidos.' })
+      }
+
       const messages = await Message.query()
         .where('chat_id', chatId)
-        .orderBy('created_at', 'asc')
+        .preload('user')
+        .orderBy('created_at', 'desc')
+        .paginate(page, limit)
 
-      ResponseService.send(response, 200, 'Histórico de mensagens', { messages })
+      const result = messages.toJSON()
+
+      return ResponseService.send(response, 200, 'Histórico de mensagens', result)
     } catch (err) {
       ResponseService.error(response, err)
     }
@@ -31,6 +44,8 @@ export default class MessagesController {
         content: content,
       })
 
+      await message.load('user')
+
       Ws.io?.to(`chat:${chatId}`).emit('message', message)
 
       const chat = await Chat.query()
@@ -39,8 +54,33 @@ export default class MessagesController {
         .firstOrFail()
 
       for (const user of chat.users) {
-        Ws.io?.to(`user:${user.id}`).emit('new_message', message)
+        Ws.io?.to(`user:${user.id}`).emit('new_message', { message: { ...message.serialize() } })
       }
+
+      const userChats = await db.from('user_chats').where('chat_id', chatId)
+      for (const uc of userChats) {
+        if (uc.user_id !== currentUser.id) {
+          const unreadCount = await db
+            .from('messages')
+            .where('chat_id', chatId)
+            .andWhere('user_id', '!=', uc.user_id)
+            .andWhere('created_at', '>', db.raw(`
+        COALESCE(
+          (SELECT created_at FROM messages WHERE id = ? LIMIT 1),
+          FROM_UNIXTIME(0)
+        )
+      `, [uc.last_read_message_id]))
+            .count('* as total')
+            .first()
+
+          Ws.io?.to(`user:${uc.user_id}`).emit('chat_unread_update', {
+            chat_id: chatId,
+            unread_count: unreadCount.total,
+          })
+        }
+      }
+
+
 
       ResponseService.send(response, 200, 'Mensagem enviada.', { message })
     } catch (err) {
@@ -56,12 +96,12 @@ export default class MessagesController {
       const message = await Message.find(messageId)
 
       if (!message) {
-        ResponseService.send(response, 404, 'Mensagem não encontrada.', { })
+        ResponseService.send(response, 404, 'Mensagem não encontrada.', {})
         return
       }
 
       if (message?.user_id !== currentUser.id) {
-        ResponseService.send(response, 403, 'Você não é o dono dessa mensagem.', { })
+        ResponseService.send(response, 403, 'Você não é o dono dessa mensagem.', {})
         return
       }
 

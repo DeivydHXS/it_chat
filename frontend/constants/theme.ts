@@ -3,7 +3,7 @@
  * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
  */
 
-import { Platform, StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native'
 
 
 export const Colors = {
@@ -18,7 +18,7 @@ export const Colors = {
   gray5: '#E0E0E0',
   check: '#27AE60',
   textOnInput: '#1F2024',
-};
+}
 
 export const Fonts = Platform.select({
   ios: {
@@ -43,7 +43,7 @@ export const Fonts = Platform.select({
     rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
   },
-});
+})
 
 export const mainStyles = StyleSheet.create({
   container: {
@@ -72,4 +72,4 @@ export const mainStyles = StyleSheet.create({
     paddingVertical: 24,
     gap: 16,
   },
-});  
+})

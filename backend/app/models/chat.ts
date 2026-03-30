@@ -20,25 +20,26 @@ export default class Chat extends BaseModel {
   declare type: string
 
   @column()
-  declare name: string | null
-  
+  declare name: string
+
   @column()
   declare description: string | null
 
-  @column()
+  @column({ serializeAs: 'cover_image_url' })
   declare cover_image_url: string | null
 
-  @column()
+  @column({ serializeAs: 'icon_image_url' })
   declare icon_image_url: string | null
 
-  @column.dateTime({ autoCreate: true })
+  @column.dateTime({ serializeAs: 'created_at', autoCreate: true })
   declare createdAt: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @column.dateTime({ serializeAs: 'updated_at', autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 
   @manyToMany(() => User, {
-    pivotTable: 'user_chats'
+    pivotTable: 'user_chats',
+    pivotColumns: ['permission_type', 'created_at', 'updated_at'],
   })
   declare users: ManyToMany<typeof User>
 

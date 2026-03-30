@@ -8,13 +8,11 @@ import * as Clipboard from 'expo-clipboard'
 
 interface MessageItemProps {
   isMine: boolean
-  user?: UserInterface
-  friend?: UserInterface
   mes: MessageInterface
   onDeleteMessage?: (mes: MessageInterface) => void
 }
 
-export function MessageItem({ isMine, user, friend, mes, onDeleteMessage }: MessageItemProps) {
+export function MessageItem({ isMine, mes, onDeleteMessage }: MessageItemProps) {
   const [modalVisible, setModalVisible] = useState(false)
   const slideAnim = useRef(new Animated.Value(0)).current
 
@@ -47,7 +45,7 @@ export function MessageItem({ isMine, user, friend, mes, onDeleteMessage }: Mess
 
   const translateY = slideAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [300, 0], // sobe de baixo
+    outputRange: [300, 0],
   })
 
   return (
@@ -68,7 +66,7 @@ export function MessageItem({ isMine, user, friend, mes, onDeleteMessage }: Mess
         }}
       >
         <Text style={{ color: isMine ? Colors.light : Colors.dark, fontWeight: 'bold' }}>
-          {isMine ? user?.name : friend?.name}
+          {mes.user?.name}
         </Text>
         <Text style={{ color: isMine ? Colors.light : Colors.dark }}>{mes.content}</Text>
       </Pressable>

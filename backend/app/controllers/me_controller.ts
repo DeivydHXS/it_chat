@@ -42,11 +42,12 @@ export default class MeController {
                 const outputPath = path.join(app.makePath('storage/profile_images'), fileName)
 
                 await sharp(payload.profile_image.tmpPath!)
-                    .toFormat('webp', { quality: 80 })
+                    .rotate()
+                    .toFormat('webp', { quality: 80, })
                     .toFile(outputPath)
 
                 profileImageUrl = `/uploads/profile_images/${fileName}`
-            } else {
+            } else if (payload.remove_image) {
                 if (user.profile_image_url) {
                     const oldPath = path.join(app.makePath('storage/profile_images'), path.basename(user.profile_image_url))
                     if (fs.existsSync(oldPath)) {
@@ -57,7 +58,12 @@ export default class MeController {
                 }
             }
 
-            const res = await this.userService.update(user, { ...payload, profile_image_url: profileImageUrl })
+            const res = await this.userService.update(user, {
+                name: payload.name,
+                nickname: payload.nickname,
+                bio: payload.bio ? payload.bio : '',
+                profile_image_url: profileImageUrl
+            })
             ResponseService.send(response, 200, 'Usuário atualizado com sucesso.', { user: { ...res } })
         } catch (error) {
             ResponseService.error(response, error)
@@ -82,7 +88,13 @@ export default class MeController {
 
     public async delete({ response, auth }: HttpContext) {
         const user = await auth.authenticateUsing(['api'])
+
+        if (!user) {
+            ResponseService.send(response, 401, 'Usuário deletado com sucesso!', { errors: { auth: 'Credenciais inválidas.' } })
+            return
+        }
+
         await this.userService.delete(user)
-        ResponseService.send(response, 200, 'Conta de usuário deletada.', { user })
+        ResponseService.send(response, 200, 'Usuário deletado com sucesso!', { user })
     }
 }

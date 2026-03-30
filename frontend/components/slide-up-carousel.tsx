@@ -1,13 +1,13 @@
-import React, { useRef, useEffect } from 'react';
-import { Animated, StyleSheet, View, Button, Pressable, Text } from 'react-native';
-import WellcomeCarousel from './wellcome-carousel';
+import React, { useRef, useEffect } from 'react'
+import { Animated, StyleSheet, View, Button, Pressable, Text } from 'react-native'
+import WellcomeCarousel from './wellcome-carousel'
 
 interface SlideProps {
   handleAtive: () => void
 }
 
 const SlideUpCarousel = (props: SlideProps) => {
-  const translateY = useRef(new Animated.Value(550)).current;
+  const translateY = useRef(new Animated.Value(550)).current
 
   const slideUp = () => {
     props.handleAtive()
@@ -15,8 +15,8 @@ const SlideUpCarousel = (props: SlideProps) => {
       toValue: 0,
       duration: 500,
       useNativeDriver: true,
-    }).start();
-  };
+    }).start()
+  }
 
   return (
     <View style={styles.container}>
@@ -32,8 +32,8 @@ const SlideUpCarousel = (props: SlideProps) => {
         <WellcomeCarousel />
       </Animated.View>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -62,6 +62,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
   },
-});
+})
 
-export default SlideUpCarousel;
+export default SlideUpCarousel
